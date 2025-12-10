@@ -14,6 +14,7 @@ import AccountsTrades from "./pages/AccountsTrades";
 import Compliance from "./pages/Compliance";
 import AuditLog from "./pages/AuditLog";
 import Settings from "./pages/Settings";
+import TrustDeposits from "./pages/TrustDeposits";
 import { AuthProvider } from "./context/AuthContext";
 import { InterfaceProvider } from "./context/InterfaceContext";
 
@@ -68,13 +69,14 @@ const App = () => {
               {isAuthenticated ? (
                 <BrowserRouter>
                   <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/clients" element={<Clients />} />
-                    <Route path="/plans" element={<Plans />} />
-                    <Route path="/accounts-trades" element={<AccountsTrades />} />
-                    <Route path="/compliance" element={<Compliance />} />
-                    <Route path="/audit-log" element={<AuditLog />} />
-                    <Route path="/settings" element={<Settings />} />
+                  <Route path="/" element={<Index />} />
+                  <Route path="/clients" element={<Clients />} />
+                  <Route path="/plans" element={<Plans />} />
+                  <Route path="/accounts-trades" element={<AccountsTrades />} />
+                  <Route path="/compliance" element={<Compliance />} />
+                  <Route path="/audit-log" element={<AuditLog />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/trust-deposits" element={<TrustDeposits />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>

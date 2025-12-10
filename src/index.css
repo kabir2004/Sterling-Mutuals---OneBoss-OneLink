@@ -179,6 +179,22 @@
     border-bottom: none !important;
   }
 
+  /* Smooth dropdown animations */
+  .clients-dropdown-container {
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  .clients-dropdown-container.clients-expanded {
+    max-height: 500px;
+    opacity: 1;
+  }
+
+  .clients-dropdown-container.clients-collapsed {
+    max-height: 0;
+    opacity: 0;
+  }
+
   /* Chart legend text color */
   .recharts-legend-item-text {
     color: #000000 !important;

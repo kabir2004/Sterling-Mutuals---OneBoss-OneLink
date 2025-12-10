@@ -22,6 +22,15 @@ import {
   Search,
   ChevronDown,
   ChevronUp,
+  ArrowLeftRight,
+  Wallet,
+  UserPlus,
+  Building2,
+  FileCheck,
+  BookOpen,
+  DollarSign,
+  Bell,
+  HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -29,7 +38,77 @@ import { CLIENTS } from '@/pages/Clients';
 import { getInterfaceDisplayName } from '@/components/InterfaceSwitcher';
 import { useInterface } from '@/context/InterfaceContext';
 
-const menuItems = [
+// OneBoss menu items
+const oneBossMenuItems = [
+  {
+    title: 'Dashboard',
+    icon: LayoutDashboard,
+    path: '/',
+  },
+  {
+    title: 'Clients',
+    icon: Users,
+    path: '/clients',
+  },
+  {
+    title: 'Trust Deposits',
+    icon: Wallet,
+    path: '/trust-deposits',
+  },
+  {
+    title: 'Plans',
+    icon: FileText,
+    path: '/plans',
+  },
+  {
+    title: 'Trades',
+    icon: ArrowLeftRight,
+    path: '/trades',
+  },
+  {
+    title: 'Prospects',
+    icon: UserPlus,
+    path: '/prospects',
+  },
+  {
+    title: 'Ensemble',
+    icon: Building2,
+    path: '/ensemble',
+  },
+  {
+    title: 'KYP',
+    icon: FileCheck,
+    path: '/kyp',
+  },
+  {
+    title: 'Resources',
+    icon: BookOpen,
+    path: '/resources',
+  },
+  {
+    title: 'Earnings',
+    icon: DollarSign,
+    path: '/earnings',
+  },
+  {
+    title: 'Notices',
+    icon: Bell,
+    path: '/notices',
+  },
+  {
+    title: 'Settings',
+    icon: Settings,
+    path: '/settings',
+  },
+  {
+    title: 'Support',
+    icon: HelpCircle,
+    path: '/support',
+  },
+];
+
+// Legacy menu items (for backward compatibility)
+const legacyMenuItems = [
   {
     title: 'Dashboard',
     icon: LayoutDashboard,
@@ -72,7 +151,20 @@ export function SidebarNavigation() {
   const location = useLocation();
   const [isClientsExpanded, setIsClientsExpanded] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const { currentInterface } = useInterface();
+  const { currentInterface, isIntermediaryInterface } = useInterface();
+
+  // Auto-expand clients dropdown when on clients page
+  useEffect(() => {
+    if (location.pathname === '/clients') {
+      setIsClientsExpanded(true);
+    }
+  }, [location.pathname]);
+
+
+  // Use OneBoss menu items for OneBoss interfaces, legacy for others
+  const menuItems = (currentInterface === 'oneboss-dealer' || currentInterface === 'oneboss-advisor') 
+    ? oneBossMenuItems 
+    : legacyMenuItems;
 
   // Helper function to parse name into first and last name
   const parseName = (name: string) => {
@@ -145,8 +237,10 @@ export function SidebarNavigation() {
                         )}
                       </SidebarMenuButton>
                       
-                      {isClients && isClientsExpanded && (
-                        <div className="mx-2 mt-1 space-y-1 group-data-[collapsible=icon]:hidden">
+                      {isClients && (
+                        <div className={`mx-2 mt-1 space-y-1 group-data-[collapsible=icon]:hidden clients-dropdown-container ${
+                          isClientsExpanded ? 'clients-expanded' : 'clients-collapsed'
+                        }`}>
                           <div className="space-y-1.5 px-1">
                             <Button
                               size="sm"
@@ -165,36 +259,38 @@ export function SidebarNavigation() {
                               Advanced Search
                             </Button>
                           </div>
-                          <ScrollArea className="h-[200px] mt-1.5">
-                            <div className="space-y-0.5 px-1">
-                              {CLIENTS.slice(0, 10).map((client) => {
-                                const { firstName, lastName } = parseName(client.name);
-                                const isSelected = selectedClientId === client.id;
-                                return (
-                                  <div
-                                    key={client.id}
-                                    onClick={() => handleClientClick(client.id)}
-                                    className={`flex items-center justify-between p-1.5 rounded text-xs cursor-pointer transition-colors ${
-                                      isSelected
-                                        ? 'bg-gray-100'
-                                        : 'hover:bg-gray-50'
-                                    }`}
-                                  >
-                                    <div className="flex-1 min-w-0 truncate text-gray-900">
-                                      {lastName}, {firstName}
+                          <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-sm transition-all duration-300 ease-in-out">
+                            <ScrollArea className="h-[200px]">
+                              <div className="space-y-0.5 p-2">
+                                {CLIENTS.slice(0, 10).map((client) => {
+                                  const { firstName, lastName } = parseName(client.name);
+                                  const isSelected = selectedClientId === client.id;
+                                  return (
+                                    <div
+                                      key={client.id}
+                                      onClick={() => handleClientClick(client.id)}
+                                      className={`flex items-center justify-between p-2 rounded-md text-xs cursor-pointer transition-colors ${
+                                        isSelected
+                                          ? 'bg-gray-100 border border-gray-300'
+                                          : 'hover:bg-gray-50 border border-transparent'
+                                      }`}
+                                    >
+                                      <div className="flex-1 min-w-0 truncate text-gray-900 font-medium">
+                                        {lastName}, {firstName}
+                                      </div>
+                                      <div className="ml-2 flex-shrink-0">
+                                        <div className={`h-2 w-2 rounded-full ${
+                                          client.status === 'Active' ? 'bg-green-500' :
+                                          client.status === 'Inactive' ? 'bg-gray-400' :
+                                          'bg-yellow-500'
+                                        }`} />
+                                      </div>
                                     </div>
-                                    <div className="ml-1.5 flex-shrink-0">
-                                      <div className={`h-1.5 w-1.5 rounded-full ${
-                                        client.status === 'Active' ? 'bg-green-500' :
-                                        client.status === 'Inactive' ? 'bg-gray-400' :
-                                        'bg-yellow-500'
-                                      }`} />
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </ScrollArea>
+                                  );
+                                })}
+                              </div>
+                            </ScrollArea>
+                          </div>
                         </div>
                       )}
                     </div>
