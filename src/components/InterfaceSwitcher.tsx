@@ -1,0 +1,126 @@
+import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { useInterface } from '@/context/InterfaceContext';
+
+export type InterfaceType = 
+  | 'intermediary-dealer'
+  | 'intermediary-advisor'
+  | 'intermediary-client'
+  | 'oneboss-dealer'
+  | 'oneboss-advisor';
+
+interface InterfaceOption {
+  id: InterfaceType;
+  label: string;
+  available: boolean;
+}
+
+const interfaceOptions: InterfaceOption[] = [
+  {
+    id: 'intermediary-dealer',
+    label: 'Intermediary Customer: Dealer',
+    available: true,
+  },
+  {
+    id: 'intermediary-advisor',
+    label: 'Intermediary Customer: Advisor',
+    available: true,
+  },
+  {
+    id: 'intermediary-client',
+    label: 'Intermediary Customer: Client',
+    available: false, // To be built later
+  },
+  {
+    id: 'oneboss-dealer',
+    label: 'OneBoss Dealer',
+    available: true,
+  },
+  {
+    id: 'oneboss-advisor',
+    label: 'OneBoss Advisor',
+    available: true,
+  },
+];
+
+export const getInterfaceDisplayName = (interfaceType: InterfaceType): string => {
+  const option = interfaceOptions.find(opt => opt.id === interfaceType);
+  return option?.label || 'OneBoss RepWeb';
+};
+
+export function InterfaceSwitcher() {
+  const { currentInterface, setCurrentInterface } = useInterface();
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  const handleSelectInterface = (interfaceType: InterfaceType) => {
+    const option = interfaceOptions.find(opt => opt.id === interfaceType);
+    if (option?.available) {
+      setCurrentInterface(interfaceType);
+      // Navigate to dashboard when switching to intermediary interface
+      if (interfaceType.startsWith('intermediary-')) {
+        window.location.href = '/';
+      }
+    }
+  };
+
+  const currentDisplayName = getInterfaceDisplayName(currentInterface);
+
+  return (
+    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 text-gray-600 hover:text-gray-900"
+        >
+          <ShoppingCart className="h-5 w-5" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[320px] p-0" align="end">
+        <div className="p-4 border-b border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-900">Switch Interface</h3>
+          <p className="text-xs text-gray-600 mt-1">Current: {currentDisplayName}</p>
+        </div>
+        <div className="p-2">
+          <div className="space-y-1">
+            {interfaceOptions.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => {
+                  handleSelectInterface(option.id);
+                  if (option.available) {
+                    setIsPopoverOpen(false);
+                  }
+                }}
+                disabled={!option.available}
+                className={cn(
+                  "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between",
+                  option.available
+                    ? "hover:bg-gray-100 text-gray-900 cursor-pointer"
+                    : "text-gray-400 cursor-not-allowed opacity-50",
+                  currentInterface === option.id && "bg-gray-100"
+                )}
+              >
+                <span>{option.label}</span>
+                {currentInterface === option.id && option.available && (
+                  <Check className="h-4 w-4 text-blue-600" />
+                )}
+                {!option.available && (
+                  <span className="text-xs text-gray-400">(Coming Soon)</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
