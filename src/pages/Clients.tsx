@@ -31,14 +31,16 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Plus, UploadCloud, Eye, Pencil, FileUp, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, ArrowLeftRight, FileText, X, CheckCircle2, Search, ArrowLeft, DollarSign, AlertTriangle, Home, Trash2, Clock, AlertCircle, FileCheck, PenTool } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Loader2, Plus, UploadCloud, Eye, Pencil, FileUp, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, ArrowLeftRight, FileText, X, CheckCircle2, Search, ArrowLeft, DollarSign, AlertTriangle, Home, Trash2, Clock, AlertCircle, FileCheck, PenTool, ArrowRight, Sparkles } from "lucide-react";
 
 type DocumentStatus = "Uploaded" | "Required" | "Missing";
 type ClientStatus = "Active" | "Inactive" | "Prospect";
-type PlanType = "RRSP" | "RESP" | "TFSA" | "RRIF" | "Non-Registered" | "LIRA" | "LIF";
+type PlanType = "RRSP" | "RESP" | "TFSA" | "RRIF" | "Non-Registered" | "LIRA" | "LIF" | "OPEN" | "LRIF";
 
 type Fund = {
   symbol: string;
@@ -1295,7 +1297,35 @@ const Clients = () => {
   const [showBuyUnits, setShowBuyUnits] = useState(false);
   const [showSellUnits, setShowSellUnits] = useState(false);
   const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
+  const [showDepositDialog, setShowDepositDialog] = useState(false);
+  const [depositAmount, setDepositAmount] = useState("0.00");
   const [showSellOrderConfirmation, setShowSellOrderConfirmation] = useState(false);
+  const [showAddPlanDialog, setShowAddPlanDialog] = useState(false);
+  const [showAddProductAfterPlan, setShowAddProductAfterPlan] = useState(false);
+  const [showAddProductDialog, setShowAddProductDialog] = useState(false);
+  const [selectedPlanForProduct, setSelectedPlanForProduct] = useState<Plan | null>(null);
+  const [addProductData, setAddProductData] = useState({
+    fundCompany: "",
+    selectedFund: "",
+    investmentAmount: "",
+  });
+  const [orderConfirmationSource, setOrderConfirmationSource] = useState<"after-plan" | "standalone" | null>(null);
+  const [fundSearchOpen, setFundSearchOpen] = useState(false);
+  const [fundSearchOpenAfterPlan, setFundSearchOpenAfterPlan] = useState(false);
+  const [pendingOrderConfirmation, setPendingOrderConfirmation] = useState(false);
+  const [addPlanStep, setAddPlanStep] = useState<"select-type" | 1 | 2 | 3>("select-type");
+  const [selectedPlanType, setSelectedPlanType] = useState<PlanType | "">("");
+  const [newPlanData, setNewPlanData] = useState({
+    ownerName: "",
+    beneficiaryName: "",
+    intermediaryCode: "",
+    intermediaryAccountCode: "",
+    notes: "",
+    objectives: "",
+    riskTolerance: "",
+    timeHorizon: "",
+  });
+  const [newlyCreatedPlan, setNewlyCreatedPlan] = useState<{ planType: string; planId: string; accountNumber: string; owner: string } | null>(null);
   const [selectedHolding, setSelectedHolding] = useState<{ holding: Holding; plan: Plan } | null>(null);
   const [buyOrderData, setBuyOrderData] = useState<{
     investmentAmount: string;
@@ -2623,9 +2653,34 @@ const Clients = () => {
                             {Array.isArray(selectedClient.plans) && selectedClient.plans.length > 0 && (
                               <Card className="border border-gray-200 shadow-sm bg-white">
                                 <CardHeader className="pb-3">
-                                  <CardTitle className="text-sm font-semibold text-gray-900">
-                                    Plans ({selectedClient.plans.length})
-                                  </CardTitle>
+                                  <div className="flex items-center justify-between">
+                                    <CardTitle className="text-sm font-semibold text-gray-900">
+                                      Plans ({selectedClient.plans.length})
+                                    </CardTitle>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      className="text-xs h-7"
+                                      onClick={() => {
+                                        setShowAddPlanDialog(true);
+                                        setAddPlanStep("select-type");
+                                        setSelectedPlanType("");
+                                        setNewPlanData({
+                                          ownerName: selectedClient.name.split(' ')[0] || "",
+                                          beneficiaryName: "",
+                                          intermediaryCode: "",
+                                          intermediaryAccountCode: "",
+                                          notes: "",
+                                          objectives: "",
+                                          riskTolerance: "",
+                                          timeHorizon: "",
+                                        });
+                                      }}
+                                    >
+                                      <Plus className="h-3 w-3 mr-1" />
+                                      Add Plan
+                                    </Button>
+                                  </div>
                                 </CardHeader>
                                 <CardContent>
                                   <div className="space-y-3">
@@ -2784,7 +2839,13 @@ const Clients = () => {
                                                           size="sm"
                                                           className="h-8 text-xs"
                                                           onClick={() => {
-                                                            // Add product functionality
+                                                            setSelectedPlanForProduct(plan);
+                                                            setShowAddProductDialog(true);
+                                                            setAddProductData({
+                                                              fundCompany: "",
+                                                              selectedFund: "",
+                                                              investmentAmount: "",
+                                                            });
                                                           }}
                                                         >
                                                           <Plus className="h-3 w-3 mr-1" />
@@ -2872,7 +2933,15 @@ const Clients = () => {
 
                                                 {/* Deposit Button */}
                                                 <div className="mt-4 flex justify-center">
-                                                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                                                  <Button 
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                                    onClick={(e) => {
+                                                      e.preventDefault();
+                                                      e.stopPropagation();
+                                                      setShowDepositDialog(true);
+                                                    }}
+                                                    type="button"
+                                                  >
                                                     <Plus className="h-4 w-4 mr-2" />
                                                     Deposit
                                                   </Button>
@@ -5631,6 +5700,935 @@ const Clients = () => {
               className="w-full bg-gray-900 hover:bg-gray-800"
             >
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Deposit Dialog */}
+      <Dialog open={showDepositDialog} onOpenChange={setShowDepositDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              $ Deposit to Trust Account
+            </DialogTitle>
+            <DialogDescription>
+              Add funds to the client's trust account
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="deposit-amount">Amount (CAD)</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <Input
+                  id="deposit-amount"
+                  type="text"
+                  value={`$${depositAmount}`}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                    if (value === '' || value === '.') {
+                      setDepositAmount('0.00');
+                    } else {
+                      const numValue = parseFloat(value);
+                      if (!isNaN(numValue)) {
+                        setDepositAmount(numValue.toFixed(2));
+                      }
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                    if (value === '' || value === '.') {
+                      setDepositAmount('0.00');
+                    } else {
+                      const numValue = parseFloat(value);
+                      if (!isNaN(numValue)) {
+                        setDepositAmount(numValue.toFixed(2));
+                      }
+                    }
+                  }}
+                  className="pl-8 text-lg font-medium"
+                  placeholder="$0.00"
+                  autoFocus
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDepositDialog(false);
+                setDepositAmount("0.00");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => {
+                // Handle deposit logic here
+                setShowDepositDialog(false);
+                setDepositAmount("0.00");
+              }}
+            >
+              Deposit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Plan - Step 0: Select Plan Type */}
+      <Dialog open={showAddPlanDialog && addPlanStep === "select-type"} onOpenChange={(open) => {
+        if (!open) {
+          setShowAddPlanDialog(false);
+          setAddPlanStep("select-type");
+          setSelectedPlanType("");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Plan Type</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="plan-type-select">Plan Type</Label>
+              <Select
+                value={selectedPlanType}
+                onValueChange={(value) => {
+                  setSelectedPlanType(value as PlanType);
+                }}
+              >
+                <SelectTrigger id="plan-type-select">
+                  <SelectValue placeholder="Select a plan type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="RRSP">RRSP</SelectItem>
+                  <SelectItem value="RRIF">RRIF</SelectItem>
+                  <SelectItem value="OPEN">OPEN</SelectItem>
+                  <SelectItem value="TFSA">TFSA</SelectItem>
+                  <SelectItem value="LRIF">LRIF</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddPlanDialog(false);
+                setAddPlanStep("select-type");
+                setSelectedPlanType("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedPlanType) {
+                  setAddPlanStep(1);
+                }
+              }}
+              disabled={!selectedPlanType}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Next
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Plan - Step 1 of 3 */}
+      <Dialog open={showAddPlanDialog && addPlanStep === 1} onOpenChange={(open) => {
+        if (!open) {
+          setShowAddPlanDialog(false);
+          setAddPlanStep("select-type");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Plan Setup - {selectedPlanType} (Step 1 of 3)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="owner-name">
+                Owner/Annuitant Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="owner-name"
+                value={newPlanData.ownerName}
+                onChange={(e) => setNewPlanData({ ...newPlanData, ownerName: e.target.value })}
+                placeholder="Enter owner/annuitant name"
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="beneficiary-name">
+                Beneficiary Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="beneficiary-name"
+                value={newPlanData.beneficiaryName}
+                onChange={(e) => setNewPlanData({ ...newPlanData, beneficiaryName: e.target.value })}
+                placeholder="Enter beneficiary name"
+                className="text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAddPlanStep("select-type");
+              }}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddPlanDialog(false);
+                setAddPlanStep("select-type");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (newPlanData.ownerName && newPlanData.beneficiaryName) {
+                  setAddPlanStep(2);
+                }
+              }}
+              disabled={!newPlanData.ownerName || !newPlanData.beneficiaryName}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Next
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Plan - Step 2 of 3 */}
+      <Dialog open={showAddPlanDialog && addPlanStep === 2} onOpenChange={(open) => {
+        if (!open) {
+          setShowAddPlanDialog(false);
+          setAddPlanStep("select-type");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Plan Setup - {selectedPlanType} (Step 2 of 3)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="intermediary-code">
+                Intermediary Code <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="intermediary-code"
+                value={newPlanData.intermediaryCode}
+                onChange={(e) => {
+                  const value = e.target.value.slice(0, 10);
+                  setNewPlanData({ ...newPlanData, intermediaryCode: value });
+                }}
+                placeholder="Enter intermediary code (max 10 characters)"
+                className="text-sm"
+                maxLength={10}
+              />
+              <p className="text-xs text-gray-500">{newPlanData.intermediaryCode.length}/10 characters</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="intermediary-account-code">
+                Intermediary Account Code <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="intermediary-account-code"
+                value={newPlanData.intermediaryAccountCode}
+                onChange={(e) => {
+                  const value = e.target.value.slice(0, 10);
+                  setNewPlanData({ ...newPlanData, intermediaryAccountCode: value });
+                }}
+                placeholder="Enter intermediary account code (max 10 characters)"
+                className="text-sm"
+                maxLength={10}
+              />
+              <p className="text-xs text-gray-500">{newPlanData.intermediaryAccountCode.length}/10 characters</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setAddPlanStep(1)}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddPlanDialog(false);
+                setAddPlanStep("select-type");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (newPlanData.intermediaryCode && newPlanData.intermediaryAccountCode) {
+                  setAddPlanStep(3);
+                }
+              }}
+              disabled={!newPlanData.intermediaryCode || !newPlanData.intermediaryAccountCode}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Next
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Plan - Step 3 of 3 */}
+      <Dialog open={showAddPlanDialog && addPlanStep === 3} onOpenChange={(open) => {
+        if (!open) {
+          setShowAddPlanDialog(false);
+          setAddPlanStep("select-type");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Plan Setup - {selectedPlanType} (Step 3 of 3)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Textarea
+                id="notes"
+                value={newPlanData.notes}
+                onChange={(e) => setNewPlanData({ ...newPlanData, notes: e.target.value })}
+                placeholder="Enter any additional notes..."
+                className="text-sm min-h-[80px]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="objectives">
+                Objectives <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="objectives"
+                value={newPlanData.objectives}
+                onChange={(e) => setNewPlanData({ ...newPlanData, objectives: e.target.value })}
+                placeholder="Enter plan objectives"
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="risk-tolerance">
+                Risk Tolerance <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={newPlanData.riskTolerance}
+                onValueChange={(value) => setNewPlanData({ ...newPlanData, riskTolerance: value })}
+              >
+                <SelectTrigger id="risk-tolerance">
+                  <SelectValue placeholder="Select risk tolerance..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Conservative">Conservative</SelectItem>
+                  <SelectItem value="Moderate">Moderate</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Aggressive">Aggressive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="time-horizon">
+                Time Horizon (Years) <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="time-horizon"
+                type="number"
+                value={newPlanData.timeHorizon}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '' || (parseInt(value) >= 1 && parseInt(value) <= 50)) {
+                    setNewPlanData({ ...newPlanData, timeHorizon: value });
+                  }
+                }}
+                placeholder="Enter time horizon (1-50 years)"
+                className="text-sm"
+                min={1}
+                max={50}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setAddPlanStep(2)}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddPlanDialog(false);
+                setAddPlanStep("select-type");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (newPlanData.objectives && newPlanData.riskTolerance && newPlanData.timeHorizon) {
+                  // Generate plan ID and account number
+                  const planId = `PLN-${Date.now()}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+                  const accountNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+                  
+                  // Create the new plan
+                  const newPlan: Plan = {
+                    id: planId,
+                    type: selectedPlanType as PlanType,
+                    accountNumber: accountNumber,
+                    marketValue: 0,
+                    costBasis: 0,
+                    totalGainLoss: 0,
+                    totalGainLossPercent: 0,
+                    holdings: [],
+                    planCategory: "Individual Plan",
+                    accountHolder: newPlanData.ownerName,
+                    riskLevel: newPlanData.riskTolerance,
+                    objective: newPlanData.objectives,
+                  };
+
+                  // Add plan to client
+                  setClients(prev => prev.map(client => {
+                    if (client.id === selectedClient?.id) {
+                      return {
+                        ...client,
+                        plans: [...(client.plans || []), newPlan]
+                      };
+                    }
+                    return client;
+                  }));
+
+                  // Update selected client
+                  if (selectedClient) {
+                    setSelectedClient({
+                      ...selectedClient,
+                      plans: [...(selectedClient.plans || []), newPlan]
+                    });
+                  }
+
+                  // Store newly created plan info
+                  setNewlyCreatedPlan({
+                    planType: selectedPlanType,
+                    planId: planId,
+                    accountNumber: accountNumber,
+                    owner: newPlanData.ownerName,
+                  });
+
+                  // Close add plan dialog and show add product dialog
+                  setShowAddPlanDialog(false);
+                  setAddPlanStep("select-type");
+                  setShowAddProductAfterPlan(true);
+
+                  // Reset form
+                  setNewPlanData({
+                    ownerName: selectedClient?.name.split(' ')[0] || "",
+                    beneficiaryName: "",
+                    intermediaryCode: "",
+                    intermediaryAccountCode: "",
+                    notes: "",
+                    objectives: "",
+                    riskTolerance: "",
+                    timeHorizon: "",
+                  });
+                  
+                  // Reset add product data for the after-plan dialog
+                  setAddProductData({ fundCompany: "", selectedFund: "", investmentAmount: "" });
+                setFundSearchOpen(false);
+                setFundSearchOpenAfterPlan(false);
+                }
+              }}
+              disabled={!newPlanData.objectives || !newPlanData.riskTolerance || !newPlanData.timeHorizon}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Product After Plan Creation */}
+      <Dialog 
+        open={showAddProductAfterPlan} 
+        onOpenChange={(open) => {
+          setShowAddProductAfterPlan(open);
+          if (!open && pendingOrderConfirmation && orderConfirmationSource === "after-plan") {
+            setPendingOrderConfirmation(false);
+            setTimeout(() => {
+              setShowOrderConfirmation(true);
+            }, 150);
+          } else if (!open) {
+            setPendingOrderConfirmation(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Product</DialogTitle>
+            <DialogDescription>Add a new investment product to your portfolio.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Success Message */}
+            {newlyCreatedPlan && (
+              <div className="border-2 border-green-500 rounded-lg p-4 bg-green-50">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <p className="font-bold text-green-900">New Plan Created Successfully!</p>
+                </div>
+                <div className="space-y-1 text-sm text-gray-700">
+                  <p><span className="font-medium">Plan Type:</span> {newlyCreatedPlan.planType}</p>
+                  <p><span className="font-medium">Plan ID:</span> {newlyCreatedPlan.planId}</p>
+                  <p><span className="font-medium">Account Number:</span> {newlyCreatedPlan.accountNumber}</p>
+                  <p><span className="font-medium">Owner:</span> {newlyCreatedPlan.owner}</p>
+                </div>
+                <div className="mt-3 flex items-center gap-2 text-blue-600 text-sm">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="font-medium">+ Add your first investment to this plan below</span>
+                </div>
+              </div>
+            )}
+
+            {/* Trust Account Info */}
+            <Card className="border border-gray-200">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <DollarSign className="h-5 w-5 text-gray-600" />
+                  <p className="font-semibold text-gray-900">Trust Account CAD</p>
+                </div>
+                <p className="text-2xl font-bold text-gray-900 mb-2">{formatCurrency(1250)}</p>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Settled:</span>
+                    <span className="text-green-600 font-medium">{formatCurrency(1250)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Unsettled:</span>
+                    <span className="text-orange-600 font-medium">{formatCurrency(0)}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Form Fields */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="fund-company-after-plan">Select Fund Company</Label>
+                <Select
+                  value={addProductData.fundCompany}
+                  onValueChange={(value) => {
+                    setAddProductData({ ...addProductData, fundCompany: value, selectedFund: "" });
+                    setFundSearchOpen(false);
+                    setFundSearchOpenAfterPlan(false);
+                  }}
+                >
+                  <SelectTrigger id="fund-company-after-plan">
+                    <SelectValue placeholder="Choose a company that offers funds" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from(new Set(FUND_DATABASE.map(f => f.company))).map(company => (
+                      <SelectItem key={company} value={company}>{company}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {addProductData.fundCompany && (
+                <div className="space-y-2">
+                  <Label htmlFor="specific-fund-after-plan">Search for Specific Fund</Label>
+                  <Popover open={fundSearchOpenAfterPlan} onOpenChange={setFundSearchOpenAfterPlan}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between text-left font-normal"
+                      >
+                        {addProductData.selectedFund
+                          ? FUND_DATABASE.find(f => f.symbol === addProductData.selectedFund)?.name || "Select a fund..."
+                          : "Search for a specific fund..."}
+                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search funds..." />
+                        <CommandList>
+                          <CommandEmpty>No funds found.</CommandEmpty>
+                          <CommandGroup>
+                            {FUND_DATABASE
+                              .filter(fund => fund.company === addProductData.fundCompany)
+                              .map((fund) => (
+                                <CommandItem
+                                  key={fund.symbol}
+                                  value={`${fund.name} ${fund.symbol}`}
+                                  onSelect={() => {
+                                    setAddProductData({ ...addProductData, selectedFund: fund.symbol });
+                                    setFundSearchOpenAfterPlan(false);
+                                  }}
+                                >
+                                  <div className="flex-1">
+                                    <p className="font-medium">{fund.name}</p>
+                                    <p className="text-xs text-gray-500">{fund.symbol}</p>
+                                  </div>
+                                  {addProductData.selectedFund === fund.symbol && (
+                                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                  )}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="investment-amount-after-plan">Investment Amount ($)</Label>
+                <Input
+                  id="investment-amount-after-plan"
+                  type="text"
+                  value={addProductData.investmentAmount}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                    setAddProductData({ ...addProductData, investmentAmount: value });
+                  }}
+                  placeholder="Enter amount to invest."
+                  className="text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Order Preview */}
+            <Card className="border border-blue-200 bg-blue-50">
+              <CardContent className="p-4">
+                <p className="text-sm font-semibold text-gray-900 mb-1">Order Preview:</p>
+                <p className="text-sm text-gray-700">
+                  Amount: {addProductData.investmentAmount ? formatCurrency(parseFloat(addProductData.investmentAmount) || 0) : formatCurrency(0)}
+                </p>
+                <p className="text-xs text-gray-600 mt-1">
+                  This will purchase the selected fund with the specified amount.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddProductAfterPlan(false);
+                setNewlyCreatedPlan(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => {
+                setOrderConfirmationSource("after-plan");
+                setPendingOrderConfirmation(true);
+                setShowAddProductAfterPlan(false);
+              }}
+            >
+              Place Order
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Product Dialog */}
+      <Dialog 
+        open={showAddProductDialog} 
+        onOpenChange={(open) => {
+          setShowAddProductDialog(open);
+          if (!open && pendingOrderConfirmation && orderConfirmationSource === "standalone") {
+            setPendingOrderConfirmation(false);
+            setTimeout(() => {
+              setShowOrderConfirmation(true);
+            }, 150);
+          } else if (!open) {
+            setPendingOrderConfirmation(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5 text-blue-600" />
+              Add Product
+            </DialogTitle>
+            <DialogDescription>
+              Add a new investment product to your portfolio.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Account Overview Section */}
+            <Card className="border border-blue-200 bg-blue-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <DollarSign className="h-5 w-5 text-gray-700" />
+                  <p className="font-semibold text-gray-900">Trust Account CAD</p>
+                </div>
+                <p className="text-2xl font-bold text-gray-900 mb-3">{formatCurrency(1250)}</p>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Settled:</span>
+                    <span className="text-green-600 font-medium">{formatCurrency(1250)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Unsettled:</span>
+                    <span className="text-orange-600 font-medium">{formatCurrency(0)}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Form Fields */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-product-fund-company">Select Fund Company</Label>
+                <Select
+                  value={addProductData.fundCompany}
+                  onValueChange={(value) => {
+                    setAddProductData({ ...addProductData, fundCompany: value, selectedFund: "" });
+                    setFundSearchOpen(false);
+                    setFundSearchOpenAfterPlan(false);
+                  }}
+                >
+                  <SelectTrigger id="add-product-fund-company">
+                    <SelectValue placeholder="Choose a company that offers funds" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from(new Set(FUND_DATABASE.map(f => f.company))).map(company => (
+                      <SelectItem key={company} value={company}>{company}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {addProductData.fundCompany && (
+                <div className="space-y-2">
+                  <Label htmlFor="add-product-specific-fund">Search for Specific Fund</Label>
+                  <Popover open={fundSearchOpen} onOpenChange={setFundSearchOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between text-left font-normal"
+                      >
+                        {addProductData.selectedFund
+                          ? FUND_DATABASE.find(f => f.symbol === addProductData.selectedFund)?.name || "Select a fund..."
+                          : "Search for a specific fund..."}
+                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search funds..." />
+                        <CommandList>
+                          <CommandEmpty>No funds found.</CommandEmpty>
+                          <CommandGroup>
+                            {FUND_DATABASE
+                              .filter(fund => fund.company === addProductData.fundCompany)
+                              .map((fund) => (
+                                <CommandItem
+                                  key={fund.symbol}
+                                  value={`${fund.name} ${fund.symbol}`}
+                                  onSelect={() => {
+                                    setAddProductData({ ...addProductData, selectedFund: fund.symbol });
+                                    setFundSearchOpen(false);
+                                  }}
+                                >
+                                  <div className="flex-1">
+                                    <p className="font-medium">{fund.name}</p>
+                                    <p className="text-xs text-gray-500">{fund.symbol}</p>
+                                  </div>
+                                  {addProductData.selectedFund === fund.symbol && (
+                                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                  )}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="add-product-investment-amount">Investment Amount ($)</Label>
+                <Input
+                  id="add-product-investment-amount"
+                  type="text"
+                  value={addProductData.investmentAmount}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                    setAddProductData({ ...addProductData, investmentAmount: value });
+                  }}
+                  placeholder="Enter amount to invest."
+                  className="text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Order Preview Section */}
+            <Card className="border border-blue-200 bg-blue-50">
+              <CardContent className="p-4">
+                <p className="text-sm font-semibold text-gray-900 mb-1">Order Preview:</p>
+                <p className="text-sm text-gray-700">
+                  Amount: {addProductData.investmentAmount ? formatCurrency(parseFloat(addProductData.investmentAmount) || 0) : formatCurrency(0)}
+                </p>
+                <p className="text-xs text-gray-600 mt-1">
+                  This will purchase the selected fund with the specified amount.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddProductDialog(false);
+                setSelectedPlanForProduct(null);
+                setAddProductData({ fundCompany: "", selectedFund: "", investmentAmount: "" });
+                setFundSearchOpen(false);
+                setFundSearchOpenAfterPlan(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => {
+                setOrderConfirmationSource("standalone");
+                setPendingOrderConfirmation(true);
+                setShowAddProductDialog(false);
+              }}
+            >
+              Place Order
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Investment Order Confirmed Dialog */}
+      <Dialog open={showOrderConfirmation} onOpenChange={setShowOrderConfirmation}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-6 w-6"
+              onClick={() => {
+                setShowOrderConfirmation(false);
+                setOrderConfirmationSource(null);
+                if (orderConfirmationSource === "after-plan") {
+                  setNewlyCreatedPlan(null);
+                } else if (orderConfirmationSource === "standalone") {
+                  setSelectedPlanForProduct(null);
+                }
+                setAddProductData({ fundCompany: "", selectedFund: "", investmentAmount: "" });
+                setFundSearchOpen(false);
+                setFundSearchOpenAfterPlan(false);
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <DialogTitle className="flex items-center gap-2 text-blue-600 text-xl font-bold pr-8">
+              <CheckCircle2 className="h-6 w-6 text-green-600" />
+              Investment Order Confirmed
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Your investment order has been placed successfully
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {addProductData.selectedFund && (() => {
+              const selectedFund = FUND_DATABASE.find(f => f.symbol === addProductData.selectedFund);
+              const currentDate = new Date();
+              const formattedDate = currentDate.toLocaleDateString('en-US', { 
+                month: '2-digit', 
+                day: '2-digit', 
+                year: 'numeric' 
+              });
+              const formattedTime = currentDate.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+              });
+              const formattedDateTime = `${formattedDate}, ${formattedTime}`;
+              
+              return (
+                <div className="space-y-4">
+                  {/* Order Details Section */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-blue-600 font-medium mb-3">Order Details:</p>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-blue-600">
+                        <span className="font-medium">Company:</span> {addProductData.fundCompany}
+                      </p>
+                      <p className="text-blue-600">
+                        <span className="font-medium">Fund:</span> {selectedFund?.name || "N/A"}
+                      </p>
+                      <p className="text-blue-600">
+                        <span className="font-medium">Symbol:</span> {selectedFund?.symbol || "N/A"}
+                      </p>
+                      <p className="text-blue-600">
+                        <span className="font-medium">Amount:</span> {addProductData.investmentAmount ? formatCurrency(parseFloat(addProductData.investmentAmount) || 0) : formatCurrency(0)}
+                      </p>
+                      <p className="text-blue-600">
+                        <span className="font-medium">Time:</span> {formattedDateTime}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Processing Status Section */}
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <p className="text-orange-600 font-medium mb-2">Processing Status: Pending</p>
+                    <p className="text-orange-600 text-sm">
+                      Order will be processed at next market close
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+          <DialogFooter>
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white w-full"
+              onClick={() => {
+                setShowOrderConfirmation(false);
+                setOrderConfirmationSource(null);
+                if (orderConfirmationSource === "after-plan") {
+                  setNewlyCreatedPlan(null);
+                } else if (orderConfirmationSource === "standalone") {
+                  setSelectedPlanForProduct(null);
+                }
+                setAddProductData({ fundCompany: "", selectedFund: "", investmentAmount: "" });
+                setFundSearchOpen(false);
+                setFundSearchOpenAfterPlan(false);
+              }}
+            >
+              Done
             </Button>
           </DialogFooter>
         </DialogContent>
