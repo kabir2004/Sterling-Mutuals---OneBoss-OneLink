@@ -34,8 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Loader2, Plus, UploadCloud, Eye, Pencil, FileUp, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, ArrowLeftRight, FileText, X, CheckCircle2, Search, ArrowLeft } from "lucide-react";
+import { Loader2, Plus, UploadCloud, Eye, Pencil, FileUp, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, ArrowLeftRight, FileText, X, CheckCircle2, Search, ArrowLeft, DollarSign, AlertTriangle, Home, Trash2, Clock, AlertCircle, FileCheck, PenTool } from "lucide-react";
 
 type DocumentStatus = "Uploaded" | "Required" | "Missing";
 type ClientStatus = "Active" | "Inactive" | "Prospect";
@@ -129,6 +128,10 @@ type Plan = {
   totalGainLoss: number;
   totalGainLossPercent: number;
   holdings: Holding[];
+  planCategory?: string;
+  accountHolder?: string;
+  riskLevel?: string;
+  objective?: string;
 };
 
 type Client = {
@@ -170,6 +173,10 @@ export const CLIENTS: Client[] = [
         costBasis: 250000.00,
         totalGainLoss: 35230.80,
         totalGainLossPercent: 14.09,
+        planCategory: "Individual Plan",
+        accountHolder: "Smith, John",
+        riskLevel: "Medium",
+        objective: "Growth",
         holdings: [
           {
             symbol: "VFV.TO",
@@ -277,6 +284,10 @@ export const CLIENTS: Client[] = [
         costBasis: 100000.00,
         totalGainLoss: 25000.00,
         totalGainLossPercent: 25.00,
+        planCategory: "Individual Plan",
+        accountHolder: "Smith, John",
+        riskLevel: "Medium",
+        objective: "Growth",
         holdings: [
           {
             symbol: "VFV.TO",
@@ -324,6 +335,10 @@ export const CLIENTS: Client[] = [
         costBasis: 70000.00,
         totalGainLoss: 5000.00,
         totalGainLossPercent: 7.14,
+        planCategory: "Individual Plan",
+        accountHolder: "Smith, John",
+        riskLevel: "Medium",
+        objective: "Growth",
         holdings: [
           {
             symbol: "XAW.TO",
@@ -360,6 +375,57 @@ export const CLIENTS: Client[] = [
             gainLossPercent: 0.00,
             assetClass: "Fixed Income",
             sector: "Bonds",
+          },
+        ],
+      },
+      {
+        id: "P-004",
+        type: "RESP",
+        accountNumber: "3238677748",
+        marketValue: 75000.00,
+        costBasis: 65000.00,
+        totalGainLoss: 10000.00,
+        totalGainLossPercent: 15.38,
+        planCategory: "Family Plan",
+        accountHolder: "Smith, John",
+        riskLevel: "Medium",
+        objective: "Speculation",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 400,
+            price: 98.50,
+            marketValue: 39400.00,
+            costBasis: 35000.00,
+            gainLoss: 4400.00,
+            gainLossPercent: 12.57,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 800,
+            price: 32.15,
+            marketValue: 25720.00,
+            costBasis: 20000.00,
+            gainLoss: 5720.00,
+            gainLossPercent: 28.60,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+          {
+            symbol: "GOOGL",
+            name: "Alphabet Inc.",
+            shares: 68,
+            price: 145.30,
+            marketValue: 9880.40,
+            costBasis: 10000.00,
+            gainLoss: -119.60,
+            gainLossPercent: -1.20,
+            assetClass: "Equity",
+            sector: "Technology",
           },
         ],
       },
@@ -1214,9 +1280,17 @@ const Clients = () => {
       }
     }
   }, [location.state, clients]);
-  const [clientViewTab, setClientViewTab] = useState<"details" | "edit" | "upload">("details");
+  const [clientViewTab, setClientViewTab] = useState<"details" | "cash" | "trading-activity" | "documents">("details");
+  const [activeView, setActiveView] = useState<"clients" | "households">("clients");
+  const [householdSearchTerm, setHouseholdSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<Record<string, boolean>>({
+    "ACTIVE": false,
+    "PENDING REVIEW": false,
+  });
   const [showAddClient, setShowAddClient] = useState(false);
   const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
+  const [productDocumentsExpanded, setProductDocumentsExpanded] = useState(true);
+  const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
   const [uploadedDocuments, setUploadedDocuments] = useState<Record<string, Array<{ id: string; name: string; date: string; file?: File }>>>({});
   const [showBuyUnits, setShowBuyUnits] = useState(false);
   const [showSellUnits, setShowSellUnits] = useState(false);
@@ -1645,78 +1719,737 @@ const Clients = () => {
         <div className="space-y-6">
           <Card className="border border-gray-200 shadow-sm bg-white">
             <CardHeader>
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigate('/')}
-                    className="h-8 w-8"
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button 
+                    variant={activeView === "clients" ? "default" : "outline"} 
+                    className="text-sm font-normal"
+                    onClick={() => setActiveView("clients")}
                   >
-                    <ArrowLeft className="h-4 w-4" />
+                    Details
                   </Button>
-                  <CardTitle className="text-base font-semibold text-gray-900">
-                    Client Directory
-                  </CardTitle>
+                  <Button 
+                    variant={activeView === "households" ? "default" : "outline"} 
+                    className="text-sm font-normal"
+                    onClick={() => setActiveView("households")}
+                  >
+                    Households
+                  </Button>
+                  <Button 
+                    variant={activeView === "income-plans" ? "default" : "outline"} 
+                    className="text-sm font-normal"
+                    onClick={() => setActiveView("income-plans")}
+                  >
+                    Income Plans
+                  </Button>
+                  <Button 
+                    variant={activeView === "approvals" ? "default" : "outline"} 
+                    className="text-sm font-normal"
+                    onClick={() => setActiveView("approvals")}
+                  >
+                    Approvals
+                  </Button>
+                  <Button variant="outline" className="text-sm font-normal">
+                    Reports
+                  </Button>
                 </div>
 
-                <div className="flex w-full flex-col gap-4 lg:w-auto lg:flex-row lg:items-start lg:justify-end">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Input
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder="Search by client, account, or status"
+                    value={activeView === "households" ? householdSearchTerm : searchTerm}
+                    onChange={(event) => {
+                      if (activeView === "households") {
+                        setHouseholdSearchTerm(event.target.value);
+                      } else {
+                        setSearchTerm(event.target.value);
+                      }
+                    }}
+                    placeholder={activeView === "households" ? "Search households by name, ID, or primary client..." : activeView === "income-plans" ? "Search income plans by client, plan, or representative..." : activeView === "approvals" ? "Search approvals by client name, module, or status..." : "Search by client, account, or status"}
                     className="text-sm lg:w-72 xl:w-96"
                   />
 
-                  <div className="flex items-center gap-3">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-[150px] justify-between text-sm font-normal"
-                        >
-                          {(() => {
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-[150px] justify-between text-sm font-normal"
+                      >
+                        {activeView === "households" || activeView === "income-plans" || activeView === "approvals" ? (
+                          activeView === "households" ? (
+                            (() => {
+                              const selectedCount = Object.values(statusFilter).filter(Boolean).length;
+                              if (selectedCount === 0) return "Status";
+                              if (selectedCount === 1) {
+                                return Object.entries(statusFilter).find(([, checked]) => checked)?.[0] || "Status";
+                              }
+                              return `${selectedCount} selected`;
+                            })()
+                          ) : activeView === "approvals" ? "Status" : "All Documents"
+                        ) : (
+                          (() => {
                             const selectedCount = Object.values(docFilter).filter(Boolean).length;
                             if (selectedCount === 0) return "All Documents";
                             if (selectedCount === 1) {
                               return Object.entries(docFilter).find(([, checked]) => checked)?.[0] || "All Documents";
                             }
                             return `${selectedCount} selected`;
-                          })()}
-                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[150px] p-2" align="start">
-                        <div className="space-y-1">
-                          {(["Uploaded", "Required", "Missing"] as DocumentStatus[]).map(
+                          })()
+                        )}
+                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[150px] p-2" align="start">
+                      <div className="space-y-1">
+                        {activeView === "households" ? (
+                          (["ACTIVE", "PENDING REVIEW"] as string[]).map(
                             (status) => (
-                        <label
-                          key={status}
+                              <label
+                                key={status}
                                 className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                        >
-                          <Checkbox
-                            checked={docFilter[status]}
-                            onCheckedChange={() => toggleDocFilter(status)}
+                              >
+                                <Checkbox
+                                  checked={statusFilter[status]}
+                                  onCheckedChange={(checked) => {
+                                    setStatusFilter(prev => ({ ...prev, [status]: checked as boolean }));
+                                  }}
                                   className="h-4 w-4"
-                          />
-                          <span>{status}</span>
-                        </label>
+                                />
+                                <span>{status}</span>
+                              </label>
                             )
-                          )}
-                    </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
+                          )
+                        ) : activeView === "income-plans" ? (
+                          (["Payment Scheduled", "Instructions Required"] as string[]).map(
+                            (status) => (
+                              <label
+                                key={status}
+                                className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                              >
+                                <Checkbox
+                                  checked={false}
+                                  onCheckedChange={() => {}}
+                                  className="h-4 w-4"
+                                />
+                                <span>{status}</span>
+                              </label>
+                            )
+                          )
+                        ) : activeView === "approvals" ? (
+                          (["pending", "signed", "approved", "pending_signature", "rejected", "expired", "under_review"] as string[]).map(
+                            (status) => (
+                              <label
+                                key={status}
+                                className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                              >
+                                <Checkbox
+                                  checked={false}
+                                  onCheckedChange={() => {}}
+                                  className="h-4 w-4"
+                                />
+                                <span>{status}</span>
+                              </label>
+                            )
+                          )
+                        ) : (
+                          (["Uploaded", "Required", "Missing"] as DocumentStatus[]).map(
+                            (status) => (
+                              <label
+                                key={status}
+                                className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                              >
+                                <Checkbox
+                                  checked={docFilter[status]}
+                                  onCheckedChange={() => toggleDocFilter(status)}
+                                  className="h-4 w-4"
+                                />
+                                <span>{status}</span>
+                              </label>
+                            )
+                          )
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
 
-                  <Button onClick={() => setShowAddClient(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Client
-                  </Button>
+                <Button onClick={() => setShowAddClient(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  {activeView === "households" ? "Add New Household" : activeView === "income-plans" ? "Add Income Plan" : activeView === "approvals" ? "Add Approval" : "Add Client"}
+                </Button>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {isLoading ? (
+              {activeView === "approvals" ? (
+                <div className="p-6">
+                  {/* Approvals Table */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-50">
+                          <TableHead className="text-xs font-semibold text-gray-700">START DATE</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">END DATE</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">STATUS</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">TYPE</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">CLIENT NAME</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">CLIENT SURNAME</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">MODULE</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">ACTIONS</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {/* Row 1 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs text-gray-700">2024-09-01</TableCell>
+                          <TableCell className="text-xs text-gray-700">2024-09-15</TableCell>
+                          <TableCell>
+                            <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 text-xs font-medium px-2 py-0.5">
+                              <Clock className="h-3 w-3 mr-1 inline" />
+                              pending
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs font-medium px-2 py-0.5">
+                              <FileCheck className="h-3 w-3 mr-1 inline" />
+                              approval
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-gray-900">Johnson</TableCell>
+                          <TableCell className="text-xs text-gray-900">Robert</TableCell>
+                          <TableCell className="text-xs text-gray-700">Account Opening</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <X className="h-4 w-4 text-red-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 2 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs text-gray-700">2024-09-05</TableCell>
+                          <TableCell className="text-xs text-gray-700">2024-09-20</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                              <CheckCircle2 className="h-3 w-3 mr-1 inline" />
+                              signed
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 text-xs font-medium px-2 py-0.5">
+                              <PenTool className="h-3 w-3 mr-1 inline" />
+                              esignature
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-gray-900">Wilson</TableCell>
+                          <TableCell className="text-xs text-gray-900">Emma</TableCell>
+                          <TableCell className="text-xs text-gray-700">Investment Agreement</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 3 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs text-gray-700">2024-09-10</TableCell>
+                          <TableCell className="text-xs text-gray-700">2024-09-25</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-600 text-white hover:bg-green-600 text-xs font-medium px-2 py-0.5">
+                              <CheckCircle2 className="h-3 w-3 mr-1 inline" />
+                              approved
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs font-medium px-2 py-0.5">
+                              <FileCheck className="h-3 w-3 mr-1 inline" />
+                              approval
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-gray-900">Smith</TableCell>
+                          <TableCell className="text-xs text-gray-900">Michael</TableCell>
+                          <TableCell className="text-xs text-gray-700">Fund Transfer</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 4 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs text-gray-700">2024-09-12</TableCell>
+                          <TableCell className="text-xs text-gray-700">2024-09-27</TableCell>
+                          <TableCell>
+                            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 text-xs font-medium px-2 py-0.5">
+                              <PenTool className="h-3 w-3 mr-1 inline" />
+                              pending_signature
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 text-xs font-medium px-2 py-0.5">
+                              <PenTool className="h-3 w-3 mr-1 inline" />
+                              esignature
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-gray-900">Brown</TableCell>
+                          <TableCell className="text-xs text-gray-900">Patricia</TableCell>
+                          <TableCell className="text-xs text-gray-700">KYC Update</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <X className="h-4 w-4 text-red-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 5 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs text-gray-700">2024-09-15</TableCell>
+                          <TableCell className="text-xs text-gray-700">2024-09-30</TableCell>
+                          <TableCell>
+                            <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs font-medium px-2 py-0.5">
+                              <X className="h-3 w-3 mr-1 inline" />
+                              rejected
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs font-medium px-2 py-0.5">
+                              <FileCheck className="h-3 w-3 mr-1 inline" />
+                              approval
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-gray-900">Davis</TableCell>
+                          <TableCell className="text-xs text-gray-900">James</TableCell>
+                          <TableCell className="text-xs text-gray-700">Withdrawal Request</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 6 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs text-gray-700">2024-08-20</TableCell>
+                          <TableCell className="text-xs text-gray-700">2024-09-05</TableCell>
+                          <TableCell>
+                            <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-100 text-xs font-medium px-2 py-0.5">
+                              <X className="h-3 w-3 mr-1 inline" />
+                              expired
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 text-xs font-medium px-2 py-0.5">
+                              <PenTool className="h-3 w-3 mr-1 inline" />
+                              esignature
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-gray-900">Miller</TableCell>
+                          <TableCell className="text-xs text-gray-900">Sarah</TableCell>
+                          <TableCell className="text-xs text-gray-700">Fee Agreement</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 7 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs text-gray-700">2024-09-18</TableCell>
+                          <TableCell className="text-xs text-gray-700">2024-10-03</TableCell>
+                          <TableCell>
+                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs font-medium px-2 py-0.5">
+                              <Clock className="h-3 w-3 mr-1 inline" />
+                              under_review
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs font-medium px-2 py-0.5">
+                              <FileCheck className="h-3 w-3 mr-1 inline" />
+                              approval
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-gray-900">Taylor</TableCell>
+                          <TableCell className="text-xs text-gray-900">David</TableCell>
+                          <TableCell className="text-xs text-gray-700">Risk Assessment</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <X className="h-4 w-4 text-red-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 8 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs text-gray-700">2024-09-20</TableCell>
+                          <TableCell className="text-xs text-gray-700">2024-10-05</TableCell>
+                          <TableCell>
+                            <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 text-xs font-medium px-2 py-0.5">
+                              <Clock className="h-3 w-3 mr-1 inline" />
+                              pending
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 text-xs font-medium px-2 py-0.5">
+                              <PenTool className="h-3 w-3 mr-1 inline" />
+                              esignature
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-gray-900">Anderson</TableCell>
+                          <TableCell className="text-xs text-gray-900">Lisa</TableCell>
+                          <TableCell className="text-xs text-gray-700">Plan Amendment</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <X className="h-4 w-4 text-red-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              ) : activeView === "income-plans" ? (
+                <div className="p-6">
+                  {/* Income Plans Table */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-50">
+                          <TableHead className="text-xs font-semibold text-gray-700">Client</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Plan</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Representative</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 text-right">Minimum</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 text-right">Balance to Min</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 text-right">Maximum</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 text-right">Balance to Max</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 text-right">YTD Paid</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 text-right">YTD Tax</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Payment Status</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {/* Row 1 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">Carriere, Dora</p>
+                              <p className="text-xs text-gray-500">ID: 29720</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">S108113354</p>
+                              <p className="text-xs text-gray-500">Locked in RLIF Broker/Nominee, Individual</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-xs text-gray-700">9823-2232</p>
+                              <p className="text-xs text-gray-500">Marsh, Antoine</p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(2992.35)}</TableCell>
+                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(1575.79)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(4249.71)}</TableCell>
+                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(2833.15)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(1374.64)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(41.92)}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50 text-xs font-medium px-2 py-0.5">
+                              <Clock className="h-3 w-3 mr-1 inline" />
+                              Scheduled
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <Eye className="h-4 w-4 text-gray-600" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 2 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">Sharma, Melanie</p>
+                              <p className="text-xs text-gray-500">ID: 2663</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">1322488010</p>
+                              <p className="text-xs text-gray-500">RRIF Broker/Nominee, Individual, Fee for Service</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-xs text-gray-700">9823-2232</p>
+                              <p className="text-xs text-gray-500">Marsh, Antoine</p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(77219.08)}</TableCell>
+                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-red-600">-{formatCurrency(77219.08)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(54053.35)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(23165.73)}</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                              <CheckCircle2 className="h-3 w-3 mr-1 inline" />
+                              Completed
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <Eye className="h-4 w-4 text-gray-600" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 3 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">Sharma, Melanie</p>
+                              <p className="text-xs text-gray-500">ID: 2663</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">4527271322</p>
+                              <p className="text-xs text-gray-500">RRIF Broker/Nominee, Spousal, Fee for Service</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-xs text-gray-700">9823-2232</p>
+                              <p className="text-xs text-gray-500">Marsh, Antoine</p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-red-600">-{formatCurrency(8185.32)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                              <CheckCircle2 className="h-3 w-3 mr-1 inline" />
+                              Completed
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <Eye className="h-4 w-4 text-gray-600" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row 4 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">Sharma, Melanie</p>
+                              <p className="text-xs text-gray-500">ID: 2663</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">7545538518</p>
+                              <p className="text-xs text-gray-500">Locked in LIF Broker/Nominee, Individual, Fee for Service</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-xs text-gray-700">9823-2232</p>
+                              <p className="text-xs text-gray-500">Marsh, Antoine</p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(7162.91)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                              <CheckCircle2 className="h-3 w-3 mr-1 inline" />
+                              Completed
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <Eye className="h-4 w-4 text-gray-600" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              ) : activeView === "households" ? (
+                <div className="p-6">
+                  {/* Households Table */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-50">
+                          <TableHead className="text-xs font-semibold text-gray-700">Household ID</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Name</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Primary Client</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Members</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Total Assets</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Accounts</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Status</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {/* Household 1 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs font-medium text-gray-900">HH001</TableCell>
+                          <TableCell className="text-xs text-gray-900">Johnson Family</TableCell>
+                          <TableCell className="text-xs text-gray-700">Robert Johnson</TableCell>
+                          <TableCell className="text-xs text-gray-700">3</TableCell>
+                          <TableCell className="text-xs text-gray-700">{formatCurrency(750000)}</TableCell>
+                          <TableCell className="text-xs text-gray-700">4</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                              ACTIVE
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Pencil className="h-4 w-4 text-gray-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Trash2 className="h-4 w-4 text-gray-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Household 2 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs font-medium text-gray-900">HH002</TableCell>
+                          <TableCell className="text-xs text-gray-900">Smith Household</TableCell>
+                          <TableCell className="text-xs text-gray-700">Michael Smith</TableCell>
+                          <TableCell className="text-xs text-gray-700">2</TableCell>
+                          <TableCell className="text-xs text-gray-700">{formatCurrency(425000)}</TableCell>
+                          <TableCell className="text-xs text-gray-700">2</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                              ACTIVE
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Pencil className="h-4 w-4 text-gray-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Trash2 className="h-4 w-4 text-gray-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Household 3 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs font-medium text-gray-900">HH003</TableCell>
+                          <TableCell className="text-xs text-gray-900">Williams Trust</TableCell>
+                          <TableCell className="text-xs text-gray-700">David Williams</TableCell>
+                          <TableCell className="text-xs text-gray-700">4</TableCell>
+                          <TableCell className="text-xs text-gray-700">{formatCurrency(1250000)}</TableCell>
+                          <TableCell className="text-xs text-gray-700">6</TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                              ACTIVE
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Pencil className="h-4 w-4 text-gray-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Trash2 className="h-4 w-4 text-gray-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Household 4 */}
+                        <TableRow className="hover:bg-gray-50">
+                          <TableCell className="text-xs font-medium text-gray-900">HH004</TableCell>
+                          <TableCell className="text-xs text-gray-900">Brown Estate</TableCell>
+                          <TableCell className="text-xs text-gray-700">Patricia Brown</TableCell>
+                          <TableCell className="text-xs text-gray-700">1</TableCell>
+                          <TableCell className="text-xs text-gray-700">{formatCurrency(180000)}</TableCell>
+                          <TableCell className="text-xs text-gray-700">1</TableCell>
+                          <TableCell>
+                            <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 text-xs font-medium px-2 py-0.5">
+                              PENDING REVIEW
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Pencil className="h-4 w-4 text-gray-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Trash2 className="h-4 w-4 text-gray-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              ) : isLoading ? (
                 <div className="flex items-center justify-center py-16 text-gray-500">
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Loading clients…
@@ -1737,75 +2470,9 @@ const Clients = () => {
                   </Button>
                 </div>
               ) : selectedClient ? (
-                <ResizablePanelGroup direction="horizontal" className="min-h-0">
-                  {/* Table Section */}
-                  <ResizablePanel defaultSize={55} minSize={10} maxSize={90} className="min-w-0">
-                    <div className="overflow-x-auto h-full pr-2">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Client</TableHead>
-                            <TableHead>Account #</TableHead>
-                            <TableHead>Documents</TableHead>
-                            <TableHead>AUA</TableHead>
-                            <TableHead>Plans</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredClients.map((client) => (
-                            <TableRow 
-                              key={client.id} 
-                              className={`hover:bg-gray-50 cursor-pointer ${selectedClient?.id === client.id ? 'bg-blue-50' : ''}`}
-                              onClick={() => {
-                                setSelectedClient(client);
-                                setClientViewTab("details");
-                                if (Array.isArray(client.plans)) {
-                                  setExpandedPlans(new Set(client.plans.map(p => p.id)));
-                                } else {
-                                  setExpandedPlans(new Set());
-                                }
-                              }}
-                            >
-                              <TableCell>
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {client.name}
-                                  </span>
-                                  <span className="text-xs text-gray-500">
-                                    {client.email}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-sm text-gray-700">
-                                {client.accountNumber}
-                              </TableCell>
-                              <TableCell>
-                                <span
-                                  className={`rounded-full px-2 py-1 text-xs font-medium ${docBadgeStyles[client.documents]}`}
-                                >
-                                  {client.documents}
-                                </span>
-                              </TableCell>
-                              <TableCell className="text-sm text-gray-700">
-                                {client.assets}
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant="secondary" className="text-xs">
-                                  {client.plans.length} plan(s)
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </ResizablePanel>
-
-                  <ResizableHandle withHandle />
-
-                  {/* Client View - Right Side with Tabs */}
-                  <ResizablePanel defaultSize={45} minSize={25} maxSize={95} className="min-w-0">
-                    <div className="h-full border-l border-gray-200 pl-4 pr-4 pb-4">
+                <div className="w-full">
+                  {/* Client View - Full Width with Tabs */}
+                  <div className="h-full px-4 pb-4">
                       <div className="sticky top-0 pt-4 bg-white z-10 pb-4">
                         <div className="flex items-center justify-between mb-4">
                           <div>
@@ -1828,11 +2495,12 @@ const Clients = () => {
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
-                        <Tabs value={clientViewTab} onValueChange={(value) => setClientViewTab(value as "details" | "edit" | "upload")}>
-                          <TabsList className="grid w-full grid-cols-3">
+                        <Tabs value={clientViewTab} onValueChange={(value) => setClientViewTab(value as "details" | "cash" | "trading-activity" | "documents")}>
+                          <TabsList className="grid w-full grid-cols-4">
                             <TabsTrigger value="details">Details</TabsTrigger>
-                            <TabsTrigger value="edit">Edit</TabsTrigger>
-                            <TabsTrigger value="upload">Upload Docs</TabsTrigger>
+                            <TabsTrigger value="cash">Cash</TabsTrigger>
+                            <TabsTrigger value="trading-activity">Trading Activity</TabsTrigger>
+                            <TabsTrigger value="documents">Documents</TabsTrigger>
                           </TabsList>
                           
                           <TabsContent value="details" className="mt-4">
@@ -1843,18 +2511,18 @@ const Clients = () => {
                               <CardHeader className="pb-3">
                                 <CardTitle className="text-sm font-semibold text-gray-900">Client Summary</CardTitle>
                               </CardHeader>
-                              <CardContent className="space-y-6">
+                              <CardContent className="space-y-5">
                                 {/* Basic Information */}
-                                <div>
+                                <div className="border-b border-gray-100 pb-4">
                                   <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Basic Information</h4>
-                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="grid grid-cols-3 gap-x-6 gap-y-3">
                                   <div>
                                     <p className="text-xs text-gray-500 mb-1">Account Number</p>
                                     <p className="text-sm font-medium text-gray-900">{selectedClient.accountNumber}</p>
                                   </div>
                                   <div>
                                     <p className="text-xs text-gray-500 mb-1">Email</p>
-                                    <p className="text-sm font-medium text-gray-900">{selectedClient.email}</p>
+                                      <p className="text-sm font-medium text-gray-900 break-words">{selectedClient.email}</p>
                                   </div>
                                   <div>
                                     <p className="text-xs text-gray-500 mb-1">Phone</p>
@@ -1873,7 +2541,7 @@ const Clients = () => {
                                   </div>
                                     )}
                                     {(selectedClient.address || selectedClient.city || selectedClient.province) && (
-                                      <div>
+                                      <div className="col-span-2">
                                         <p className="text-xs text-gray-500 mb-1">Address</p>
                                         <p className="text-sm font-medium text-gray-900">
                                           {[
@@ -1889,9 +2557,9 @@ const Clients = () => {
                                 </div>
 
                                 {/* Account Details */}
-                                <div>
+                                <div className="border-b border-gray-100 pb-4">
                                   <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Account Details</h4>
-                                  <div className="grid grid-cols-2 gap-4">
+                                  <div className="grid grid-cols-3 gap-x-6 gap-y-3">
                                   <div>
                                     <p className="text-xs text-gray-500 mb-1">Plans</p>
                                     <p className="text-sm font-medium text-gray-900">
@@ -1913,11 +2581,26 @@ const Clients = () => {
                                   </div>
                                 </div>
 
+                                {/* Total Assets */}
+                                <div className="border-b border-gray-100 pb-4">
+                                  <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Total Assets</h4>
+                                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                    <div className="flex items-baseline gap-2">
+                                      <p className="text-xs text-gray-500">Total Assets</p>
+                                    </div>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                      {Array.isArray(selectedClient.plans) 
+                                        ? formatCurrency(selectedClient.plans.reduce((sum, plan) => sum + plan.marketValue, 0))
+                                        : formatCurrency(0)}
+                                    </p>
+                                  </div>
+                                </div>
+
                                 {/* Beneficiary Summary */}
                                 {(selectedClient.beneficiary || selectedClient.contingentBeneficiary) && (
                                   <div>
                                     <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Beneficiary Information</h4>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                                       {selectedClient.beneficiary && (
                                         <div>
                                           <p className="text-xs text-gray-500 mb-1">Primary Beneficiary</p>
@@ -1956,11 +2639,39 @@ const Clients = () => {
                                           >
                                             <div className="flex items-center justify-between">
                                               <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                          <span className="text-sm font-medium text-gray-900">{plan.type}</span>
-                                          <span className="text-sm text-gray-600">{plan.accountNumber}</span>
+                                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                  <span className="text-sm font-medium text-gray-900">
+                                                    {plan.type === "RESP" ? "RESP Education Savings Plan" : plan.type}
+                                                  </span>
+                                                  {plan.planCategory && (
+                                                    <>
+                                                      <span className="text-gray-400">•</span>
+                                                      <span className="text-sm text-gray-600">{plan.planCategory}</span>
+                                                    </>
+                                                  )}
                                         </div>
-                                                <div className="text-xs text-gray-500">
+                                                <div className="flex items-center gap-2 text-xs text-gray-600 flex-wrap">
+                                                  <span>Account: {plan.accountNumber}</span>
+                                                  {plan.accountHolder && (
+                                                    <>
+                                                      <span className="text-gray-400">•</span>
+                                                      <span>{plan.accountHolder}</span>
+                                                    </>
+                                                  )}
+                                                  {plan.riskLevel && (
+                                                    <>
+                                                      <span className="text-gray-400">•</span>
+                                                      <span>Risk: {plan.riskLevel}</span>
+                                                    </>
+                                                  )}
+                                                  {plan.objective && (
+                                                    <>
+                                                      <span className="text-gray-400">•</span>
+                                                      <span>Objective: {plan.objective}</span>
+                                                    </>
+                                                  )}
+                                                </div>
+                                                <div className="text-xs text-gray-500 mt-1">
                                                   Market Value: {formatCurrency(plan.marketValue)}
                                       </div>
                                               </div>
@@ -1982,6 +2693,8 @@ const Clients = () => {
                                                       <TableHead className="text-center">Shares</TableHead>
                                                       <TableHead className="text-center">Price</TableHead>
                                                       <TableHead className="text-center">Market Value</TableHead>
+                                                      <TableHead className="text-center">Net Invested</TableHead>
+                                                      <TableHead className="text-center">Total Book Value</TableHead>
                                                       <TableHead className="text-center">Actions</TableHead>
                                                     </TableRow>
                                                   </TableHeader>
@@ -2007,6 +2720,12 @@ const Clients = () => {
                                                         </TableCell>
                                                         <TableCell className="text-center text-sm text-gray-700">
                                                           {formatCurrency(holding.marketValue)}
+                                                        </TableCell>
+                                                        <TableCell className="text-center text-sm text-gray-700">
+                                                          {formatCurrency(holding.costBasis)}
+                                                        </TableCell>
+                                                        <TableCell className="text-center text-sm text-gray-700">
+                                                          {formatCurrency(holding.costBasis)}
                                                         </TableCell>
                                                         <TableCell className="text-center">
                                                           <div className="flex items-center justify-center gap-2">
@@ -2050,8 +2769,114 @@ const Clients = () => {
                                                         </TableCell>
                                                       </TableRow>
                                                     ))}
+                                                    {/* Empty row with Add Product button */}
+                                                    <TableRow className="hover:bg-gray-50">
+                                                      <TableCell className="text-center"></TableCell>
+                                                      <TableCell></TableCell>
+                                                      <TableCell className="text-center"></TableCell>
+                                                      <TableCell className="text-center"></TableCell>
+                                                      <TableCell className="text-center"></TableCell>
+                                                      <TableCell className="text-center"></TableCell>
+                                                      <TableCell className="text-center"></TableCell>
+                                                      <TableCell className="text-center">
+                                                        <Button
+                                                          variant="ghost"
+                                                          size="sm"
+                                                          className="h-8 text-xs"
+                                                          onClick={() => {
+                                                            // Add product functionality
+                                                          }}
+                                                        >
+                                                          <Plus className="h-3 w-3 mr-1" />
+                                                          Add Product
+                                                        </Button>
+                                                      </TableCell>
+                                                    </TableRow>
+                                                    {/* Totals row */}
+                                                    <TableRow className="bg-gray-50 font-semibold">
+                                                      <TableCell className="text-center text-sm text-gray-900" colSpan={2}>
+                                                        Totals
+                                                      </TableCell>
+                                                      <TableCell className="text-center"></TableCell>
+                                                      <TableCell className="text-center"></TableCell>
+                                                      <TableCell className="text-center text-sm text-gray-900">
+                                                        {formatCurrency(
+                                                          plan.holdings.reduce((sum, holding) => sum + holding.marketValue, 0)
+                                                        )}
+                                                      </TableCell>
+                                                      <TableCell className="text-center text-sm text-gray-900">
+                                                        {formatCurrency(
+                                                          plan.holdings.reduce((sum, holding) => sum + holding.costBasis, 0)
+                                                        )}
+                                                      </TableCell>
+                                                      <TableCell className="text-center text-sm text-gray-900">
+                                                        {formatCurrency(
+                                                          plan.holdings.reduce((sum, holding) => sum + holding.costBasis, 0)
+                                                        )}
+                                                      </TableCell>
+                                                      <TableCell className="text-center"></TableCell>
+                                                    </TableRow>
                                                   </TableBody>
                                                 </Table>
+                                                
+                                                {/* Trust Account Cards */}
+                                                <div className="mt-6 grid grid-cols-3 gap-4">
+                                                  {/* Trust Account CAD */}
+                                                  <Card className="border border-gray-200 shadow-sm">
+                                                    <CardContent className="p-4">
+                                                      <p className="text-xs text-gray-500 mb-2">Trust Account CAD</p>
+                                                      <p className="text-2xl font-bold text-gray-900 mb-3">$0.00</p>
+                                                      <div className="space-y-1">
+                                                        <div className="flex justify-between text-xs">
+                                                          <span className="text-gray-500">Settled:</span>
+                                                          <span className="text-green-600 font-medium">$0.00</span>
+                                              </div>
+                                                        <div className="flex justify-between text-xs">
+                                                          <span className="text-gray-500">Unsettled:</span>
+                                                          <span className="text-red-600 font-medium">$0.00</span>
+                                            </div>
+                                                      </div>
+                                                    </CardContent>
+                                                  </Card>
+
+                                                  {/* Trust Account USD */}
+                                                  <Card className="border border-gray-200 shadow-sm">
+                                                    <CardContent className="p-4">
+                                                      <p className="text-xs text-gray-500 mb-2">Trust Account USD</p>
+                                                      <p className="text-2xl font-bold text-gray-900 mb-3">$0.00</p>
+                                                      <div className="space-y-1">
+                                                        <div className="flex justify-between text-xs">
+                                                          <span className="text-gray-500">Settled:</span>
+                                                          <span className="text-green-600 font-medium">$0.00</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-xs">
+                                                          <span className="text-gray-500">Unsettled:</span>
+                                                          <span className="text-red-600 font-medium">$0.00</span>
+                                                        </div>
+                                                      </div>
+                                                    </CardContent>
+                                                  </Card>
+
+                                                  {/* Total in CAD */}
+                                                  <Card className="border border-gray-200 shadow-sm">
+                                                    <CardContent className="p-4">
+                                                      <p className="text-xs text-gray-500 mb-2">Total in CAD</p>
+                                                      <p className="text-2xl font-bold text-green-600">
+                                                        {formatCurrency(
+                                                          plan.holdings.reduce((sum, holding) => sum + holding.marketValue, 0)
+                                                        )}
+                                                      </p>
+                                                    </CardContent>
+                                                  </Card>
+                                                </div>
+
+                                                {/* Deposit Button */}
+                                                <div className="mt-4 flex justify-center">
+                                                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                                                    <Plus className="h-4 w-4 mr-2" />
+                                                    Deposit
+                                                  </Button>
+                                                </div>
                                               </div>
                                             </div>
                                           )}
@@ -2085,126 +2910,498 @@ const Clients = () => {
                             </ScrollArea>
                           </TabsContent>
                           
-                          <TabsContent value="edit" className="mt-4">
+                          <TabsContent value="cash" className="mt-4">
                             <ScrollArea className="h-[calc(100vh-380px)] pr-2">
-                              <form
-                                onSubmit={(e) => {
-                                  e.preventDefault();
-                                  handleSaveEdit(e);
-                                }}
-                                className="space-y-4"
-                              >
-                            {formError && (
-                              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-                                {formError}
+                              <div className="space-y-6">
+                                {/* Cash Balances */}
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Cash Balances</h3>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    {/* Canadian Dollars Card */}
+                                    <Card className="border-2 border-red-200 bg-red-50/30 shadow-sm">
+                                      <CardContent className="p-4">
+                                        <div className="flex items-center gap-2 mb-4">
+                                          <DollarSign className="h-5 w-5 text-red-600" />
+                                          <h4 className="text-sm font-bold text-gray-900">Canadian Dollars (CAD)</h4>
                               </div>
-                            )}
+                                        <div className="space-y-3">
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-xs text-gray-600">Cash Available CAD</span>
+                                            <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-xs text-gray-600">Cash Used For Trades CAD</span>
+                                            <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
+                                          </div>
+                                          <div className="border-t border-red-200 pt-3 mt-3">
+                                            <div className="flex justify-between items-center">
+                                              <span className="text-xs font-semibold text-gray-900">Cash Total CAD</span>
+                                              <span className="text-sm font-bold text-red-600">{formatCurrency(0)}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
 
+                                    {/* United States Dollars Card */}
+                                    <Card className="border-2 border-green-200 bg-green-50/30 shadow-sm">
+                                      <CardContent className="p-4">
+                                        <div className="flex items-center gap-2 mb-4">
+                                          <DollarSign className="h-5 w-5 text-green-600" />
+                                          <h4 className="text-sm font-bold text-gray-900">United States Dollars (USD)</h4>
+                                        </div>
+                                        <div className="space-y-3">
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-xs text-gray-600">Cash Available USD</span>
+                                            <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-xs text-gray-600">Cash Used For Trades USD</span>
+                                            <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
+                                          </div>
+                                          <div className="border-t border-green-200 pt-3 mt-3">
+                                            <div className="flex justify-between items-center">
+                                              <span className="text-xs font-semibold text-gray-900">Cash Total USD</span>
+                                              <span className="text-sm font-bold text-green-600">{formatCurrency(0)}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  </div>
+                                </div>
+
+                                {/* Recent Cash Transactions */}
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Cash Transactions</h3>
                             <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  Client Information
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="edit-name" className="text-xs">Client Name *</Label>
-                                  <Input
-                                    id="edit-name"
-                                    value={editFormValues.name}
-                                    onChange={(e) =>
-                                      setEditFormValues({ ...editFormValues, name: e.target.value })
-                                    }
-                                    placeholder="e.g. Smith Family Trust"
-                                    className="h-9 text-sm"
-                                    required
-                                  />
+                                    <CardContent className="p-4">
+                                      <div className="space-y-4">
+                                        {/* Transaction 1 - Cash Deposit */}
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
+                                              <Plus className="h-5 w-5 text-white" />
+                                            </div>
+                                            <div>
+                                              <p className="text-sm font-medium text-gray-900">Cash Deposit</p>
+                                              <p className="text-xs text-gray-500">2 days ago</p>
+                                            </div>
+                                          </div>
+                                          <span className="text-sm font-medium text-green-600">+{formatCurrency(1250)} CAD</span>
                                 </div>
 
-                                <div className="space-y-2">
-                                  <Label htmlFor="edit-account-number" className="text-xs">Account Number *</Label>
-                                  <Input
-                                    id="edit-account-number"
-                                    value={editFormValues.accountNumber}
-                                    onChange={(e) =>
-                                      setEditFormValues({ ...editFormValues, accountNumber: e.target.value })
-                                    }
-                                    placeholder="e.g. A-123456"
-                                    className="h-9 text-sm"
-                                    required
-                                  />
+                                        {/* Transaction 2 - Currency Exchange */}
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
+                                              <ArrowLeftRight className="h-5 w-5 text-white" />
+                                            </div>
+                                            <div>
+                                              <p className="text-sm font-medium text-gray-900">Currency Exchange</p>
+                                              <p className="text-xs text-gray-500">1 week ago</p>
+                                            </div>
+                                          </div>
+                                          <span className="text-sm font-medium text-blue-600">{formatCurrency(500)} USD</span>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
                                 </div>
-
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                  <div className="space-y-2">
-                                    <Label htmlFor="edit-email" className="text-xs">Email</Label>
-                                    <Input
-                                      id="edit-email"
-                                      type="email"
-                                      value={editFormValues.email}
-                                      onChange={(e) =>
-                                        setEditFormValues({ ...editFormValues, email: e.target.value })
-                                      }
-                                      placeholder="name@clientmail.com"
-                                      className="h-9 text-sm"
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="edit-phone" className="text-xs">Phone</Label>
-                                    <Input
-                                      id="edit-phone"
-                                      value={editFormValues.phone}
-                                      onChange={(e) =>
-                                        setEditFormValues({ ...editFormValues, phone: e.target.value })
-                                      }
-                                      placeholder="(555) 555-5555"
-                                      className="h-9 text-sm"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                  <Label htmlFor="edit-status" className="text-xs">Status *</Label>
-                                  <Select
-                                    value={editFormValues.status}
-                                    onValueChange={(value) =>
-                                      setEditFormValues({ ...editFormValues, status: value as ClientStatus })
-                                    }
-                                  >
-                                    <SelectTrigger className="h-9 text-sm">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="Active">Active</SelectItem>
-                                      <SelectItem value="Inactive">Inactive</SelectItem>
-                                      <SelectItem value="Prospect">Prospect</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </CardContent>
-                            </Card>
-
-                            <div className="flex gap-2 pt-4">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setClientViewTab("details");
-                                  setFormError(null);
-                                }}
-                                className="flex-1 border-gray-300"
-                              >
-                                Cancel
-                              </Button>
-                              <Button type="submit" className="flex-1 bg-gray-900 hover:bg-gray-800">
-                                Save Changes
-                              </Button>
-                            </div>
-                              </form>
+                              </div>
                             </ScrollArea>
                           </TabsContent>
                           
-                          <TabsContent value="upload" className="mt-4">
+                          <TabsContent value="trading-activity" className="mt-4">
+                            <ScrollArea className="h-[calc(100vh-380px)] pr-2">
+                              <div className="space-y-6">
+                                {/* Trading Summary */}
+                                <div>
+                                  <h3 className="text-lg font-bold text-gray-900 mb-4">Trading Summary</h3>
+                                  <div className="grid grid-cols-4 gap-4">
+                                    {/* Total Trades */}
+                                    <Card className="border border-blue-200 bg-blue-50/30 shadow-sm">
+                                      <CardContent className="p-4">
+                                        <p className="text-xs font-medium text-blue-600 mb-2">Total Trades</p>
+                                        <p className="text-2xl font-bold text-blue-600">45</p>
+                                      </CardContent>
+                                    </Card>
+
+                                    {/* Buy Orders */}
+                                    <Card className="border border-green-200 bg-green-50/30 shadow-sm">
+                                      <CardContent className="p-4">
+                                        <p className="text-xs font-medium text-green-600 mb-2">Buy Orders</p>
+                                        <p className="text-2xl font-bold text-green-600">8</p>
+                                      </CardContent>
+                                    </Card>
+
+                                    {/* Sell Orders */}
+                                    <Card className="border border-red-200 bg-red-50/30 shadow-sm">
+                                      <CardContent className="p-4">
+                                        <p className="text-xs font-medium text-red-600 mb-2">Sell Orders</p>
+                                        <p className="text-2xl font-bold text-red-600">4</p>
+                                      </CardContent>
+                                    </Card>
+
+                                    {/* Pending */}
+                                    <Card className="border border-purple-200 bg-purple-50/30 shadow-sm">
+                                      <CardContent className="p-4">
+                                        <p className="text-xs font-medium text-purple-600 mb-2">Pending</p>
+                                        <p className="text-2xl font-bold text-purple-600">2</p>
+                                      </CardContent>
+                                    </Card>
+                                  </div>
+                                </div>
+
+                                {/* Recent Trading Activity */}
+                                <div>
+                                  <h3 className="text-lg font-bold text-gray-900 mb-4">Recent Trading Activity</h3>
+                                  <Card className="border border-gray-200 shadow-sm bg-white">
+                                    <CardContent className="p-0">
+                                      <Table>
+                                        <TableHeader>
+                                          <TableRow>
+                                            <TableHead className="text-xs font-semibold">Date</TableHead>
+                                            <TableHead className="text-xs font-semibold">Type</TableHead>
+                                            <TableHead className="text-xs font-semibold">Security</TableHead>
+                                            <TableHead className="text-xs font-semibold text-center">Quantity</TableHead>
+                                            <TableHead className="text-xs font-semibold text-center">Price</TableHead>
+                                            <TableHead className="text-xs font-semibold text-center">Status</TableHead>
+                                          </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                          {/* Transaction 1 */}
+                                          <TableRow className="hover:bg-gray-50">
+                                            <TableCell className="text-xs text-gray-700">02/12/2025</TableCell>
+                                            <TableCell>
+                                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                                                Buy
+                                              </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                              <div>
+                                                <p className="text-xs font-medium text-gray-900">FIDELITY NORTHSTAR FUND</p>
+                                                <p className="text-xs text-gray-500">Series B ISC</p>
+                                              </div>
+                                            </TableCell>
+                                            <TableCell className="text-center text-xs text-gray-700">100</TableCell>
+                                            <TableCell className="text-center text-xs text-gray-700">{formatCurrency(117.35)}</TableCell>
+                                            <TableCell className="text-center">
+                                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                                                Executed
+                                              </Badge>
+                                            </TableCell>
+                                          </TableRow>
+
+                                          {/* Transaction 2 */}
+                                          <TableRow className="hover:bg-gray-50">
+                                            <TableCell className="text-xs text-gray-700">02/10/2025</TableCell>
+                                            <TableCell>
+                                              <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs font-medium px-2 py-0.5">
+                                                Sell
+                                              </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                              <div>
+                                                <p className="text-xs font-medium text-gray-900">FIDELITY MONTHLY INCOME FUND</p>
+                                                <p className="text-xs text-gray-500">Series B ISC</p>
+                                              </div>
+                                            </TableCell>
+                                            <TableCell className="text-center text-xs text-gray-700">50</TableCell>
+                                            <TableCell className="text-center text-xs text-gray-700">{formatCurrency(605.31)}</TableCell>
+                                            <TableCell className="text-center">
+                                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
+                                                Executed
+                                              </Badge>
+                                            </TableCell>
+                                          </TableRow>
+
+                                          {/* Transaction 3 */}
+                                          <TableRow className="hover:bg-gray-50">
+                                            <TableCell className="text-xs text-gray-700">02/08/2025</TableCell>
+                                            <TableCell>
+                                              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs font-medium px-2 py-0.5">
+                                                Buy
+                                              </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                              <div>
+                                                <p className="text-xs font-medium text-gray-900">TD CANADIAN EQUITY FUND</p>
+                                                <p className="text-xs text-gray-500">Series A</p>
+                                              </div>
+                                            </TableCell>
+                                            <TableCell className="text-center text-xs text-gray-700">75</TableCell>
+                                            <TableCell className="text-center text-xs text-gray-700">{formatCurrency(339.34)}</TableCell>
+                                            <TableCell className="text-center">
+                                              <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 text-xs font-medium px-2 py-0.5">
+                                                Pending
+                                              </Badge>
+                                            </TableCell>
+                                          </TableRow>
+                                        </TableBody>
+                                      </Table>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+                              </div>
+                            </ScrollArea>
+                          </TabsContent>
+                          
+                          <TabsContent value="documents" className="mt-4">
+                            <div className="space-y-4">
+                              {/* Product Documents Section */}
+                              <div className="border border-gray-200 rounded-lg bg-white">
+                                <button
+                                  onClick={() => setProductDocumentsExpanded(!productDocumentsExpanded)}
+                                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    {productDocumentsExpanded ? (
+                                      <ChevronDown className="h-4 w-4 text-blue-600" />
+                                    ) : (
+                                      <ChevronDown className="h-4 w-4 text-gray-400 rotate-[-90deg]" />
+                                    )}
+                                    <h3 className="text-sm font-semibold text-gray-900">Product Documents for Active Products</h3>
+                                    <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                  </div>
+                                </button>
+                                
+                                {productDocumentsExpanded && (
+                                  <div className="border-t border-gray-200">
+                                    <div className="p-4">
+                                      <Table>
+                                        <TableHeader>
+                                          <TableRow>
+                                            <TableHead className="w-12">
+                                              <Checkbox
+                                                checked={selectedDocuments.size === 4}
+                                                onCheckedChange={(checked) => {
+                                                  if (checked) {
+                                                    setSelectedDocuments(new Set(["doc-1", "doc-2", "doc-3", "doc-4"]));
+                                                  } else {
+                                                    setSelectedDocuments(new Set());
+                                                  }
+                                                }}
+                                              />
+                                            </TableHead>
+                                            <TableHead className="text-xs font-semibold">Security</TableHead>
+                                            <TableHead className="text-xs font-semibold">Document Type</TableHead>
+                                            <TableHead className="text-xs font-semibold">Delivery Type</TableHead>
+                                            <TableHead className="text-xs font-semibold">Delivery Date</TableHead>
+                                            <TableHead className="w-12"></TableHead>
+                                          </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                          {/* Document 1 */}
+                                          <TableRow className="hover:bg-gray-50">
+                                            <TableCell>
+                                              <Checkbox
+                                                checked={selectedDocuments.has("doc-1")}
+                                                onCheckedChange={(checked) => {
+                                                  const newSet = new Set(selectedDocuments);
+                                                  if (checked) {
+                                                    newSet.add("doc-1");
+                                                  } else {
+                                                    newSet.delete("doc-1");
+                                                  }
+                                                  setSelectedDocuments(newSet);
+                                                }}
+                                              />
+                                            </TableCell>
+                                            <TableCell>
+                                              <div>
+                                                <p className="text-xs font-medium text-gray-900">FID-225 FIDELITY TRUE NORTH FUND</p>
+                                                <p className="text-xs text-gray-500">SERIES B ISC</p>
+                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              <Select defaultValue="fund-facts">
+                                                <SelectTrigger className="h-8 text-xs">
+                                                  <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="fund-facts">Fund Facts</SelectItem>
+                                                  <SelectItem value="prospectus">Prospectus</SelectItem>
+                                                  <SelectItem value="annual-report">Annual Report</SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                            </TableCell>
+                                            <TableCell className="text-xs text-gray-700">Downloaded</TableCell>
+                                            <TableCell className="text-xs text-gray-700">02-12-2025 02:02 PM</TableCell>
+                                            <TableCell>
+                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                            </TableCell>
+                                          </TableRow>
+
+                                          {/* Document 2 */}
+                                          <TableRow className="hover:bg-gray-50">
+                                            <TableCell>
+                                              <Checkbox
+                                                checked={selectedDocuments.has("doc-2")}
+                                                onCheckedChange={(checked) => {
+                                                  const newSet = new Set(selectedDocuments);
+                                                  if (checked) {
+                                                    newSet.add("doc-2");
+                                                  } else {
+                                                    newSet.delete("doc-2");
+                                                  }
+                                                  setSelectedDocuments(newSet);
+                                                }}
+                                              />
+                                            </TableCell>
+                                            <TableCell>
+                                              <div>
+                                                <p className="text-xs font-medium text-gray-900">FID-234 FIDELITY U.S. FOCUSED STOCK FUND</p>
+                                                <p className="text-xs text-gray-500">SERIES B ISC</p>
+                                  </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              <Select defaultValue="fund-facts">
+                                                <SelectTrigger className="h-8 text-xs">
+                                                  <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="fund-facts">Fund Facts</SelectItem>
+                                                  <SelectItem value="prospectus">Prospectus</SelectItem>
+                                                  <SelectItem value="annual-report">Annual Report</SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                            </TableCell>
+                                            <TableCell className="text-xs text-gray-700">Downloaded</TableCell>
+                                            <TableCell className="text-xs text-gray-700">02-12-2025 02:02 PM</TableCell>
+                                            <TableCell>
+                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                            </TableCell>
+                                          </TableRow>
+
+                                          {/* Document 3 */}
+                                          <TableRow className="hover:bg-gray-50">
+                                            <TableCell>
+                                              <Checkbox
+                                                checked={selectedDocuments.has("doc-3")}
+                                                onCheckedChange={(checked) => {
+                                                  const newSet = new Set(selectedDocuments);
+                                                  if (checked) {
+                                                    newSet.add("doc-3");
+                                                  } else {
+                                                    newSet.delete("doc-3");
+                                                  }
+                                                  setSelectedDocuments(newSet);
+                                                }}
+                                              />
+                                            </TableCell>
+                                            <TableCell>
+                                              <div>
+                                                <p className="text-xs font-medium text-gray-900">FID-253 FIDELITY NORTHSTAR FUND</p>
+                                                <p className="text-xs text-gray-500">SERIES B ISC</p>
+                                  </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              <Select defaultValue="fund-facts">
+                                                <SelectTrigger className="h-8 text-xs">
+                                                  <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="fund-facts">Fund Facts</SelectItem>
+                                                  <SelectItem value="prospectus">Prospectus</SelectItem>
+                                                  <SelectItem value="annual-report">Annual Report</SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                            </TableCell>
+                                            <TableCell className="text-xs text-gray-700">Downloaded</TableCell>
+                                            <TableCell className="text-xs text-gray-700">02-12-2025 02:02 PM</TableCell>
+                                            <TableCell>
+                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                            </TableCell>
+                                          </TableRow>
+
+                                          {/* Document 4 */}
+                                          <TableRow className="hover:bg-gray-50">
+                                            <TableCell>
+                                              <Checkbox
+                                                checked={selectedDocuments.has("doc-4")}
+                                                onCheckedChange={(checked) => {
+                                                  const newSet = new Set(selectedDocuments);
+                                                  if (checked) {
+                                                    newSet.add("doc-4");
+                                                  } else {
+                                                    newSet.delete("doc-4");
+                                                  }
+                                                  setSelectedDocuments(newSet);
+                                                }}
+                                              />
+                                            </TableCell>
+                                            <TableCell>
+                                              <div>
+                                                <p className="text-xs font-medium text-gray-900">FID-269 FIDELITY MONTHLY INCOME FUND</p>
+                                                <p className="text-xs text-gray-500">SERIES B ISC</p>
+                                              </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              <Select defaultValue="fund-facts">
+                                                <SelectTrigger className="h-8 text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                                  <SelectItem value="fund-facts">Fund Facts</SelectItem>
+                                                  <SelectItem value="prospectus">Prospectus</SelectItem>
+                                                  <SelectItem value="annual-report">Annual Report</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                            </TableCell>
+                                            <TableCell className="text-xs text-gray-700">Downloaded</TableCell>
+                                            <TableCell className="text-xs text-gray-700">02-12-2025 02:02 PM</TableCell>
+                                            <TableCell>
+                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                            </TableCell>
+                                          </TableRow>
+                                        </TableBody>
+                                      </Table>
+                                </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Bottom Action Bar */}
+                              <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                                <div className="flex items-center gap-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2">
+                                      <Checkbox
+                                        id="lang-en"
+                                        checked={true}
+                                        onCheckedChange={() => {}}
+                                      />
+                                      <Label htmlFor="lang-en" className="text-xs font-medium cursor-pointer">EN</Label>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Checkbox
+                                        id="lang-fr"
+                                        checked={false}
+                                        onCheckedChange={() => {}}
+                                      />
+                                      <Label htmlFor="lang-fr" className="text-xs font-medium cursor-pointer">FR</Label>
+                                    </div>
+                                  </div>
+                                  <Select defaultValue="email">
+                                    <SelectTrigger className="h-9 w-[200px] text-xs">
+                                      <SelectValue placeholder="Select Delivery Method" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="email">Email</SelectItem>
+                                      <SelectItem value="download">Download</SelectItem>
+                                      <SelectItem value="mail">Mail</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                                  Deliver
+                              </Button>
+                            </div>
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="documents-old" className="mt-4 hidden">
                             <ScrollArea className="h-[calc(100vh-380px)] pr-2">
                               <div className="space-y-4">
                             {/* Document Category 1 */}
@@ -2868,67 +4065,15 @@ const Clients = () => {
                         </Tabs>
                       </div>
                     </div>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
+                  </div>
               ) : (
-                <div className="overflow-x-auto w-full">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Client</TableHead>
-                        <TableHead>Account #</TableHead>
-                        <TableHead>Documents</TableHead>
-                        <TableHead>AUA</TableHead>
-                        <TableHead>Plans</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredClients.map((client) => (
-                        <TableRow 
-                          key={client.id} 
-                          className="hover:bg-gray-50 cursor-pointer"
-                          onClick={() => {
-                            setSelectedClient(client);
-                            setClientViewTab("details");
-                            if (Array.isArray(client.plans)) {
-                              setExpandedPlans(new Set(client.plans.map(p => p.id)));
-                            } else {
-                              setExpandedPlans(new Set());
-                            }
-                          }}
-                        >
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-900">
-                                {client.name}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {client.email}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-700">
-                            {client.accountNumber}
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={`rounded-full px-2 py-1 text-xs font-medium ${docBadgeStyles[client.documents]}`}
-                            >
-                              {client.documents}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-700">
-                            {client.assets}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="secondary" className="text-xs">
-                              {client.plans.length} plan(s)
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <div className="py-16 text-center">
+                  <h3 className="text-base font-semibold text-gray-900">
+                    No client selected
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Select a client from the sidebar to view details.
+                  </p>
                 </div>
               )}
             </CardContent>

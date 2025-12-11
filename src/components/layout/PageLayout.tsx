@@ -11,24 +11,7 @@ interface PageLayoutProps {
 }
 
 export function PageLayout({ children, title }: PageLayoutProps) {
-  const { isIntermediaryInterface } = useInterface();
-
-  if (isIntermediaryInterface) {
-    // For intermediary interfaces, show only the dashboard without sidebar
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-1 overflow-y-auto bg-white">
-          <div className="container max-w-full px-3 lg:px-4 pb-3 lg:pb-4 pt-6 animate-fade-in">
-            {title && <h1 className="text-2xl font-bold mb-6 text-gray-900">{title}</h1>}
-            {children}
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  // For OneBoss interfaces, show sidebar navigation
+  // All interfaces use the same layout with sidebar (like advisor)
   return (
     <SidebarProvider defaultOpen={true}>
       <SidebarNavigation />

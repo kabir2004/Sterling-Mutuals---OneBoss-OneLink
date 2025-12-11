@@ -37,6 +37,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { CLIENTS } from '@/pages/Clients';
 import { getInterfaceDisplayName } from '@/components/InterfaceSwitcher';
 import { useInterface } from '@/context/InterfaceContext';
+import { useMenuVisibility } from '@/context/MenuVisibilityContext';
 
 // OneBoss menu items
 const oneBossMenuItems = [
@@ -152,6 +153,7 @@ export function SidebarNavigation() {
   const [isClientsExpanded, setIsClientsExpanded] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const { currentInterface, isIntermediaryInterface } = useInterface();
+  const { isMenuHidden } = useMenuVisibility();
 
   // Auto-expand clients dropdown when on clients page
   useEffect(() => {
@@ -162,9 +164,18 @@ export function SidebarNavigation() {
 
 
   // Use OneBoss menu items for OneBoss interfaces, legacy for others
-  const menuItems = (currentInterface === 'oneboss-dealer' || currentInterface === 'oneboss-advisor') 
+  let menuItems = (currentInterface === 'oneboss-dealer' || currentInterface === 'oneboss-advisor') 
     ? oneBossMenuItems 
     : legacyMenuItems;
+
+  // Filter menu items when visibility is hidden - only show Dashboard, Clients, and Trust Deposits
+  if (isMenuHidden) {
+    menuItems = menuItems.filter(item => 
+      item.path === '/' || 
+      item.path === '/clients' || 
+      item.path === '/trust-deposits'
+    );
+  }
 
   // Helper function to parse name into first and last name
   const parseName = (name: string) => {

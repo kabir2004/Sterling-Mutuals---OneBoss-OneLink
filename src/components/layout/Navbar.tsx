@@ -1,14 +1,16 @@
 
 import React from 'react';
-import { Bell, User, Mail } from 'lucide-react';
+import { Bell, User, Mail, ShoppingCart as ShoppingCartIcon, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Attestations } from '@/components/Attestations';
 import { InterfaceSwitcher } from '@/components/InterfaceSwitcher';
+import { ShoppingCart } from '@/components/ShoppingCart';
 import { useInterface } from '@/context/InterfaceContext';
 import { getInterfaceDisplayName } from '@/components/InterfaceSwitcher';
+import { useMenuVisibility } from '@/context/MenuVisibilityContext';
 
 interface NavbarProps {
   className?: string;
@@ -16,25 +18,14 @@ interface NavbarProps {
 }
 
 export function Navbar({ className, onMenuClick }: NavbarProps) {
-  const { isIntermediaryInterface, currentInterface } = useInterface();
+  const { currentInterface } = useInterface();
+  const { isMenuHidden, toggleMenuVisibility } = useMenuVisibility();
   
   return (
     <header className={cn("bg-white z-30", className)}>
       <div className="w-full flex items-center justify-between h-16 px-4 lg:px-6">
         <div className="flex items-center gap-3">
-          {!isIntermediaryInterface && <SidebarTrigger />}
-          {isIntermediaryInterface && (
-            <div className="flex flex-col">
-              <h1 className="text-lg font-semibold text-gray-900 leading-tight">OneLink</h1>
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-gray-600 leading-tight">Welcome Back, Nelson</p>
-                <span className="text-xs text-gray-400">•</span>
-                <p className="text-sm text-blue-600 leading-tight font-medium">
-                  {getInterfaceDisplayName(currentInterface)}
-                </p>
-              </div>
-            </div>
-          )}
+          <SidebarTrigger />
         </div>
         
         <div className="flex items-center gap-4">
@@ -47,7 +38,31 @@ export function Navbar({ className, onMenuClick }: NavbarProps) {
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
           </Button>
           
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-9 w-9 text-gray-600 hover:text-gray-900"
+            onClick={toggleMenuVisibility}
+            title={isMenuHidden ? "Show all menu items" : "Hide menu items (except Dashboard, Clients, Trust Deposits)"}
+          >
+            {isMenuHidden ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </Button>
+          
           <InterfaceSwitcher />
+          
+          <ShoppingCart>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative h-9 w-9 text-gray-600 hover:text-gray-900"
+            >
+              <ShoppingCartIcon className="h-5 w-5" />
+            </Button>
+          </ShoppingCart>
           
           <Attestations>
             <Button 

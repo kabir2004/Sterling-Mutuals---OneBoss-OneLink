@@ -17,6 +17,7 @@ import Settings from "./pages/Settings";
 import TrustDeposits from "./pages/TrustDeposits";
 import { AuthProvider } from "./context/AuthContext";
 import { InterfaceProvider } from "./context/InterfaceContext";
+import { MenuVisibilityProvider } from "./context/MenuVisibilityContext";
 
 const queryClient = new QueryClient();
 
@@ -63,7 +64,8 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider value={{ signOut: handleSignOut }}>
           <InterfaceProvider>
-            <TooltipProvider>
+            <MenuVisibilityProvider>
+              <TooltipProvider>
               <Toaster />
               <Sonner />
               {isAuthenticated ? (
@@ -84,7 +86,8 @@ const App = () => {
               ) : (
                 <SignIn onSignIn={handleSignIn} />
               )}
-            </TooltipProvider>
+              </TooltipProvider>
+            </MenuVisibilityProvider>
           </InterfaceProvider>
         </AuthProvider>
     </QueryClientProvider>

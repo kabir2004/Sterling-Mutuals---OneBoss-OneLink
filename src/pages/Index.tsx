@@ -767,8 +767,9 @@ const Index = () => {
     },
   ];
 
-  // Intermediary Dashboard Layout
-  if (isIntermediaryInterface) {
+  // All interfaces use the same dashboard layout
+  // Removed Intermediary-specific layout - all use OneBoss layout
+  if (false) {
     return (
       <PageLayout title="">
         <div className="space-y-6">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Check } from 'lucide-react';
+import { Check, LayoutGrid, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -77,10 +77,11 @@ export function InterfaceSwitcher() {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-gray-600 hover:text-gray-900"
+          size="sm"
+          className="h-9 px-3 text-gray-600 hover:text-gray-900"
         >
-          <ShoppingCart className="h-5 w-5" />
+          <Monitor className="h-4 w-4 mr-2" />
+          <span className="text-sm">Switch Interface</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[320px] p-0" align="end">
