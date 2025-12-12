@@ -33,7 +33,6 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -3864,11 +3863,6 @@ const Clients = () => {
     relationshipRoles: "",
     clientType: "",
   });
-  const [docFilter, setDocFilter] = useState<Record<DocumentStatus, boolean>>({
-    Uploaded: false,
-    Required: false,
-    Missing: false,
-  });
   const [formValues, setFormValues] = useState({
     name: "",
     accountNumber: "",
@@ -3879,10 +3873,6 @@ const Clients = () => {
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading] = useState(false);
-
-  const activeDocFilters = Object.entries(docFilter)
-    .filter(([, checked]) => checked)
-    .map(([status]) => status as DocumentStatus);
 
   const filteredClients = useMemo(() => {
     return clients.filter((client) => {
@@ -3899,16 +3889,9 @@ const Clients = () => {
           .toLowerCase()
           .includes(searchTerm.toLowerCase());
 
-      const matchesDocs =
-        activeDocFilters.length === 0 ||
-        activeDocFilters.includes(client.documents);
-
-      return matchesSearch && matchesDocs;
+      return matchesSearch;
     });
-    }, [clients, searchTerm, activeDocFilters]);
-
-  const toggleDocFilter = (status: DocumentStatus) =>
-    setDocFilter((prev) => ({ ...prev, [status]: !prev[status] }));
+    }, [clients, searchTerm]);
 
   // Expand plans when selected client changes
   useEffect(() => {
@@ -4203,82 +4186,6 @@ const Clients = () => {
                   className="text-sm lg:w-72 xl:w-96"
                 />
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-[150px] justify-between text-sm font-normal"
-                      >
-                        {activeView === "notes" || activeView === "approvals" || activeView === "about" || activeView === "portfolio" ? (
-                          activeView === "approvals" ? "Status" : "All Documents"
-                        ) : (
-                          (() => {
-                          const selectedCount = Object.values(docFilter).filter(Boolean).length;
-                          if (selectedCount === 0) return "All Documents";
-                          if (selectedCount === 1) {
-                            return Object.entries(docFilter).find(([, checked]) => checked)?.[0] || "All Documents";
-                          }
-                          return `${selectedCount} selected`;
-                          })()
-                        )}
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[150px] p-2" align="start">
-                      <div className="space-y-1">
-                        {activeView === "notes" ? (
-                          (["Payment Scheduled", "Instructions Required"] as string[]).map(
-                            (status) => (
-                              <label
-                                key={status}
-                                className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                              >
-                                <Checkbox
-                                  checked={false}
-                                  onCheckedChange={() => {}}
-                                  className="h-4 w-4"
-                                />
-                                <span>{status}</span>
-                              </label>
-                            )
-                          )
-                        ) : activeView === "approvals" ? (
-                          (["pending", "signed", "approved", "pending_signature", "rejected", "expired", "under_review"] as string[]).map(
-                            (status) => (
-                              <label
-                                key={status}
-                                className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                              >
-                                <Checkbox
-                                  checked={false}
-                                  onCheckedChange={() => {}}
-                                  className="h-4 w-4"
-                                />
-                                <span>{status}</span>
-                              </label>
-                            )
-                          )
-                        ) : (
-                          (["Uploaded", "Required", "Missing"] as DocumentStatus[]).map(
-                          (status) => (
-                            <label
-                              key={status}
-                              className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                            >
-                              <Checkbox
-                                checked={docFilter[status]}
-                                onCheckedChange={() => toggleDocFilter(status)}
-                                className="h-4 w-4"
-                              />
-                              <span>{status}</span>
-                            </label>
-                            )
-                          )
-                        )}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-
                 <Button onClick={() => setShowAddClient(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   {activeView === "notes" ? "Add Note" : activeView === "approvals" ? "Add Approval" : activeView === "about" ? "Add About" : activeView === "portfolio" ? "Add Portfolio" : "Add Client"}
@@ -4288,55 +4195,56 @@ const Clients = () => {
             </CardHeader>
             <CardContent className="p-0">
               {activeView === "about" ? (
-                <div className="p-6">
-                  <ScrollArea className="h-[calc(100vh-200px)]">
-                    <div className="space-y-4">
-                      {/* Personal Information */}
-                      <Card className="border border-gray-200 shadow-sm bg-white">
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-base font-semibold text-gray-900">Personal Information</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <div className="grid grid-cols-2 gap-3">
-                                  <div>
-                                    <Label className="text-xs text-gray-700 mb-0.5 block">ID</Label>
-                                    <Input value="95780" readOnly className="h-7 text-xs" />
-                                  </div>
-                                  <div>
-                                    <Label className="text-xs text-gray-700 mb-0.5 block">Title</Label>
-                                    <Select defaultValue="ms">
-                                      <SelectTrigger className="h-7 text-xs">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="mr">Mr.</SelectItem>
-                                        <SelectItem value="mrs">Mrs.</SelectItem>
-                                        <SelectItem value="ms">Ms.</SelectItem>
-                                        <SelectItem value="dr">Dr.</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div>
-                                    <Label className="text-xs text-gray-700 mb-0.5 block">Type</Label>
-                                    <Select defaultValue="individual">
-                                      <SelectTrigger className="h-7 text-xs">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="individual">Individual</SelectItem>
-                                        <SelectItem value="joint">Joint</SelectItem>
-                                        <SelectItem value="corporate">Corporate</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div>
-                                    <Label className="text-xs text-gray-700 mb-0.5 block">First Name</Label>
-                                    <Input defaultValue="Elton" className="h-7 text-xs" />
-                                  </div>
-                                  <div>
-                                    <Label className="text-xs text-gray-700 mb-0.5 block">Surname</Label>
-                                    <Input defaultValue="Andrews" className="h-7 text-xs" />
-                                  </div>
+                selectedClient ? (
+                  <div className="p-6">
+                    <ScrollArea className="h-[calc(100vh-200px)]">
+                      <div className="space-y-4">
+                        {/* Personal Information */}
+                        <Card className="border border-gray-200 shadow-sm bg-white">
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-base font-semibold text-gray-900">Personal Information</CardTitle>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                      <Label className="text-xs text-gray-700 mb-0.5 block">ID</Label>
+                                      <Input value={selectedClient.id || ""} readOnly className="h-7 text-xs" />
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs text-gray-700 mb-0.5 block">Title</Label>
+                                      <Select defaultValue="ms">
+                                        <SelectTrigger className="h-7 text-xs">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="mr">Mr.</SelectItem>
+                                          <SelectItem value="mrs">Mrs.</SelectItem>
+                                          <SelectItem value="ms">Ms.</SelectItem>
+                                          <SelectItem value="dr">Dr.</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs text-gray-700 mb-0.5 block">Type</Label>
+                                      <Select defaultValue="individual">
+                                        <SelectTrigger className="h-7 text-xs">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="individual">Individual</SelectItem>
+                                          <SelectItem value="joint">Joint</SelectItem>
+                                          <SelectItem value="corporate">Corporate</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs text-gray-700 mb-0.5 block">First Name</Label>
+                                      <Input defaultValue={selectedClient.name.split(' ')[0] || ""} className="h-7 text-xs" />
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs text-gray-700 mb-0.5 block">Surname</Label>
+                                      <Input defaultValue={selectedClient.name.split(' ').slice(1).join(' ') || ""} className="h-7 text-xs" />
+                                    </div>
                                   <div>
                                     <Label className="text-xs text-gray-700 mb-0.5 block">Alias</Label>
                                     <Input className="h-7 text-xs" />
@@ -4383,11 +4291,11 @@ const Clients = () => {
                                   </div>
                                   <div>
                                     <Label className="text-xs text-gray-700 mb-0.5 block">Date of Birth</Label>
-                                    <Input type="date" defaultValue="1947-08-22" className="h-7 text-xs" />
+                                    <Input type="date" defaultValue={selectedClient.dateOfBirth || ""} className="h-7 text-xs" />
                                   </div>
                                   <div>
                                     <Label className="text-xs text-gray-700 mb-0.5 block">Age</Label>
-                                    <Input value="78" readOnly className="h-7 text-xs" />
+                                    <Input value={selectedClient.dateOfBirth ? (new Date().getFullYear() - new Date(selectedClient.dateOfBirth).getFullYear()).toString() : ""} readOnly className="h-7 text-xs" />
                                   </div>
                                   <div>
                                     <Label className="text-xs text-gray-700 mb-0.5 block">Language</Label>
@@ -4431,7 +4339,7 @@ const Clients = () => {
                                   </div>
                                   <div>
                                     <Label className="text-xs text-gray-700 mb-0.5 block">Status</Label>
-                                    <Select defaultValue="active">
+                                    <Select defaultValue={selectedClient.status?.toLowerCase() || "active"}>
                                       <SelectTrigger className="h-7 text-xs">
                                         <SelectValue />
                                       </SelectTrigger>
@@ -4558,9 +4466,9 @@ const Clients = () => {
                                   <div>
                                     <h4 className="text-xs font-semibold text-gray-900 mb-1.5">Residential Address</h4>
                                     <div className="space-y-1.5">
-                                      <Input defaultValue="2144 Pelissier St. Suite 10" placeholder="Address Line 1" className="h-7 text-xs" />
+                                      <Input defaultValue={selectedClient.address || ""} placeholder="Address Line 1" className="h-7 text-xs" />
                                       <Input placeholder="Address Line 2" className="h-7 text-xs" />
-                                      <Input defaultValue="Windsor" placeholder="City" className="h-7 text-xs" />
+                                      <Input defaultValue={selectedClient.city || ""} placeholder="City" className="h-7 text-xs" />
                                       <Select defaultValue="canada">
                                         <SelectTrigger className="h-7 text-xs">
                                           <SelectValue placeholder="Country" />
@@ -4570,7 +4478,7 @@ const Clients = () => {
                                           <SelectItem value="usa">United States</SelectItem>
                                         </SelectContent>
                                       </Select>
-                                      <Select defaultValue="ontario">
+                                      <Select defaultValue={selectedClient.province?.toLowerCase() || "ontario"}>
                                         <SelectTrigger className="h-7 text-xs">
                                           <SelectValue placeholder="Province" />
                                         </SelectTrigger>
@@ -4579,7 +4487,7 @@ const Clients = () => {
                                           <SelectItem value="quebec">QUEBEC</SelectItem>
                                         </SelectContent>
                                       </Select>
-                                      <Input defaultValue="H0H 0H0" placeholder="Postal" className="h-7 text-xs" />
+                                      <Input defaultValue={selectedClient.postalCode || ""} placeholder="Postal" className="h-7 text-xs" />
                                     </div>
                                   </div>
                                   <div>
@@ -4593,15 +4501,15 @@ const Clients = () => {
                                     <div className="grid grid-cols-2 gap-3">
                                       <div>
                                         <Label className="text-xs text-gray-700 mb-0.5 block">Home Phone</Label>
-                                        <Input defaultValue="555-555-5555" className="h-7 text-xs" />
+                                        <Input defaultValue={selectedClient.phone || ""} className="h-7 text-xs" />
                                       </div>
                                       <div>
                                         <Label className="text-xs text-gray-700 mb-0.5 block">Work Phone</Label>
-                                        <Input defaultValue="555-555-5555" className="h-7 text-xs" />
+                                        <Input defaultValue={selectedClient.phone || ""} className="h-7 text-xs" />
                                       </div>
                                       <div>
                                         <Label className="text-xs text-gray-700 mb-0.5 block">Cell Phone</Label>
-                                        <Input defaultValue="555-555-5555" className="h-7 text-xs" />
+                                        <Input defaultValue={selectedClient.phone || ""} className="h-7 text-xs" />
                                       </div>
                                       <div>
                                         <Label className="text-xs text-gray-700 mb-0.5 block">Fax</Label>
@@ -4609,7 +4517,7 @@ const Clients = () => {
                                       </div>
                                       <div>
                                         <Label className="text-xs text-gray-700 mb-0.5 block">Email</Label>
-                                        <Input defaultValue="client@onebosstest.com" className="h-7 text-xs" />
+                                        <Input defaultValue={selectedClient.email || ""} className="h-7 text-xs" />
                                       </div>
                                       <div>
                                         <Label className="text-xs text-gray-700 mb-0.5 block">Verify Email</Label>
@@ -4617,7 +4525,7 @@ const Clients = () => {
                                       </div>
                                       <div>
                                         <Label className="text-xs text-gray-700 mb-0.5 block">Email (Secondary)</Label>
-                                        <Input defaultValue="client95780@onebosstest.com" className="h-7 text-xs" />
+                                        <Input defaultValue={`${selectedClient.email?.split('@')[0]}${selectedClient.id}@${selectedClient.email?.split('@')[1]}` || ""} className="h-7 text-xs" />
                                       </div>
                                       <div>
                                         <Label className="text-xs text-gray-700 mb-0.5 block">Verify Secondary Email</Label>
@@ -5043,18 +4951,303 @@ const Clients = () => {
                         </Card>
                       </div>
                     </ScrollArea>
-                </div>
-              ) : activeView === "portfolio" ? (
-                <div className="p-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Portfolio</h3>
-                    <Card className="border border-gray-200 shadow-sm">
-                      <CardContent className="p-6">
-                        <p className="text-sm text-gray-600">Portfolio section content will be displayed here.</p>
-                      </CardContent>
-                    </Card>
                   </div>
-                </div>
+                ) : (
+                  <div className="p-6">
+                    <div className="text-center py-16 text-gray-500">
+                      <p className="text-sm">Please select a client to view their information.</p>
+                    </div>
+                  </div>
+                )
+              ) : activeView === "portfolio" ? (
+                selectedClient ? (
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      <Card className="border border-gray-200 shadow-sm">
+                        <CardContent className="p-4">
+                          <div className="space-y-4">
+                            {/* All Plans - Always Expanded */}
+                            {selectedClient && Array.isArray(selectedClient.plans) && selectedClient.plans.length > 0 ? (
+                              selectedClient.plans.map((plan) => {
+                                const totalMarketValue = plan.holdings?.reduce((sum, holding) => sum + holding.marketValue, 0) || 0;
+                                const totalNetInvested = plan.holdings?.reduce((sum, holding) => sum + holding.costBasis, 0) || 0;
+                                const totalBookValue = plan.holdings?.reduce((sum, holding) => sum + holding.costBasis, 0) || 0;
+                                
+                                return (
+                                  <div key={plan.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div className="p-3 bg-white">
+                                      <div className="flex items-center gap-2 text-xs text-gray-900 flex-wrap">
+                                        <Badge 
+                                          className={
+                                            plan.type === "RRSP" 
+                                              ? "bg-blue-100 text-blue-700 hover:bg-blue-100 font-medium"
+                                              : plan.type === "TFSA"
+                                              ? "bg-green-100 text-green-700 hover:bg-green-100 font-medium"
+                                              : plan.type === "Non-Registered"
+                                              ? "bg-purple-100 text-purple-700 hover:bg-purple-100 font-medium"
+                                              : plan.type === "RESP"
+                                              ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100 font-medium"
+                                              : "bg-gray-100 text-gray-700 hover:bg-gray-100 font-medium"
+                                          }
+                                        >
+                                          {plan.type === "RESP" ? "RESP Education Savings Plan" : plan.type}
+                                        </Badge>
+                                        {plan.planCategory && (
+                                          <>
+                                            <span className="text-gray-400">•</span>
+                                            <span className="text-gray-600">{plan.planCategory}</span>
+                                          </>
+                                        )}
+                                        <span className="text-gray-400">•</span>
+                                        <span className="text-gray-600">Account: {plan.accountNumber}</span>
+                                        {plan.accountHolder && (
+                                          <>
+                                            <span className="text-gray-400">•</span>
+                                            <span className="text-gray-600">{plan.accountHolder}</span>
+                                          </>
+                                        )}
+                                        {plan.riskLevel && (
+                                          <>
+                                            <span className="text-gray-400">•</span>
+                                            <span className="text-gray-600">Risk: {plan.riskLevel}</span>
+                                          </>
+                                        )}
+                                        {plan.objective && (
+                                          <>
+                                            <span className="text-gray-400">•</span>
+                                            <span className="text-gray-600">Objective: {plan.objective}</span>
+                                          </>
+                                        )}
+                                        <span className="text-gray-400">•</span>
+                                        <span className="text-gray-500">Market Value: {formatCurrency(plan.marketValue)}</span>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Holdings Table - Always Visible */}
+                                    {plan.holdings && plan.holdings.length > 0 && (
+                                      <div className="border-t border-gray-200 bg-white">
+                                        <div className="p-4">
+                                          <Table>
+                                            <TableHeader>
+                                              <TableRow>
+                                                <TableHead className="text-center">Symbol</TableHead>
+                                                <TableHead>Product</TableHead>
+                                                <TableHead className="text-center">Shares</TableHead>
+                                                <TableHead className="text-center">Price</TableHead>
+                                                <TableHead className="text-center">Market Value</TableHead>
+                                                <TableHead className="text-center">Net Invested</TableHead>
+                                                <TableHead className="text-center">Total Book Value</TableHead>
+                                                <TableHead className="text-center">Actions</TableHead>
+                                              </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                              {plan.holdings.map((holding, index) => (
+                                                <TableRow key={index} className="hover:bg-gray-50">
+                                                  <TableCell className="text-center text-sm font-medium text-gray-900">
+                                                    {holding.symbol}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                    <span className="text-xs font-medium text-gray-900">
+                                                      {holding.name}
+                                                    </span>
+                                                  </TableCell>
+                                                  <TableCell className="text-center text-sm text-gray-700">
+                                                    {holding.shares.toLocaleString(undefined, {
+                                                      minimumFractionDigits: 2,
+                                                      maximumFractionDigits: 2,
+                                                    })}
+                                                  </TableCell>
+                                                  <TableCell className="text-center text-sm text-gray-700">
+                                                    {formatCurrency(holding.price)}
+                                                  </TableCell>
+                                                  <TableCell className="text-center text-sm text-gray-700">
+                                                    {formatCurrency(holding.marketValue)}
+                                                  </TableCell>
+                                                  <TableCell className="text-center text-sm text-gray-700">
+                                                    {formatCurrency(holding.costBasis)}
+                                                  </TableCell>
+                                                  <TableCell className="text-center text-sm text-gray-700">
+                                                    {formatCurrency(holding.costBasis)}
+                                                  </TableCell>
+                                                  <TableCell className="text-center">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                      <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 w-8 p-0"
+                                                        onClick={() => {
+                                                          setSelectedHolding({ holding, plan });
+                                                          setShowBuyUnits(true);
+                                                        }}
+                                                        title="Buy more units"
+                                                      >
+                                                        <Plus className="h-4 w-4" />
+                                                      </Button>
+                                                      <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 w-8 p-0"
+                                                        onClick={() => {
+                                                          setSelectedHolding({ holding, plan });
+                                                          setShowSellUnits(true);
+                                                        }}
+                                                        title="Sell units"
+                                                      >
+                                                        <Minus className="h-4 w-4" />
+                                                      </Button>
+                                                      <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 w-8 p-0"
+                                                        onClick={() => {
+                                                          setSelectedHolding({ holding, plan });
+                                                          setShowSwitchFund(true);
+                                                        }}
+                                                        title="Switch or Convert fund"
+                                                      >
+                                                        <ArrowLeftRight className="h-4 w-4" />
+                                                      </Button>
+                                                    </div>
+                                                  </TableCell>
+                                                </TableRow>
+                                              ))}
+                                              
+                                              {/* Add Product Row */}
+                                              <TableRow className="hover:bg-gray-50">
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell className="text-center">
+                                                  <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 text-xs"
+                                                    onClick={() => {
+                                                      setSelectedPlanForProduct(plan);
+                                                      setShowAddProductDialog(true);
+                                                      setAddProductData({
+                                                        fundCompany: "",
+                                                        selectedFund: "",
+                                                        investmentAmount: "",
+                                                      });
+                                                    }}
+                                                  >
+                                                    <Plus className="h-3 w-3 mr-1" />
+                                                    Add Product
+                                                  </Button>
+                                                </TableCell>
+                                              </TableRow>
+                                              
+                                              {/* Totals Row */}
+                                              <TableRow className="bg-gray-50 font-semibold">
+                                                <TableCell className="text-sm text-gray-900">
+                                                  Totals
+                                                </TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell className="text-center text-sm text-gray-900">
+                                                  {formatCurrency(totalMarketValue)}
+                                                </TableCell>
+                                                <TableCell className="text-center text-sm text-gray-900">
+                                                  {formatCurrency(totalNetInvested)}
+                                                </TableCell>
+                                                <TableCell className="text-center text-sm text-gray-900">
+                                                  {formatCurrency(totalBookValue)}
+                                                </TableCell>
+                                                <TableCell></TableCell>
+                                              </TableRow>
+                                            </TableBody>
+                                          </Table>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Trust Account Cards */}
+                                    <div className="border-t border-gray-200 bg-white px-4 pb-4 pt-4">
+                                      <div className="grid grid-cols-3 gap-2">
+                                        {/* Trust Account CAD */}
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-2">
+                                            <p className="text-[10px] text-gray-500 mb-0.5 leading-tight">Trust Account CAD</p>
+                                            <p className="text-sm font-bold text-gray-900 mb-1">$0.00</p>
+                                            <div className="space-y-0.5">
+                                              <div className="flex justify-between text-[10px]">
+                                                <span className="text-gray-500">Settled:</span>
+                                                <span className="text-green-600 font-medium">$0.00</span>
+                                              </div>
+                                              <div className="flex justify-between text-[10px]">
+                                                <span className="text-gray-500">Unsettled:</span>
+                                                <span className="text-red-600 font-medium">$0.00</span>
+                                              </div>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        {/* Trust Account USD */}
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-2">
+                                            <p className="text-[10px] text-gray-500 mb-0.5 leading-tight">Trust Account USD</p>
+                                            <p className="text-sm font-bold text-gray-900 mb-1">$0.00</p>
+                                            <div className="space-y-0.5">
+                                              <div className="flex justify-between text-[10px]">
+                                                <span className="text-gray-500">Settled:</span>
+                                                <span className="text-green-600 font-medium">$0.00</span>
+                                              </div>
+                                              <div className="flex justify-between text-[10px]">
+                                                <span className="text-gray-500">Unsettled:</span>
+                                                <span className="text-red-600 font-medium">$0.00</span>
+                                              </div>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        {/* Total in CAD */}
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-2">
+                                            <p className="text-[10px] text-gray-500 mb-0.5 leading-tight">Total in CAD</p>
+                                            <p className="text-sm font-bold text-green-600">
+                                              {formatCurrency(plan.marketValue)}
+                                            </p>
+                                          </CardContent>
+                                        </Card>
+                                      </div>
+
+                                      {/* Deposit Button */}
+                                      <div className="mt-3 flex justify-center">
+                                        <Button 
+                                          size="sm" 
+                                          className="bg-blue-600 hover:bg-blue-700 text-white h-7 text-xs"
+                                          onClick={() => setShowDepositDialog(true)}
+                                        >
+                                          Deposit
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className="text-center py-8 text-gray-500 text-sm">
+                                No plans found for this client.
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-6">
+                    <div className="text-center py-16 text-gray-500">
+                      <p className="text-sm">Please select a client to view their portfolio.</p>
+                    </div>
+                  </div>
+                )
               ) : activeView === "approvals" ? (
                 <div className="p-6">
                   {/* Approvals Table */}
