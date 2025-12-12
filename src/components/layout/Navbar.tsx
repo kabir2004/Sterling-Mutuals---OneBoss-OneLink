@@ -26,18 +26,15 @@ export function Navbar({ className, onMenuClick }: NavbarProps) {
       <div className="w-full flex items-center justify-between h-16 px-4 lg:px-6">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
+          <div className="flex items-center gap-2">
+            <InterfaceSwitcher />
+            <span className="text-sm text-gray-600 font-medium">
+              {getInterfaceDisplayName(currentInterface)}
+            </span>
+          </div>
         </div>
         
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative h-9 w-9 text-gray-600 hover:text-gray-900"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-          </Button>
-          
           <Button 
             variant="ghost" 
             size="icon" 
@@ -51,8 +48,6 @@ export function Navbar({ className, onMenuClick }: NavbarProps) {
               <Eye className="h-5 w-5" />
             )}
           </Button>
-          
-          <InterfaceSwitcher />
           
           <ShoppingCart>
             <Button 
@@ -74,6 +69,15 @@ export function Navbar({ className, onMenuClick }: NavbarProps) {
               <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
             </Button>
           </Attestations>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative h-9 w-9 text-gray-600 hover:text-gray-900"
+          >
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
+          </Button>
           
           <Avatar className="h-9 w-9 transition-transform duration-200 hover:scale-105">
             <AvatarFallback className="bg-gray-100 text-gray-900">

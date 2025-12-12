@@ -77,14 +77,13 @@ export function InterfaceSwitcher() {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-9 px-3 text-gray-600 hover:text-gray-900"
+          size="icon"
+          className="h-9 w-9 text-gray-600 hover:text-gray-900"
         >
-          <Monitor className="h-4 w-4 mr-2" />
-          <span className="text-sm">Switch Interface</span>
+          <Monitor className="h-5 w-5" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[320px] p-0" align="end">
+      <PopoverContent className="w-[320px] p-0" align="start" side="bottom">
         <div className="p-4 border-b border-gray-200">
           <h3 className="text-sm font-semibold text-gray-900">Switch Interface</h3>
           <p className="text-xs text-gray-600 mt-1">Current: {currentDisplayName}</p>

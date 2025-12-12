@@ -200,9 +200,6 @@ export function SidebarNavigation() {
           <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
             <h2 className="text-base font-semibold text-gray-900 leading-tight">OneBoss</h2>
             <p className="text-xs text-gray-600 leading-tight">Welcome Back, Nelson</p>
-            <p className="text-xs text-blue-600 leading-tight mt-1 font-medium">
-              {getInterfaceDisplayName(currentInterface)}
-            </p>
           </div>
         </div>
       </SidebarHeader>
@@ -270,10 +267,10 @@ export function SidebarNavigation() {
                               Advanced Search
                             </Button>
                           </div>
-                          <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-sm transition-all duration-300 ease-in-out">
-                            <ScrollArea className="h-[200px]">
+                          <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-sm transition-all duration-300 ease-in-out overflow-hidden">
+                            <ScrollArea className="h-[400px]">
                               <div className="space-y-0.5 p-2">
-                                {CLIENTS.slice(0, 10).map((client) => {
+                                {CLIENTS.map((client) => {
                                   const { firstName, lastName } = parseName(client.name);
                                   const isSelected = selectedClientId === client.id;
                                   return (

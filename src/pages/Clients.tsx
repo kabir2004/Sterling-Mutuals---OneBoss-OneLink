@@ -36,7 +36,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Loader2, Plus, UploadCloud, Eye, Pencil, FileUp, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, ArrowLeftRight, FileText, X, CheckCircle2, Search, ArrowLeft, DollarSign, AlertTriangle, Home, Trash2, Clock, AlertCircle, FileCheck, PenTool, ArrowRight, Sparkles } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Loader2, Plus, UploadCloud, Eye, Pencil, FileUp, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, ArrowLeftRight, FileText, X, CheckCircle2, Search, ArrowLeft, DollarSign, AlertTriangle, Home, Trash2, Clock, AlertCircle, FileCheck, PenTool, ArrowRight, Sparkles, BarChart3 } from "lucide-react";
 
 type DocumentStatus = "Uploaded" | "Required" | "Missing";
 type ClientStatus = "Active" | "Inactive" | "Prospect";
@@ -159,7 +160,7 @@ type Client = {
 export const CLIENTS: Client[] = [
   {
     id: "CL-001",
-    name: "Smith Family Trust",
+    name: "John Smith",
     accountNumber: "A-984512",
     email: "smithfamily@clientmail.com",
     phone: "(416) 555-1032",
@@ -171,10 +172,10 @@ export const CLIENTS: Client[] = [
         id: "P-001",
         type: "RRSP",
         accountNumber: "RRSP-984512",
-        marketValue: 285230.80,
-        costBasis: 250000.00,
-        totalGainLoss: 35230.80,
-        totalGainLossPercent: 14.09,
+        marketValue: 82905.00,
+        costBasis: 75000.00,
+        totalGainLoss: 7905.00,
+        totalGainLossPercent: 10.54,
         planCategory: "Individual Plan",
         accountHolder: "Smith, John",
         riskLevel: "Medium",
@@ -204,88 +205,16 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "Canadian Equity",
           },
-          {
-            symbol: "ZAG.TO",
-            name: "BMO Aggregate Bond Index ETF",
-            shares: 2500,
-            price: 15.82,
-            marketValue: 39550.00,
-            costBasis: 40000.00,
-            gainLoss: -450.00,
-            gainLossPercent: -1.13,
-            assetClass: "Fixed Income",
-            sector: "Bonds",
-          },
-          {
-            symbol: "AAPL",
-            name: "Apple Inc.",
-            shares: 150,
-            price: 175.50,
-            marketValue: 26325.00,
-            costBasis: 22000.00,
-            gainLoss: 4325.00,
-            gainLossPercent: 19.66,
-            assetClass: "Equity",
-            sector: "Technology",
-          },
-          {
-            symbol: "MSFT",
-            name: "Microsoft Corporation",
-            shares: 80,
-            price: 380.25,
-            marketValue: 30420.00,
-            costBasis: 28000.00,
-            gainLoss: 2420.00,
-            gainLossPercent: 8.64,
-            assetClass: "Equity",
-            sector: "Technology",
-          },
-          {
-            symbol: "XAW.TO",
-            name: "iShares Core MSCI All Country World ex Canada Index ETF",
-            shares: 800,
-            price: 78.90,
-            marketValue: 63120.00,
-            costBasis: 60000.00,
-            gainLoss: 3120.00,
-            gainLossPercent: 5.20,
-            assetClass: "Equity",
-            sector: "International Equity",
-          },
-          {
-            symbol: "VCN.TO",
-            name: "Vanguard FTSE Canada All Cap Index ETF",
-            shares: 600,
-            price: 42.75,
-            marketValue: 25650.00,
-            costBasis: 25000.00,
-            gainLoss: 650.00,
-            gainLossPercent: 2.60,
-            assetClass: "Equity",
-            sector: "Canadian Equity",
-          },
-          {
-            symbol: "VAB.TO",
-            name: "Vanguard Canadian Aggregate Bond Index ETF",
-            shares: 1500,
-            price: 27.15,
-            marketValue: 40725.00,
-            costBasis: 40000.00,
-            gainLoss: 725.00,
-            gainLossPercent: 1.81,
-            assetClass: "Fixed Income",
-            sector: "Bonds",
-          },
         ],
       },
       {
         id: "P-002",
         type: "TFSA",
         accountNumber: "TFSA-984512",
-        marketValue: 125000.00,
-        costBasis: 100000.00,
-        totalGainLoss: 25000.00,
-        totalGainLossPercent: 25.00,
+        marketValue: 107325.00,
+        costBasis: 90000.00,
+        totalGainLoss: 17325.00,
+        totalGainLossPercent: 19.25,
         planCategory: "Individual Plan",
         accountHolder: "Smith, John",
         riskLevel: "Medium",
@@ -315,28 +244,16 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "Canadian Equity",
           },
-          {
-            symbol: "GOOGL",
-            name: "Alphabet Inc.",
-            shares: 120,
-            price: 145.30,
-            marketValue: 17436.00,
-            costBasis: 10000.00,
-            gainLoss: 7436.00,
-            gainLossPercent: 74.36,
-            assetClass: "Equity",
-            sector: "Technology",
-          },
         ],
       },
       {
         id: "P-003",
         type: "Non-Registered",
         accountNumber: "NR-984512",
-        marketValue: 75000.00,
+        marketValue: 73650.00,
         costBasis: 70000.00,
-        totalGainLoss: 5000.00,
-        totalGainLossPercent: 7.14,
+        totalGainLoss: 3650.00,
+        totalGainLossPercent: 5.21,
         planCategory: "Individual Plan",
         accountHolder: "Smith, John",
         riskLevel: "Medium",
@@ -366,28 +283,16 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "Canadian Equity",
           },
-          {
-            symbol: "ZAG.TO",
-            name: "BMO Aggregate Bond Index ETF",
-            shares: 85,
-            price: 15.82,
-            marketValue: 1350.00,
-            costBasis: 0.00,
-            gainLoss: 1350.00,
-            gainLossPercent: 0.00,
-            assetClass: "Fixed Income",
-            sector: "Bonds",
-          },
         ],
       },
       {
         id: "P-004",
         type: "RESP",
         accountNumber: "3238677748",
-        marketValue: 75000.00,
-        costBasis: 65000.00,
-        totalGainLoss: 10000.00,
-        totalGainLossPercent: 15.38,
+        marketValue: 65120.00,
+        costBasis: 55000.00,
+        totalGainLoss: 10120.00,
+        totalGainLossPercent: 18.40,
         planCategory: "Family Plan",
         accountHolder: "Smith, John",
         riskLevel: "Medium",
@@ -417,18 +322,6 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "Canadian Equity",
           },
-          {
-            symbol: "GOOGL",
-            name: "Alphabet Inc.",
-            shares: 68,
-            price: 145.30,
-            marketValue: 9880.40,
-            costBasis: 10000.00,
-            gainLoss: -119.60,
-            gainLossPercent: -1.20,
-            assetClass: "Equity",
-            sector: "Technology",
-          },
         ],
       },
     ],
@@ -446,7 +339,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-002",
-    name: "Johnson Retirement Fund",
+    name: "Robert Johnson",
     accountNumber: "A-572341",
     email: "johnson.retire@clientmail.com",
     phone: "(905) 555-4420",
@@ -458,10 +351,10 @@ export const CLIENTS: Client[] = [
         id: "P-004",
         type: "RRSP",
         accountNumber: "RRSP-572341",
-        marketValue: 220850.00,
-        costBasis: 200000.00,
-        totalGainLoss: 20850.00,
-        totalGainLossPercent: 10.43,
+        marketValue: 182500.00,
+        costBasis: 160000.00,
+        totalGainLoss: 22500.00,
+        totalGainLossPercent: 14.06,
         holdings: [
           {
             symbol: "VFV.TO",
@@ -486,18 +379,6 @@ export const CLIENTS: Client[] = [
             gainLossPercent: 7.17,
             assetClass: "Equity",
             sector: "Canadian Equity",
-          },
-          {
-            symbol: "ZAG.TO",
-            name: "BMO Aggregate Bond Index ETF",
-            shares: 2400,
-            price: 15.82,
-            marketValue: 37968.00,
-            costBasis: 40000.00,
-            gainLoss: -2032.00,
-            gainLossPercent: -5.08,
-            assetClass: "Fixed Income",
-            sector: "Bonds",
           },
         ],
       },
@@ -544,7 +425,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-003",
-    name: "Williams Education Savings",
+    name: "Michael Williams",
     accountNumber: "A-441205",
     email: "williams.edusave@clientmail.com",
     phone: "(519) 555-8832",
@@ -556,10 +437,10 @@ export const CLIENTS: Client[] = [
         id: "P-006",
         type: "RESP",
         accountNumber: "RESP-441205",
-        marketValue: 125430.50,
-        costBasis: 100000.00,
-        totalGainLoss: 25430.50,
-        totalGainLossPercent: 25.43,
+        marketValue: 110950.00,
+        costBasis: 90000.00,
+        totalGainLoss: 20950.00,
+        totalGainLossPercent: 23.28,
         holdings: [
           {
             symbol: "VFV.TO",
@@ -585,18 +466,6 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "Canadian Equity",
           },
-          {
-            symbol: "XAW.TO",
-            name: "iShares Core MSCI All Country World ex Canada Index ETF",
-            shares: 185,
-            price: 78.90,
-            marketValue: 14480.50,
-            costBasis: 10000.00,
-            gainLoss: 4480.50,
-            gainLossPercent: 44.81,
-            assetClass: "Equity",
-            sector: "International Equity",
-          },
         ],
       },
     ],
@@ -607,7 +476,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-004",
-    name: "Brown Emergency Fund",
+    name: "Patricia Brown",
     accountNumber: "A-228904",
     email: "brown.emergency@clientmail.com",
     phone: "(647) 555-6624",
@@ -636,6 +505,18 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "Canadian Equity",
           },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 2,
+            price: 98.50,
+            marketValue: 197.00,
+            costBasis: 0.00,
+            gainLoss: 197.00,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
         ],
       },
     ],
@@ -646,7 +527,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-005",
-    name: "Evergreen Wealth Partners",
+    name: "David Chen",
     accountNumber: "A-663920",
     email: "evergreen.wealth@clientmail.com",
     phone: "(905) 555-1188",
@@ -710,16 +591,28 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "International Equity",
           },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 3,
+            price: 98.50,
+            marketValue: 295.50,
+            costBasis: 0.00,
+            gainLoss: 295.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
         ],
       },
       {
         id: "P-010",
         type: "Non-Registered",
         accountNumber: "NR-663920",
-        marketValue: 150000.00,
-        costBasis: 140000.00,
-        totalGainLoss: 10000.00,
-        totalGainLossPercent: 7.14,
+        marketValue: 144787.50,
+        costBasis: 135000.00,
+        totalGainLoss: 9787.50,
+        totalGainLossPercent: 7.25,
         holdings: [
           {
             symbol: "AAPL",
@@ -742,18 +635,6 @@ export const CLIENTS: Client[] = [
             costBasis: 55000.00,
             gainLoss: 2037.50,
             gainLossPercent: 3.70,
-            assetClass: "Equity",
-            sector: "Technology",
-          },
-          {
-            symbol: "GOOGL",
-            name: "Alphabet Inc.",
-            shares: 35,
-            price: 145.30,
-            marketValue: 5085.50,
-            costBasis: 5000.00,
-            gainLoss: 85.50,
-            gainLossPercent: 1.71,
             assetClass: "Equity",
             sector: "Technology",
           },
@@ -780,6 +661,18 @@ export const CLIENTS: Client[] = [
             assetClass: "Fixed Income",
             sector: "Bonds",
           },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 7,
+            price: 15.82,
+            marketValue: 110.74,
+            costBasis: 0.00,
+            gainLoss: 110.74,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
         ],
       },
     ],
@@ -790,7 +683,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-006",
-    name: "Aurora RESP",
+    name: "Sarah Martinez",
     accountNumber: "A-774512",
     email: "aurora.resp@clientmail.com",
     phone: "(613) 555-4410",
@@ -841,7 +734,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-007",
-    name: "Harper Estate Planning",
+    name: "James Harper",
     accountNumber: "A-990214",
     email: "harper.estate@clientmail.com",
     phone: "(416) 555-7712",
@@ -905,6 +798,18 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "International Equity",
           },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 3,
+            price: 98.50,
+            marketValue: 295.50,
+            costBasis: 0.00,
+            gainLoss: 295.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
         ],
       },
       {
@@ -963,6 +868,18 @@ export const CLIENTS: Client[] = [
             assetClass: "Fixed Income",
             sector: "Bonds",
           },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 0,
+            price: 15.82,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
         ],
       },
       {
@@ -986,6 +903,18 @@ export const CLIENTS: Client[] = [
             assetClass: "Fixed Income",
             sector: "Bonds",
           },
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 1,
+            price: 27.15,
+            marketValue: 27.15,
+            costBasis: 0.00,
+            gainLoss: 27.15,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
         ],
       },
     ],
@@ -996,7 +925,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-008",
-    name: "Maple Leaf Holdings",
+    name: "Jennifer Anderson",
     accountNumber: "A-552031",
     email: "maple.holdings@clientmail.com",
     phone: "(780) 555-2020",
@@ -1060,16 +989,28 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "International Equity",
           },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 3,
+            price: 98.50,
+            marketValue: 295.50,
+            costBasis: 0.00,
+            gainLoss: 295.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
         ],
       },
       {
         id: "P-020",
         type: "Non-Registered",
         accountNumber: "NR-552031",
-        marketValue: 407340.00,
-        costBasis: 380000.00,
-        totalGainLoss: 27340.00,
-        totalGainLossPercent: 7.19,
+        marketValue: 362700.00,
+        costBasis: 340000.00,
+        totalGainLoss: 22700.00,
+        totalGainLossPercent: 6.68,
         holdings: [
           {
             symbol: "AAPL",
@@ -1095,30 +1036,6 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "Technology",
           },
-          {
-            symbol: "GOOGL",
-            name: "Alphabet Inc.",
-            shares: 300,
-            price: 145.30,
-            marketValue: 43590.00,
-            costBasis: 40000.00,
-            gainLoss: 3590.00,
-            gainLossPercent: 8.98,
-            assetClass: "Equity",
-            sector: "Technology",
-          },
-          {
-            symbol: "NVDA",
-            name: "NVIDIA Corporation",
-            shares: 50,
-            price: 1210.50,
-            marketValue: 60525.00,
-            costBasis: 0.00,
-            gainLoss: 60525.00,
-            gainLossPercent: 0.00,
-            assetClass: "Equity",
-            sector: "Technology",
-          },
         ],
       },
     ],
@@ -1129,7 +1046,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-009",
-    name: "Sunrise Portfolio Group",
+    name: "Christopher Taylor",
     accountNumber: "A-336781",
     email: "sunrise.portfolio@clientmail.com",
     phone: "(587) 555-9094",
@@ -1193,6 +1110,18 @@ export const CLIENTS: Client[] = [
             assetClass: "Equity",
             sector: "International Equity",
           },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1,
+            price: 98.50,
+            marketValue: 98.50,
+            costBasis: 0.00,
+            gainLoss: 98.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
         ],
       },
     ],
@@ -1203,7 +1132,7 @@ export const CLIENTS: Client[] = [
   },
   {
     id: "CL-010",
-    name: "Cedar Ridge Advisory",
+    name: "Amanda Wilson",
     accountNumber: "A-884512",
     email: "cedar.ridge@clientmail.com",
     phone: "(431) 555-0055",
@@ -1252,6 +1181,2436 @@ export const CLIENTS: Client[] = [
       { label: "Initial client onboarding started", timestamp: "Nov 6 • 10:30 AM" },
     ],
   },
+  {
+    id: "CL-011",
+    name: "Lisa Thompson",
+    accountNumber: "A-112233",
+    email: "lisa.thompson@clientmail.com",
+    phone: "(416) 555-1122",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$156,780.00",
+    plans: [
+      {
+        id: "P-024",
+        type: "RRSP",
+        accountNumber: "RRSP-112233",
+        marketValue: 156780.00,
+        costBasis: 145000.00,
+        totalGainLoss: 11780.00,
+        totalGainLossPercent: 8.12,
+        planCategory: "Individual Plan",
+        accountHolder: "Thompson, Lisa",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1000,
+            price: 98.50,
+            marketValue: 98500.00,
+            costBasis: 90000.00,
+            gainLoss: 8500.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1800,
+            price: 32.15,
+            marketValue: 57870.00,
+            costBasis: 55000.00,
+            gainLoss: 2870.00,
+            gainLossPercent: 5.22,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Monthly contribution • $500", timestamp: "Nov 7 • 8:00 AM" },
+      { label: "Portfolio rebalance completed", timestamp: "Nov 5 • 2:30 PM" },
+    ],
+  },
+  {
+    id: "CL-012",
+    name: "Daniel Rodriguez",
+    accountNumber: "A-223344",
+    email: "daniel.rodriguez@clientmail.com",
+    phone: "(647) 555-2233",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$289,450.00",
+    plans: [
+      {
+        id: "P-025",
+        type: "TFSA",
+        accountNumber: "TFSA-223344",
+        marketValue: 125000.00,
+        costBasis: 110000.00,
+        totalGainLoss: 15000.00,
+        totalGainLossPercent: 13.64,
+        planCategory: "Individual Plan",
+        accountHolder: "Rodriguez, Daniel",
+        riskLevel: "Aggressive",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XAW.TO",
+            name: "iShares Core MSCI All Country World ex Canada Index ETF",
+            shares: 1585,
+            price: 78.90,
+            marketValue: 125056.50,
+            costBasis: 110000.00,
+            gainLoss: 15056.50,
+            gainLossPercent: 13.69,
+            assetClass: "Equity",
+            sector: "International Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 0,
+            price: 98.50,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+      {
+        id: "P-026",
+        type: "Non-Registered",
+        accountNumber: "NR-223344",
+        marketValue: 164450.00,
+        costBasis: 150000.00,
+        totalGainLoss: 14450.00,
+        totalGainLossPercent: 9.63,
+        planCategory: "Individual Plan",
+        accountHolder: "Rodriguez, Daniel",
+        riskLevel: "Aggressive",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            shares: 500,
+            price: 175.50,
+            marketValue: 87750.00,
+            costBasis: 80000.00,
+            gainLoss: 7750.00,
+            gainLossPercent: 9.69,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+          {
+            symbol: "MSFT",
+            name: "Microsoft Corporation",
+            shares: 200,
+            price: 380.25,
+            marketValue: 76050.00,
+            costBasis: 70000.00,
+            gainLoss: 6050.00,
+            gainLossPercent: 8.64,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Stock purchase • $15,000", timestamp: "Nov 6 • 11:20 AM" },
+      { label: "Dividend received • $450", timestamp: "Nov 4 • 3:15 PM" },
+    ],
+  },
+  {
+    id: "CL-013",
+    name: "Emily Davis",
+    accountNumber: "A-334455",
+    email: "emily.davis@clientmail.com",
+    phone: "(905) 555-3344",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$98,230.00",
+    plans: [
+      {
+        id: "P-027",
+        type: "RESP",
+        accountNumber: "RESP-334455",
+        marketValue: 98230.00,
+        costBasis: 85000.00,
+        totalGainLoss: 13230.00,
+        totalGainLossPercent: 15.56,
+        planCategory: "Family Plan",
+        accountHolder: "Davis, Emily",
+        riskLevel: "Medium",
+        objective: "Education",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 700,
+            price: 98.50,
+            marketValue: 68950.00,
+            costBasis: 60000.00,
+            gainLoss: 8950.00,
+            gainLossPercent: 14.92,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 910,
+            price: 32.15,
+            marketValue: 29256.50,
+            costBasis: 25000.00,
+            gainLoss: 4256.50,
+            gainLossPercent: 17.03,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Government grant received • $500", timestamp: "Nov 6 • 9:00 AM" },
+      { label: "Annual contribution • $2,500", timestamp: "Nov 3 • 10:45 AM" },
+    ],
+  },
+  {
+    id: "CL-014",
+    name: "Mark Thompson",
+    accountNumber: "A-445566",
+    email: "mark.thompson@clientmail.com",
+    phone: "(519) 555-4455",
+    status: "Active",
+    documents: "Required",
+    assets: "$412,890.00",
+    plans: [
+      {
+        id: "P-028",
+        type: "RRSP",
+        accountNumber: "RRSP-445566",
+        marketValue: 250000.00,
+        costBasis: 230000.00,
+        totalGainLoss: 20000.00,
+        totalGainLossPercent: 8.70,
+        planCategory: "Individual Plan",
+        accountHolder: "Thompson, Mark",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 2000,
+            price: 98.50,
+            marketValue: 197000.00,
+            costBasis: 180000.00,
+            gainLoss: 17000.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 1950,
+            price: 27.15,
+            marketValue: 52942.50,
+            costBasis: 50000.00,
+            gainLoss: 2942.50,
+            gainLossPercent: 5.89,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+      {
+        id: "P-029",
+        type: "RRIF",
+        accountNumber: "RRIF-445566",
+        marketValue: 162890.00,
+        costBasis: 150000.00,
+        totalGainLoss: 12890.00,
+        totalGainLossPercent: 8.59,
+        planCategory: "Individual Plan",
+        accountHolder: "Thompson, Mark",
+        riskLevel: "Conservative",
+        objective: "Income",
+        holdings: [
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 6000,
+            price: 27.15,
+            marketValue: 162900.00,
+            costBasis: 150000.00,
+            gainLoss: 12900.00,
+            gainLossPercent: 8.60,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 0,
+            price: 15.82,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "RRIF withdrawal • $2,500", timestamp: "Nov 7 • 1:00 PM" },
+      { label: "Annual review scheduled", timestamp: "Nov 5 • 9:30 AM" },
+    ],
+  },
+  {
+    id: "CL-015",
+    name: "Rachel Kim",
+    accountNumber: "A-556677",
+    email: "rachel.kim@clientmail.com",
+    phone: "(613) 555-5566",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$234,560.00",
+    plans: [
+      {
+        id: "P-030",
+        type: "TFSA",
+        accountNumber: "TFSA-556677",
+        marketValue: 95000.00,
+        costBasis: 87500.00,
+        totalGainLoss: 7500.00,
+        totalGainLossPercent: 8.57,
+        planCategory: "Individual Plan",
+        accountHolder: "Kim, Rachel",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XAW.TO",
+            name: "iShares Core MSCI All Country World ex Canada Index ETF",
+            shares: 1200,
+            price: 78.90,
+            marketValue: 94680.00,
+            costBasis: 87500.00,
+            gainLoss: 7180.00,
+            gainLossPercent: 8.21,
+            assetClass: "Equity",
+            sector: "International Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 3,
+            price: 98.50,
+            marketValue: 295.50,
+            costBasis: 0.00,
+            gainLoss: 295.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+      {
+        id: "P-031",
+        type: "RRSP",
+        accountNumber: "RRSP-556677",
+        marketValue: 139560.00,
+        costBasis: 130000.00,
+        totalGainLoss: 9560.00,
+        totalGainLossPercent: 7.35,
+        planCategory: "Individual Plan",
+        accountHolder: "Kim, Rachel",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1000,
+            price: 98.50,
+            marketValue: 98500.00,
+            costBasis: 90000.00,
+            gainLoss: 8500.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1280,
+            price: 32.15,
+            marketValue: 41152.00,
+            costBasis: 40000.00,
+            gainLoss: 1152.00,
+            gainLossPercent: 2.88,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Contribution posted • $6,000", timestamp: "Nov 6 • 2:15 PM" },
+      { label: "Portfolio performance review", timestamp: "Nov 4 • 11:00 AM" },
+    ],
+  },
+  {
+    id: "CL-016",
+    name: "Thomas Anderson",
+    accountNumber: "A-667788",
+    email: "thomas.anderson@clientmail.com",
+    phone: "(416) 555-6677",
+    status: "Inactive",
+    documents: "Missing",
+    assets: "$67,890.00",
+    plans: [
+      {
+        id: "P-032",
+        type: "TFSA",
+        accountNumber: "TFSA-667788",
+        marketValue: 67890.00,
+        costBasis: 65000.00,
+        totalGainLoss: 2890.00,
+        totalGainLossPercent: 4.45,
+        planCategory: "Individual Plan",
+        accountHolder: "Anderson, Thomas",
+        riskLevel: "Conservative",
+        objective: "Savings",
+        holdings: [
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 4290,
+            price: 15.82,
+            marketValue: 67887.80,
+            costBasis: 65000.00,
+            gainLoss: 2887.80,
+            gainLossPercent: 4.44,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 1,
+            price: 27.15,
+            marketValue: 27.15,
+            costBasis: 0.00,
+            gainLoss: 27.15,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Account review overdue", timestamp: "Nov 5 • 8:00 AM" },
+      { label: "Document request sent", timestamp: "Nov 2 • 3:45 PM" },
+    ],
+  },
+  {
+    id: "CL-017",
+    name: "Jessica White",
+    accountNumber: "A-778899",
+    email: "jessica.white@clientmail.com",
+    phone: "(905) 555-7788",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$345,670.00",
+    plans: [
+      {
+        id: "P-033",
+        type: "RRSP",
+        accountNumber: "RRSP-778899",
+        marketValue: 200000.00,
+        costBasis: 185000.00,
+        totalGainLoss: 15000.00,
+        totalGainLossPercent: 8.11,
+        planCategory: "Individual Plan",
+        accountHolder: "White, Jessica",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1500,
+            price: 98.50,
+            marketValue: 147750.00,
+            costBasis: 135000.00,
+            gainLoss: 12750.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1625,
+            price: 32.15,
+            marketValue: 52243.75,
+            costBasis: 50000.00,
+            gainLoss: 2243.75,
+            gainLossPercent: 4.49,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-034",
+        type: "Non-Registered",
+        accountNumber: "NR-778899",
+        marketValue: 145670.00,
+        costBasis: 135000.00,
+        totalGainLoss: 10670.00,
+        totalGainLossPercent: 7.90,
+        planCategory: "Individual Plan",
+        accountHolder: "White, Jessica",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "GOOGL",
+            name: "Alphabet Inc.",
+            shares: 600,
+            price: 145.30,
+            marketValue: 87180.00,
+            costBasis: 80000.00,
+            gainLoss: 7180.00,
+            gainLossPercent: 8.98,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+          {
+            symbol: "MSFT",
+            name: "Microsoft Corporation",
+            shares: 150,
+            price: 380.25,
+            marketValue: 57037.50,
+            costBasis: 55000.00,
+            gainLoss: 2037.50,
+            gainLossPercent: 3.70,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Rebalance executed • $8,500", timestamp: "Nov 7 • 10:30 AM" },
+      { label: "Tax loss harvesting", timestamp: "Nov 5 • 4:20 PM" },
+    ],
+  },
+  {
+    id: "CL-018",
+    name: "Kevin Lee",
+    accountNumber: "A-889900",
+    email: "kevin.lee@clientmail.com",
+    phone: "(647) 555-8899",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$178,920.00",
+    plans: [
+      {
+        id: "P-035",
+        type: "RESP",
+        accountNumber: "RESP-889900",
+        marketValue: 178920.00,
+        costBasis: 160000.00,
+        totalGainLoss: 18920.00,
+        totalGainLossPercent: 11.83,
+        planCategory: "Family Plan",
+        accountHolder: "Lee, Kevin",
+        riskLevel: "Medium",
+        objective: "Education",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1200,
+            price: 98.50,
+            marketValue: 118200.00,
+            costBasis: 105000.00,
+            gainLoss: 13200.00,
+            gainLossPercent: 12.57,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1885,
+            price: 32.15,
+            marketValue: 60602.75,
+            costBasis: 55000.00,
+            gainLoss: 5602.75,
+            gainLossPercent: 10.19,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Contribution posted • $2,500", timestamp: "Nov 6 • 9:15 AM" },
+      { label: "Beneficiary update processed", timestamp: "Nov 4 • 2:00 PM" },
+    ],
+  },
+  {
+    id: "CL-019",
+    name: "Nicole Garcia",
+    accountNumber: "A-990011",
+    email: "nicole.garcia@clientmail.com",
+    phone: "(519) 555-9900",
+    status: "Prospect",
+    documents: "Required",
+    assets: "$45,230.00",
+    plans: [
+      {
+        id: "P-036",
+        type: "TFSA",
+        accountNumber: "TFSA-990011",
+        marketValue: 45230.00,
+        costBasis: 42000.00,
+        totalGainLoss: 3230.00,
+        totalGainLossPercent: 7.69,
+        planCategory: "Individual Plan",
+        accountHolder: "Garcia, Nicole",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1407,
+            price: 32.15,
+            marketValue: 45235.05,
+            costBasis: 42000.00,
+            gainLoss: 3235.05,
+            gainLossPercent: 7.70,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 0,
+            price: 98.50,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Initial deposit • $5,000", timestamp: "Nov 7 • 3:00 PM" },
+      { label: "Account setup completed", timestamp: "Nov 6 • 1:30 PM" },
+    ],
+  },
+  {
+    id: "CL-020",
+    name: "Ryan Murphy",
+    accountNumber: "A-001122",
+    email: "ryan.murphy@clientmail.com",
+    phone: "(613) 555-0011",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$512,340.00",
+    plans: [
+      {
+        id: "P-037",
+        type: "RRSP",
+        accountNumber: "RRSP-001122",
+        marketValue: 300000.00,
+        costBasis: 280000.00,
+        totalGainLoss: 20000.00,
+        totalGainLossPercent: 7.14,
+        planCategory: "Individual Plan",
+        accountHolder: "Murphy, Ryan",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 2500,
+            price: 98.50,
+            marketValue: 246250.00,
+            costBasis: 230000.00,
+            gainLoss: 16250.00,
+            gainLossPercent: 7.07,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 1980,
+            price: 27.15,
+            marketValue: 53757.00,
+            costBasis: 50000.00,
+            gainLoss: 3757.00,
+            gainLossPercent: 7.51,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+      {
+        id: "P-038",
+        type: "LIRA",
+        accountNumber: "LIRA-001122",
+        marketValue: 212340.00,
+        costBasis: 200000.00,
+        totalGainLoss: 12340.00,
+        totalGainLossPercent: 6.17,
+        planCategory: "Individual Plan",
+        accountHolder: "Murphy, Ryan",
+        riskLevel: "Conservative",
+        objective: "Preservation",
+        holdings: [
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 7820,
+            price: 27.15,
+            marketValue: 212313.00,
+            costBasis: 200000.00,
+            gainLoss: 12313.00,
+            gainLossPercent: 6.16,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 0,
+            price: 15.82,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "LIRA transfer completed", timestamp: "Nov 6 • 11:45 AM" },
+      { label: "Annual contribution • $18,000", timestamp: "Nov 3 • 9:00 AM" },
+    ],
+  },
+  {
+    id: "CL-021",
+    name: "Samantha Brown",
+    accountNumber: "A-112244",
+    email: "samantha.brown@clientmail.com",
+    phone: "(416) 555-1122",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$267,890.00",
+    plans: [
+      {
+        id: "P-039",
+        type: "RRSP",
+        accountNumber: "RRSP-112244",
+        marketValue: 150000.00,
+        costBasis: 140000.00,
+        totalGainLoss: 10000.00,
+        totalGainLossPercent: 7.14,
+        planCategory: "Individual Plan",
+        accountHolder: "Brown, Samantha",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1200,
+            price: 98.50,
+            marketValue: 118200.00,
+            costBasis: 110000.00,
+            gainLoss: 8200.00,
+            gainLossPercent: 7.45,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 990,
+            price: 32.15,
+            marketValue: 31828.50,
+            costBasis: 30000.00,
+            gainLoss: 1828.50,
+            gainLossPercent: 6.10,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-040",
+        type: "TFSA",
+        accountNumber: "TFSA-112244",
+        marketValue: 117890.00,
+        costBasis: 110000.00,
+        totalGainLoss: 7890.00,
+        totalGainLossPercent: 7.17,
+        planCategory: "Individual Plan",
+        accountHolder: "Brown, Samantha",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XAW.TO",
+            name: "iShares Core MSCI All Country World ex Canada Index ETF",
+            shares: 1494,
+            price: 78.90,
+            marketValue: 117886.60,
+            costBasis: 110000.00,
+            gainLoss: 7886.60,
+            gainLossPercent: 7.17,
+            assetClass: "Equity",
+            sector: "International Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 0,
+            price: 98.50,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "TFSA contribution • $7,000", timestamp: "Nov 7 • 8:30 AM" },
+      { label: "Portfolio review meeting", timestamp: "Nov 5 • 2:00 PM" },
+    ],
+  },
+  {
+    id: "CL-022",
+    name: "Brian Miller",
+    accountNumber: "A-223355",
+    email: "brian.miller@clientmail.com",
+    phone: "(905) 555-2233",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$389,450.00",
+    plans: [
+      {
+        id: "P-041",
+        type: "RRSP",
+        accountNumber: "RRSP-223355",
+        marketValue: 250000.00,
+        costBasis: 230000.00,
+        totalGainLoss: 20000.00,
+        totalGainLossPercent: 8.70,
+        planCategory: "Individual Plan",
+        accountHolder: "Miller, Brian",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 2000,
+            price: 98.50,
+            marketValue: 197000.00,
+            costBasis: 180000.00,
+            gainLoss: 17000.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1650,
+            price: 32.15,
+            marketValue: 53047.50,
+            costBasis: 50000.00,
+            gainLoss: 3047.50,
+            gainLossPercent: 6.10,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-042",
+        type: "Non-Registered",
+        accountNumber: "NR-223355",
+        marketValue: 139450.00,
+        costBasis: 130000.00,
+        totalGainLoss: 9450.00,
+        totalGainLossPercent: 7.27,
+        planCategory: "Individual Plan",
+        accountHolder: "Miller, Brian",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            shares: 500,
+            price: 175.50,
+            marketValue: 87750.00,
+            costBasis: 80000.00,
+            gainLoss: 7750.00,
+            gainLossPercent: 9.69,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+          {
+            symbol: "GOOGL",
+            name: "Alphabet Inc.",
+            shares: 350,
+            price: 145.30,
+            marketValue: 50855.00,
+            costBasis: 50000.00,
+            gainLoss: 855.00,
+            gainLossPercent: 1.71,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Stock purchase • $20,000", timestamp: "Nov 6 • 1:45 PM" },
+      { label: "Dividend reinvestment", timestamp: "Nov 4 • 10:00 AM" },
+    ],
+  },
+  {
+    id: "CL-023",
+    name: "Michelle Taylor",
+    accountNumber: "A-334466",
+    email: "michelle.taylor@clientmail.com",
+    phone: "(647) 555-3344",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$145,670.00",
+    plans: [
+      {
+        id: "P-043",
+        type: "TFSA",
+        accountNumber: "TFSA-334466",
+        marketValue: 95000.00,
+        costBasis: 87500.00,
+        totalGainLoss: 7500.00,
+        totalGainLossPercent: 8.57,
+        planCategory: "Individual Plan",
+        accountHolder: "Taylor, Michelle",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XAW.TO",
+            name: "iShares Core MSCI All Country World ex Canada Index ETF",
+            shares: 1200,
+            price: 78.90,
+            marketValue: 94680.00,
+            costBasis: 87500.00,
+            gainLoss: 7180.00,
+            gainLossPercent: 8.21,
+            assetClass: "Equity",
+            sector: "International Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 3,
+            price: 98.50,
+            marketValue: 295.50,
+            costBasis: 0.00,
+            gainLoss: 295.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+      {
+        id: "P-044",
+        type: "RRSP",
+        accountNumber: "RRSP-334466",
+        marketValue: 50670.00,
+        costBasis: 48000.00,
+        totalGainLoss: 2670.00,
+        totalGainLossPercent: 5.56,
+        planCategory: "Individual Plan",
+        accountHolder: "Taylor, Michelle",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 400,
+            price: 98.50,
+            marketValue: 39400.00,
+            costBasis: 36000.00,
+            gainLoss: 3400.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 710,
+            price: 15.82,
+            marketValue: 11232.20,
+            costBasis: 12000.00,
+            gainLoss: -767.80,
+            gainLossPercent: -6.40,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Monthly contribution • $500", timestamp: "Nov 7 • 9:00 AM" },
+      { label: "Account statement generated", timestamp: "Nov 5 • 3:30 PM" },
+    ],
+  },
+  {
+    id: "CL-024",
+    name: "Andrew Wilson",
+    accountNumber: "A-445577",
+    email: "andrew.wilson@clientmail.com",
+    phone: "(519) 555-4455",
+    status: "Inactive",
+    documents: "Missing",
+    assets: "$89,230.00",
+    plans: [
+      {
+        id: "P-045",
+        type: "RRSP",
+        accountNumber: "RRSP-445577",
+        marketValue: 89230.00,
+        costBasis: 85000.00,
+        totalGainLoss: 4230.00,
+        totalGainLossPercent: 4.98,
+        planCategory: "Individual Plan",
+        accountHolder: "Wilson, Andrew",
+        riskLevel: "Conservative",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 3288,
+            price: 27.15,
+            marketValue: 89269.20,
+            costBasis: 85000.00,
+            gainLoss: 4269.20,
+            gainLossPercent: 5.02,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 0,
+            price: 15.82,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Account review overdue", timestamp: "Nov 5 • 8:00 AM" },
+      { label: "Contact information update needed", timestamp: "Nov 2 • 4:15 PM" },
+    ],
+  },
+  {
+    id: "CL-025",
+    name: "Stephanie Moore",
+    accountNumber: "A-556688",
+    email: "stephanie.moore@clientmail.com",
+    phone: "(613) 555-5566",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$312,450.00",
+    plans: [
+      {
+        id: "P-046",
+        type: "RRSP",
+        accountNumber: "RRSP-556688",
+        marketValue: 200000.00,
+        costBasis: 185000.00,
+        totalGainLoss: 15000.00,
+        totalGainLossPercent: 8.11,
+        planCategory: "Individual Plan",
+        accountHolder: "Moore, Stephanie",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1500,
+            price: 98.50,
+            marketValue: 147750.00,
+            costBasis: 135000.00,
+            gainLoss: 12750.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1625,
+            price: 32.15,
+            marketValue: 52243.75,
+            costBasis: 50000.00,
+            gainLoss: 2243.75,
+            gainLossPercent: 4.49,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-047",
+        type: "TFSA",
+        accountNumber: "TFSA-556688",
+        marketValue: 112450.00,
+        costBasis: 105000.00,
+        totalGainLoss: 7450.00,
+        totalGainLossPercent: 7.10,
+        planCategory: "Individual Plan",
+        accountHolder: "Moore, Stephanie",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XAW.TO",
+            name: "iShares Core MSCI All Country World ex Canada Index ETF",
+            shares: 1425,
+            price: 78.90,
+            marketValue: 112432.50,
+            costBasis: 105000.00,
+            gainLoss: 7432.50,
+            gainLossPercent: 7.08,
+            assetClass: "Equity",
+            sector: "International Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 0,
+            price: 98.50,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Rebalance completed", timestamp: "Nov 7 • 11:00 AM" },
+      { label: "Annual contribution • $6,000", timestamp: "Nov 4 • 10:15 AM" },
+    ],
+  },
+  {
+    id: "CL-026",
+    name: "Jason Davis",
+    accountNumber: "A-667799",
+    email: "jason.davis@clientmail.com",
+    phone: "(416) 555-6677",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$223,890.00",
+    plans: [
+      {
+        id: "P-048",
+        type: "RRSP",
+        accountNumber: "RRSP-667799",
+        marketValue: 150000.00,
+        costBasis: 140000.00,
+        totalGainLoss: 10000.00,
+        totalGainLossPercent: 7.14,
+        planCategory: "Individual Plan",
+        accountHolder: "Davis, Jason",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1200,
+            price: 98.50,
+            marketValue: 118200.00,
+            costBasis: 110000.00,
+            gainLoss: 8200.00,
+            gainLossPercent: 7.45,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 990,
+            price: 32.15,
+            marketValue: 31828.50,
+            costBasis: 30000.00,
+            gainLoss: 1828.50,
+            gainLossPercent: 6.10,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-049",
+        type: "Non-Registered",
+        accountNumber: "NR-667799",
+        marketValue: 73890.00,
+        costBasis: 70000.00,
+        totalGainLoss: 3890.00,
+        totalGainLossPercent: 5.56,
+        planCategory: "Individual Plan",
+        accountHolder: "Davis, Jason",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "MSFT",
+            name: "Microsoft Corporation",
+            shares: 190,
+            price: 380.25,
+            marketValue: 72247.50,
+            costBasis: 70000.00,
+            gainLoss: 2247.50,
+            gainLossPercent: 3.21,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+          {
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            shares: 9,
+            price: 175.50,
+            marketValue: 1579.50,
+            costBasis: 0.00,
+            gainLoss: 1579.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Stock purchase • $10,000", timestamp: "Nov 6 • 2:30 PM" },
+      { label: "Dividend payment received", timestamp: "Nov 4 • 12:00 PM" },
+    ],
+  },
+  {
+    id: "CL-027",
+    name: "Lauren Martinez",
+    accountNumber: "A-778800",
+    email: "lauren.martinez@clientmail.com",
+    phone: "(905) 555-7788",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$198,450.00",
+    plans: [
+      {
+        id: "P-050",
+        type: "RESP",
+        accountNumber: "RESP-778800",
+        marketValue: 198450.00,
+        costBasis: 180000.00,
+        totalGainLoss: 18450.00,
+        totalGainLossPercent: 10.25,
+        planCategory: "Family Plan",
+        accountHolder: "Martinez, Lauren",
+        riskLevel: "Medium",
+        objective: "Education",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1500,
+            price: 98.50,
+            marketValue: 147750.00,
+            costBasis: 135000.00,
+            gainLoss: 12750.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1575,
+            price: 32.15,
+            marketValue: 50636.25,
+            costBasis: 45000.00,
+            gainLoss: 5636.25,
+            gainLossPercent: 12.53,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Government grant • $500", timestamp: "Nov 6 • 9:00 AM" },
+      { label: "Contribution posted • $2,500", timestamp: "Nov 4 • 11:30 AM" },
+    ],
+  },
+  {
+    id: "CL-028",
+    name: "Eric Johnson",
+    accountNumber: "A-889911",
+    email: "eric.johnson@clientmail.com",
+    phone: "(647) 555-8899",
+    status: "Prospect",
+    documents: "Required",
+    assets: "$12,500.00",
+    plans: [
+      {
+        id: "P-051",
+        type: "TFSA",
+        accountNumber: "TFSA-889911",
+        marketValue: 12500.00,
+        costBasis: 12000.00,
+        totalGainLoss: 500.00,
+        totalGainLossPercent: 4.17,
+        planCategory: "Individual Plan",
+        accountHolder: "Johnson, Eric",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 389,
+            price: 32.15,
+            marketValue: 12506.35,
+            costBasis: 12000.00,
+            gainLoss: 506.35,
+            gainLossPercent: 4.22,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 0,
+            price: 98.50,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Account opened", timestamp: "Nov 7 • 2:00 PM" },
+      { label: "Initial deposit • $12,000", timestamp: "Nov 7 • 2:00 PM" },
+    ],
+  },
+  {
+    id: "CL-029",
+    name: "Amanda Jackson",
+    accountNumber: "A-990022",
+    email: "amanda.jackson@clientmail.com",
+    phone: "(519) 555-9900",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$456,780.00",
+    plans: [
+      {
+        id: "P-052",
+        type: "RRSP",
+        accountNumber: "RRSP-990022",
+        marketValue: 300000.00,
+        costBasis: 280000.00,
+        totalGainLoss: 20000.00,
+        totalGainLossPercent: 7.14,
+        planCategory: "Individual Plan",
+        accountHolder: "Jackson, Amanda",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 2500,
+            price: 98.50,
+            marketValue: 246250.00,
+            costBasis: 230000.00,
+            gainLoss: 16250.00,
+            gainLossPercent: 7.07,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 1980,
+            price: 27.15,
+            marketValue: 53757.00,
+            costBasis: 50000.00,
+            gainLoss: 3757.00,
+            gainLossPercent: 7.51,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+      {
+        id: "P-053",
+        type: "RRIF",
+        accountNumber: "RRIF-990022",
+        marketValue: 156780.00,
+        costBasis: 150000.00,
+        totalGainLoss: 6780.00,
+        totalGainLossPercent: 4.52,
+        planCategory: "Individual Plan",
+        accountHolder: "Jackson, Amanda",
+        riskLevel: "Conservative",
+        objective: "Income",
+        holdings: [
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 5775,
+            price: 27.15,
+            marketValue: 156791.25,
+            costBasis: 150000.00,
+            gainLoss: 6791.25,
+            gainLossPercent: 4.53,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 0,
+            price: 15.82,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "RRIF withdrawal • $3,000", timestamp: "Nov 7 • 10:00 AM" },
+      { label: "Annual review completed", timestamp: "Nov 5 • 3:00 PM" },
+    ],
+  },
+  {
+    id: "CL-030",
+    name: "Matthew Harris",
+    accountNumber: "A-001133",
+    email: "matthew.harris@clientmail.com",
+    phone: "(613) 555-0011",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$334,560.00",
+    plans: [
+      {
+        id: "P-054",
+        type: "RRSP",
+        accountNumber: "RRSP-001133",
+        marketValue: 200000.00,
+        costBasis: 185000.00,
+        totalGainLoss: 15000.00,
+        totalGainLossPercent: 8.11,
+        planCategory: "Individual Plan",
+        accountHolder: "Harris, Matthew",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1500,
+            price: 98.50,
+            marketValue: 147750.00,
+            costBasis: 135000.00,
+            gainLoss: 12750.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1625,
+            price: 32.15,
+            marketValue: 52243.75,
+            costBasis: 50000.00,
+            gainLoss: 2243.75,
+            gainLossPercent: 4.49,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-055",
+        type: "Non-Registered",
+        accountNumber: "NR-001133",
+        marketValue: 134560.00,
+        costBasis: 125000.00,
+        totalGainLoss: 9560.00,
+        totalGainLossPercent: 7.65,
+        planCategory: "Individual Plan",
+        accountHolder: "Harris, Matthew",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            shares: 500,
+            price: 175.50,
+            marketValue: 87750.00,
+            costBasis: 80000.00,
+            gainLoss: 7750.00,
+            gainLossPercent: 9.69,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+          {
+            symbol: "GOOGL",
+            name: "Alphabet Inc.",
+            shares: 320,
+            price: 145.30,
+            marketValue: 46496.00,
+            costBasis: 45000.00,
+            gainLoss: 1496.00,
+            gainLossPercent: 3.32,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Stock purchase • $15,000", timestamp: "Nov 6 • 1:00 PM" },
+      { label: "Portfolio rebalance", timestamp: "Nov 4 • 10:30 AM" },
+    ],
+  },
+  {
+    id: "CL-031",
+    name: "Olivia Clark",
+    accountNumber: "A-112255",
+    email: "olivia.clark@clientmail.com",
+    phone: "(416) 555-1122",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$178,920.00",
+    plans: [
+      {
+        id: "P-056",
+        type: "TFSA",
+        accountNumber: "TFSA-112255",
+        marketValue: 95000.00,
+        costBasis: 87500.00,
+        totalGainLoss: 7500.00,
+        totalGainLossPercent: 8.57,
+        planCategory: "Individual Plan",
+        accountHolder: "Clark, Olivia",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XAW.TO",
+            name: "iShares Core MSCI All Country World ex Canada Index ETF",
+            shares: 1200,
+            price: 78.90,
+            marketValue: 94680.00,
+            costBasis: 87500.00,
+            gainLoss: 7180.00,
+            gainLossPercent: 8.21,
+            assetClass: "Equity",
+            sector: "International Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 3,
+            price: 98.50,
+            marketValue: 295.50,
+            costBasis: 0.00,
+            gainLoss: 295.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+      {
+        id: "P-057",
+        type: "RRSP",
+        accountNumber: "RRSP-112255",
+        marketValue: 83920.00,
+        costBasis: 80000.00,
+        totalGainLoss: 3920.00,
+        totalGainLossPercent: 4.90,
+        planCategory: "Individual Plan",
+        accountHolder: "Clark, Olivia",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 600,
+            price: 98.50,
+            marketValue: 59100.00,
+            costBasis: 55000.00,
+            gainLoss: 4100.00,
+            gainLossPercent: 7.45,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 1570,
+            price: 15.82,
+            marketValue: 24837.40,
+            costBasis: 25000.00,
+            gainLoss: -162.60,
+            gainLossPercent: -0.65,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Monthly contribution • $500", timestamp: "Nov 7 • 8:00 AM" },
+      { label: "Account statement generated", timestamp: "Nov 5 • 3:00 PM" },
+    ],
+  },
+  {
+    id: "CL-032",
+    name: "Nathan Lewis",
+    accountNumber: "A-223366",
+    email: "nathan.lewis@clientmail.com",
+    phone: "(905) 555-2233",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$267,450.00",
+    plans: [
+      {
+        id: "P-058",
+        type: "RRSP",
+        accountNumber: "RRSP-223366",
+        marketValue: 200000.00,
+        costBasis: 185000.00,
+        totalGainLoss: 15000.00,
+        totalGainLossPercent: 8.11,
+        planCategory: "Individual Plan",
+        accountHolder: "Lewis, Nathan",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1500,
+            price: 98.50,
+            marketValue: 147750.00,
+            costBasis: 135000.00,
+            gainLoss: 12750.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1625,
+            price: 32.15,
+            marketValue: 52243.75,
+            costBasis: 50000.00,
+            gainLoss: 2243.75,
+            gainLossPercent: 4.49,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-059",
+        type: "Non-Registered",
+        accountNumber: "NR-223366",
+        marketValue: 67450.00,
+        costBasis: 65000.00,
+        totalGainLoss: 2450.00,
+        totalGainLossPercent: 3.77,
+        planCategory: "Individual Plan",
+        accountHolder: "Lewis, Nathan",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "MSFT",
+            name: "Microsoft Corporation",
+            shares: 175,
+            price: 380.25,
+            marketValue: 66543.75,
+            costBasis: 65000.00,
+            gainLoss: 1543.75,
+            gainLossPercent: 2.38,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+          {
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            shares: 5,
+            price: 175.50,
+            marketValue: 877.50,
+            costBasis: 0.00,
+            gainLoss: 877.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Stock purchase • $12,000", timestamp: "Nov 6 • 11:30 AM" },
+      { label: "Dividend received • $350", timestamp: "Nov 4 • 2:00 PM" },
+    ],
+  },
+  {
+    id: "CL-033",
+    name: "Sophia Walker",
+    accountNumber: "A-334477",
+    email: "sophia.walker@clientmail.com",
+    phone: "(647) 555-3344",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$145,230.00",
+    plans: [
+      {
+        id: "P-060",
+        type: "RESP",
+        accountNumber: "RESP-334477",
+        marketValue: 145230.00,
+        costBasis: 130000.00,
+        totalGainLoss: 15230.00,
+        totalGainLossPercent: 11.72,
+        planCategory: "Family Plan",
+        accountHolder: "Walker, Sophia",
+        riskLevel: "Medium",
+        objective: "Education",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1200,
+            price: 98.50,
+            marketValue: 118200.00,
+            costBasis: 105000.00,
+            gainLoss: 13200.00,
+            gainLossPercent: 12.57,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 840,
+            price: 32.15,
+            marketValue: 27006.00,
+            costBasis: 25000.00,
+            gainLoss: 2006.00,
+            gainLossPercent: 8.02,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Contribution posted • $2,500", timestamp: "Nov 6 • 9:00 AM" },
+      { label: "Government grant received", timestamp: "Nov 4 • 8:30 AM" },
+    ],
+  },
+  {
+    id: "CL-034",
+    name: "Benjamin Hall",
+    accountNumber: "A-445588",
+    email: "benjamin.hall@clientmail.com",
+    phone: "(519) 555-4455",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$412,340.00",
+    plans: [
+      {
+        id: "P-061",
+        type: "RRSP",
+        accountNumber: "RRSP-445588",
+        marketValue: 250000.00,
+        costBasis: 230000.00,
+        totalGainLoss: 20000.00,
+        totalGainLossPercent: 8.70,
+        planCategory: "Individual Plan",
+        accountHolder: "Hall, Benjamin",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 2000,
+            price: 98.50,
+            marketValue: 197000.00,
+            costBasis: 180000.00,
+            gainLoss: 17000.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1650,
+            price: 32.15,
+            marketValue: 53047.50,
+            costBasis: 50000.00,
+            gainLoss: 3047.50,
+            gainLossPercent: 6.10,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-062",
+        type: "LIRA",
+        accountNumber: "LIRA-445588",
+        marketValue: 162340.00,
+        costBasis: 155000.00,
+        totalGainLoss: 7340.00,
+        totalGainLossPercent: 4.74,
+        planCategory: "Individual Plan",
+        accountHolder: "Hall, Benjamin",
+        riskLevel: "Conservative",
+        objective: "Preservation",
+        holdings: [
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 5983,
+            price: 27.15,
+            marketValue: 162388.45,
+            costBasis: 155000.00,
+            gainLoss: 7388.45,
+            gainLossPercent: 4.77,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 0,
+            price: 15.82,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "LIRA transfer completed", timestamp: "Nov 6 • 10:00 AM" },
+      { label: "Annual review scheduled", timestamp: "Nov 5 • 2:00 PM" },
+    ],
+  },
+  {
+    id: "CL-035",
+    name: "Emma Young",
+    accountNumber: "A-556699",
+    email: "emma.young@clientmail.com",
+    phone: "(613) 555-5566",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$223,670.00",
+    plans: [
+      {
+        id: "P-063",
+        type: "TFSA",
+        accountNumber: "TFSA-556699",
+        marketValue: 95000.00,
+        costBasis: 87500.00,
+        totalGainLoss: 7500.00,
+        totalGainLossPercent: 8.57,
+        planCategory: "Individual Plan",
+        accountHolder: "Young, Emma",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XAW.TO",
+            name: "iShares Core MSCI All Country World ex Canada Index ETF",
+            shares: 1200,
+            price: 78.90,
+            marketValue: 94680.00,
+            costBasis: 87500.00,
+            gainLoss: 7180.00,
+            gainLossPercent: 8.21,
+            assetClass: "Equity",
+            sector: "International Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 3,
+            price: 98.50,
+            marketValue: 295.50,
+            costBasis: 0.00,
+            gainLoss: 295.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+      {
+        id: "P-064",
+        type: "RRSP",
+        accountNumber: "RRSP-556699",
+        marketValue: 128670.00,
+        costBasis: 120000.00,
+        totalGainLoss: 8670.00,
+        totalGainLossPercent: 7.23,
+        planCategory: "Individual Plan",
+        accountHolder: "Young, Emma",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1000,
+            price: 98.50,
+            marketValue: 98500.00,
+            costBasis: 90000.00,
+            gainLoss: 8500.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 940,
+            price: 32.15,
+            marketValue: 30221.00,
+            costBasis: 30000.00,
+            gainLoss: 221.00,
+            gainLossPercent: 0.74,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Monthly contribution • $500", timestamp: "Nov 7 • 8:00 AM" },
+      { label: "Portfolio review completed", timestamp: "Nov 5 • 11:00 AM" },
+    ],
+  },
+  {
+    id: "CL-036",
+    name: "Alexander King",
+    accountNumber: "A-667700",
+    email: "alexander.king@clientmail.com",
+    phone: "(416) 555-6677",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$389,120.00",
+    plans: [
+      {
+        id: "P-065",
+        type: "RRSP",
+        accountNumber: "RRSP-667700",
+        marketValue: 250000.00,
+        costBasis: 230000.00,
+        totalGainLoss: 20000.00,
+        totalGainLossPercent: 8.70,
+        planCategory: "Individual Plan",
+        accountHolder: "King, Alexander",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 2000,
+            price: 98.50,
+            marketValue: 197000.00,
+            costBasis: 180000.00,
+            gainLoss: 17000.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1650,
+            price: 32.15,
+            marketValue: 53047.50,
+            costBasis: 50000.00,
+            gainLoss: 3047.50,
+            gainLossPercent: 6.10,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-066",
+        type: "Non-Registered",
+        accountNumber: "NR-667700",
+        marketValue: 139120.00,
+        costBasis: 130000.00,
+        totalGainLoss: 9120.00,
+        totalGainLossPercent: 7.02,
+        planCategory: "Individual Plan",
+        accountHolder: "King, Alexander",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            shares: 500,
+            price: 175.50,
+            marketValue: 87750.00,
+            costBasis: 80000.00,
+            gainLoss: 7750.00,
+            gainLossPercent: 9.69,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+          {
+            symbol: "GOOGL",
+            name: "Alphabet Inc.",
+            shares: 350,
+            price: 145.30,
+            marketValue: 50855.00,
+            costBasis: 50000.00,
+            gainLoss: 855.00,
+            gainLossPercent: 1.71,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Stock purchase • $18,000", timestamp: "Nov 6 • 1:15 PM" },
+      { label: "Dividend reinvestment", timestamp: "Nov 4 • 9:30 AM" },
+    ],
+  },
+  {
+    id: "CL-037",
+    name: "Isabella Wright",
+    accountNumber: "A-778811",
+    email: "isabella.wright@clientmail.com",
+    phone: "(905) 555-7788",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$156,890.00",
+    plans: [
+      {
+        id: "P-067",
+        type: "TFSA",
+        accountNumber: "TFSA-778811",
+        marketValue: 95000.00,
+        costBasis: 87500.00,
+        totalGainLoss: 7500.00,
+        totalGainLossPercent: 8.57,
+        planCategory: "Individual Plan",
+        accountHolder: "Wright, Isabella",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "XAW.TO",
+            name: "iShares Core MSCI All Country World ex Canada Index ETF",
+            shares: 1200,
+            price: 78.90,
+            marketValue: 94680.00,
+            costBasis: 87500.00,
+            gainLoss: 7180.00,
+            gainLossPercent: 8.21,
+            assetClass: "Equity",
+            sector: "International Equity",
+          },
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 3,
+            price: 98.50,
+            marketValue: 295.50,
+            costBasis: 0.00,
+            gainLoss: 295.50,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+        ],
+      },
+      {
+        id: "P-068",
+        type: "RRSP",
+        accountNumber: "RRSP-778811",
+        marketValue: 61890.00,
+        costBasis: 60000.00,
+        totalGainLoss: 1890.00,
+        totalGainLossPercent: 3.15,
+        planCategory: "Individual Plan",
+        accountHolder: "Wright, Isabella",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 500,
+            price: 98.50,
+            marketValue: 49250.00,
+            costBasis: 45000.00,
+            gainLoss: 4250.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 800,
+            price: 15.82,
+            marketValue: 12656.00,
+            costBasis: 15000.00,
+            gainLoss: -2344.00,
+            gainLossPercent: -15.63,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Monthly contribution • $500", timestamp: "Nov 7 • 8:00 AM" },
+      { label: "Account statement generated", timestamp: "Nov 5 • 3:00 PM" },
+    ],
+  },
+  {
+    id: "CL-038",
+    name: "Daniel Lopez",
+    accountNumber: "A-889922",
+    email: "daniel.lopez@clientmail.com",
+    phone: "(647) 555-8899",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$278,450.00",
+    plans: [
+      {
+        id: "P-069",
+        type: "RRSP",
+        accountNumber: "RRSP-889922",
+        marketValue: 200000.00,
+        costBasis: 185000.00,
+        totalGainLoss: 15000.00,
+        totalGainLossPercent: 8.11,
+        planCategory: "Individual Plan",
+        accountHolder: "Lopez, Daniel",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1500,
+            price: 98.50,
+            marketValue: 147750.00,
+            costBasis: 135000.00,
+            gainLoss: 12750.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1625,
+            price: 32.15,
+            marketValue: 52243.75,
+            costBasis: 50000.00,
+            gainLoss: 2243.75,
+            gainLossPercent: 4.49,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+      {
+        id: "P-070",
+        type: "Non-Registered",
+        accountNumber: "NR-889922",
+        marketValue: 78450.00,
+        costBasis: 75000.00,
+        totalGainLoss: 3450.00,
+        totalGainLossPercent: 4.60,
+        planCategory: "Individual Plan",
+        accountHolder: "Lopez, Daniel",
+        riskLevel: "Medium",
+        objective: "Growth",
+        holdings: [
+          {
+            symbol: "MSFT",
+            name: "Microsoft Corporation",
+            shares: 200,
+            price: 380.25,
+            marketValue: 76050.00,
+            costBasis: 75000.00,
+            gainLoss: 1050.00,
+            gainLossPercent: 1.40,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+          {
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            shares: 14,
+            price: 175.50,
+            marketValue: 2457.00,
+            costBasis: 0.00,
+            gainLoss: 2457.00,
+            gainLossPercent: 0.00,
+            assetClass: "Equity",
+            sector: "Technology",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Stock purchase • $10,000", timestamp: "Nov 6 • 2:00 PM" },
+      { label: "Dividend payment received", timestamp: "Nov 4 • 12:00 PM" },
+    ],
+  },
+  {
+    id: "CL-039",
+    name: "Grace Hill",
+    accountNumber: "A-990033",
+    email: "grace.hill@clientmail.com",
+    phone: "(519) 555-9900",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$201,340.00",
+    plans: [
+      {
+        id: "P-071",
+        type: "RESP",
+        accountNumber: "RESP-990033",
+        marketValue: 201340.00,
+        costBasis: 180000.00,
+        totalGainLoss: 21340.00,
+        totalGainLossPercent: 11.86,
+        planCategory: "Family Plan",
+        accountHolder: "Hill, Grace",
+        riskLevel: "Medium",
+        objective: "Education",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 1500,
+            price: 98.50,
+            marketValue: 147750.00,
+            costBasis: 135000.00,
+            gainLoss: 12750.00,
+            gainLossPercent: 9.44,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "XIC.TO",
+            name: "iShares Core S&P/TSX Capped Composite Index ETF",
+            shares: 1665,
+            price: 32.15,
+            marketValue: 53529.75,
+            costBasis: 45000.00,
+            gainLoss: 8529.75,
+            gainLossPercent: 18.93,
+            assetClass: "Equity",
+            sector: "Canadian Equity",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "Contribution posted • $2,500", timestamp: "Nov 6 • 9:00 AM" },
+      { label: "Government grant received", timestamp: "Nov 4 • 8:30 AM" },
+    ],
+  },
+  {
+    id: "CL-040",
+    name: "William Scott",
+    accountNumber: "A-001144",
+    email: "william.scott@clientmail.com",
+    phone: "(613) 555-0011",
+    status: "Active",
+    documents: "Uploaded",
+    assets: "$445,670.00",
+    plans: [
+      {
+        id: "P-072",
+        type: "RRSP",
+        accountNumber: "RRSP-001144",
+        marketValue: 300000.00,
+        costBasis: 280000.00,
+        totalGainLoss: 20000.00,
+        totalGainLossPercent: 7.14,
+        planCategory: "Individual Plan",
+        accountHolder: "Scott, William",
+        riskLevel: "Medium",
+        objective: "Retirement",
+        holdings: [
+          {
+            symbol: "VFV.TO",
+            name: "Vanguard S&P 500 Index ETF",
+            shares: 2500,
+            price: 98.50,
+            marketValue: 246250.00,
+            costBasis: 230000.00,
+            gainLoss: 16250.00,
+            gainLossPercent: 7.07,
+            assetClass: "Equity",
+            sector: "Diversified",
+          },
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 1980,
+            price: 27.15,
+            marketValue: 53757.00,
+            costBasis: 50000.00,
+            gainLoss: 3757.00,
+            gainLossPercent: 7.51,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+      {
+        id: "P-073",
+        type: "RRIF",
+        accountNumber: "RRIF-001144",
+        marketValue: 145670.00,
+        costBasis: 140000.00,
+        totalGainLoss: 5670.00,
+        totalGainLossPercent: 4.05,
+        planCategory: "Individual Plan",
+        accountHolder: "Scott, William",
+        riskLevel: "Conservative",
+        objective: "Income",
+        holdings: [
+          {
+            symbol: "VAB.TO",
+            name: "Vanguard Canadian Aggregate Bond Index ETF",
+            shares: 5367,
+            price: 27.15,
+            marketValue: 145663.05,
+            costBasis: 140000.00,
+            gainLoss: 5663.05,
+            gainLossPercent: 4.05,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+          {
+            symbol: "ZAG.TO",
+            name: "BMO Aggregate Bond Index ETF",
+            shares: 0,
+            price: 15.82,
+            marketValue: 0.00,
+            costBasis: 0.00,
+            gainLoss: 0.00,
+            gainLossPercent: 0.00,
+            assetClass: "Fixed Income",
+            sector: "Bonds",
+          },
+        ],
+      },
+    ],
+    recentActivity: [
+      { label: "RRIF withdrawal • $2,500", timestamp: "Nov 7 • 10:00 AM" },
+      { label: "Annual review completed", timestamp: "Nov 5 • 3:00 PM" },
+    ],
+  },
 ];
 
 const statusBadgeStyles: Record<ClientStatus, string> = {
@@ -1282,7 +3641,7 @@ const Clients = () => {
       }
     }
   }, [location.state, clients]);
-  const [clientViewTab, setClientViewTab] = useState<"details" | "cash" | "trading-activity" | "documents">("details");
+  const [clientViewTab, setClientViewTab] = useState<"details">("details");
   const [activeView, setActiveView] = useState<"clients" | "households">("clients");
   const [householdSearchTerm, setHouseholdSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<Record<string, boolean>>({
@@ -1312,6 +3671,8 @@ const Clients = () => {
   const [orderConfirmationSource, setOrderConfirmationSource] = useState<"after-plan" | "standalone" | null>(null);
   const [fundSearchOpen, setFundSearchOpen] = useState(false);
   const [fundSearchOpenAfterPlan, setFundSearchOpenAfterPlan] = useState(false);
+  const [mapDropdownOpen, setMapDropdownOpen] = useState(false);
+  const [exceptionsDropdownOpen, setExceptionsDropdownOpen] = useState(false);
   const [pendingOrderConfirmation, setPendingOrderConfirmation] = useState(false);
   const [addPlanStep, setAddPlanStep] = useState<"select-type" | 1 | 2 | 3>("select-type");
   const [selectedPlanType, setSelectedPlanType] = useState<PlanType | "">("");
@@ -1507,11 +3868,8 @@ const Clients = () => {
 
   // Expand plans when selected client changes
   useEffect(() => {
-    if (selectedClient && Array.isArray(selectedClient.plans)) {
-      setExpandedPlans(new Set(selectedClient.plans.map(p => p.id)));
-    } else {
-      setExpandedPlans(new Set());
-    }
+    // Keep plans collapsed initially when client changes
+    setExpandedPlans(new Set());
   }, [selectedClient]);
 
   // Initialize edit form values when switching to edit tab
@@ -1756,7 +4114,7 @@ const Clients = () => {
                     className="text-sm font-normal"
                     onClick={() => setActiveView("clients")}
                   >
-                    Details
+                    Summary
                   </Button>
                   <Button 
                     variant={activeView === "households" ? "default" : "outline"} 
@@ -1785,7 +4143,7 @@ const Clients = () => {
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Input
+                <Input
                     value={activeView === "households" ? householdSearchTerm : searchTerm}
                     onChange={(event) => {
                       if (activeView === "households") {
@@ -1795,8 +4153,8 @@ const Clients = () => {
                       }
                     }}
                     placeholder={activeView === "households" ? "Search households by name, ID, or primary client..." : activeView === "income-plans" ? "Search income plans by client, plan, or representative..." : activeView === "approvals" ? "Search approvals by client name, module, or status..." : "Search by client, account, or status"}
-                    className="text-sm lg:w-72 xl:w-96"
-                  />
+                  className="text-sm lg:w-72 xl:w-96"
+                />
 
                   <Popover>
                     <PopoverTrigger asChild>
@@ -1817,12 +4175,12 @@ const Clients = () => {
                           ) : activeView === "approvals" ? "Status" : "All Documents"
                         ) : (
                           (() => {
-                            const selectedCount = Object.values(docFilter).filter(Boolean).length;
-                            if (selectedCount === 0) return "All Documents";
-                            if (selectedCount === 1) {
-                              return Object.entries(docFilter).find(([, checked]) => checked)?.[0] || "All Documents";
-                            }
-                            return `${selectedCount} selected`;
+                          const selectedCount = Object.values(docFilter).filter(Boolean).length;
+                          if (selectedCount === 0) return "All Documents";
+                          if (selectedCount === 1) {
+                            return Object.entries(docFilter).find(([, checked]) => checked)?.[0] || "All Documents";
+                          }
+                          return `${selectedCount} selected`;
                           })()
                         )}
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -1882,18 +4240,18 @@ const Clients = () => {
                           )
                         ) : (
                           (["Uploaded", "Required", "Missing"] as DocumentStatus[]).map(
-                            (status) => (
-                              <label
-                                key={status}
-                                className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                              >
-                                <Checkbox
-                                  checked={docFilter[status]}
-                                  onCheckedChange={() => toggleDocFilter(status)}
-                                  className="h-4 w-4"
-                                />
-                                <span>{status}</span>
-                              </label>
+                          (status) => (
+                            <label
+                              key={status}
+                              className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                            >
+                              <Checkbox
+                                checked={docFilter[status]}
+                                onCheckedChange={() => toggleDocFilter(status)}
+                                className="h-4 w-4"
+                              />
+                              <span>{status}</span>
+                            </label>
                             )
                           )
                         )}
@@ -2525,138 +4883,196 @@ const Clients = () => {
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
-                        <Tabs value={clientViewTab} onValueChange={(value) => setClientViewTab(value as "details" | "cash" | "trading-activity" | "documents")}>
-                          <TabsList className="grid w-full grid-cols-4">
-                            <TabsTrigger value="details">Details</TabsTrigger>
-                            <TabsTrigger value="cash">Cash</TabsTrigger>
-                            <TabsTrigger value="trading-activity">Trading Activity</TabsTrigger>
-                            <TabsTrigger value="documents">Documents</TabsTrigger>
-                          </TabsList>
-                          
-                          <TabsContent value="details" className="mt-4">
-                            <ScrollArea className="h-[calc(100vh-380px)] pr-2">
-                              <div className="space-y-4">
-                            {/* Client Summary */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">Client Summary</CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-5">
-                                {/* Basic Information */}
-                                <div className="border-b border-gray-100 pb-4">
-                                  <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Basic Information</h4>
-                                  <div className="grid grid-cols-3 gap-x-6 gap-y-3">
-                                  <div>
-                                    <p className="text-xs text-gray-500 mb-1">Account Number</p>
-                                    <p className="text-sm font-medium text-gray-900">{selectedClient.accountNumber}</p>
+                        <div className="mt-4">
+                          <ScrollArea className="h-[calc(100vh-380px)] pr-2">
+                            <div className="space-y-4">
+                            {/* Client Summary - Tiles */}
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2.5">
+                              {/* Mailing Address Tile */}
+                              <Card className="border border-gray-200 shadow-sm bg-white h-full">
+                                <CardContent className="p-2.5">
+                                  <p className="text-[10px] font-semibold text-gray-900 mb-1.5">Mailing Address</p>
+                                  <div className="text-[11px] text-gray-700 space-y-0.5">
+                                    <p className="leading-tight">{selectedClient.address || "N/A"}</p>
+                                    <p className="leading-tight">
+                                      {[
+                                        selectedClient.city,
+                                        selectedClient.province,
+                                        selectedClient.postalCode
+                                      ].filter(Boolean).join(' ')}
+                                    </p>
+                                    <p className="leading-tight">Home: {selectedClient.phone || "N/A"}</p>
+                                    <p className="leading-tight">Cell: {selectedClient.phone || "N/A"}</p>
                                   </div>
-                                  <div>
-                                    <p className="text-xs text-gray-500 mb-1">Email</p>
-                                      <p className="text-sm font-medium text-gray-900 break-words">{selectedClient.email}</p>
+                                </CardContent>
+                              </Card>
+
+                              {/* Residential Address Tile */}
+                              <Card className="border border-gray-200 shadow-sm bg-white h-full">
+                                <CardContent className="p-2.5">
+                                  <p className="text-[10px] font-semibold text-gray-900 mb-1.5">Residential Address</p>
+                                  <div className="text-[11px] text-gray-700 space-y-0.5">
+                                    <p className="leading-tight">{selectedClient.address || "N/A"}</p>
+                                    <p className="leading-tight">
+                                      {[
+                                        selectedClient.city,
+                                        selectedClient.province,
+                                        selectedClient.postalCode
+                                      ].filter(Boolean).join(' ')}
+                                    </p>
                                   </div>
-                                  <div>
-                                    <p className="text-xs text-gray-500 mb-1">Phone</p>
-                                    <p className="text-sm font-medium text-gray-900">{selectedClient.phone}</p>
+                                </CardContent>
+                              </Card>
+
+                              {/* Email Address Tile */}
+                              <Card className="border border-gray-200 shadow-sm bg-white h-full">
+                                <CardContent className="p-2.5">
+                                  <p className="text-[10px] font-semibold text-gray-900 mb-1.5">Email Address</p>
+                                  <p className="text-[11px] text-blue-600 underline leading-tight">{selectedClient.email || "N/A"}</p>
+                                </CardContent>
+                              </Card>
+
+                              {/* Preferred Language Tile */}
+                              <Card className="border border-gray-200 shadow-sm bg-white h-full">
+                                <CardContent className="p-2.5">
+                                  <p className="text-[10px] font-semibold text-gray-900 mb-1.5">Preferred Language</p>
+                                  <p className="text-[11px] text-gray-700 leading-tight">English</p>
+                                </CardContent>
+                              </Card>
+
+                              {/* Current Representative Tile */}
+                              <Card className="border border-gray-200 shadow-sm bg-white h-full">
+                                <CardContent className="p-2.5">
+                                  <p className="text-[10px] font-semibold text-gray-900 mb-1.5">Current Representative</p>
+                                  <p className="text-[11px] text-gray-700 leading-tight">Marsh, Antoine</p>
+                                </CardContent>
+                              </Card>
+
+                              {/* Total Assets Tile */}
+                              <Card className="border border-gray-200 shadow-sm bg-white h-full">
+                                <CardContent className="p-2.5">
+                                  <div className="flex items-center gap-1.5 mb-1.5">
+                                    <p className="text-[10px] font-semibold text-blue-600">Total Assets</p>
+                                    <BarChart3 className="h-3 w-3 text-blue-600" />
                                   </div>
-                                    {selectedClient.dateOfBirth && (
-                                  <div>
-                                        <p className="text-xs text-gray-500 mb-1">Date of Birth</p>
-                                        <p className="text-sm font-medium text-gray-900">
-                                          {new Date(selectedClient.dateOfBirth).toLocaleDateString('en-CA', { 
-                                            year: 'numeric', 
-                                            month: 'long', 
-                                            day: 'numeric' 
-                                          })}
-                                        </p>
-                                  </div>
-                                    )}
-                                    {(selectedClient.address || selectedClient.city || selectedClient.province) && (
-                                      <div className="col-span-2">
-                                        <p className="text-xs text-gray-500 mb-1">Address</p>
-                                        <p className="text-sm font-medium text-gray-900">
-                                          {[
-                                            selectedClient.address,
-                                            selectedClient.city,
-                                            selectedClient.province,
-                                            selectedClient.postalCode
-                                          ].filter(Boolean).join(', ')}
-                                        </p>
+                                  <p className="text-[11px] text-blue-600 underline font-medium leading-tight">
+                                    {Array.isArray(selectedClient.plans) 
+                                      ? formatCurrency(selectedClient.plans.reduce((sum, plan) => sum + plan.marketValue, 0))
+                                      : formatCurrency(0)}
+                                  </p>
+                                </CardContent>
+                              </Card>
+                            </div>
+
+                            {/* Dropdowns below summary cards */}
+                            <div className="flex gap-2 mt-4">
+                              {/* Map Dropdown */}
+                              <Collapsible 
+                                open={mapDropdownOpen}
+                                onOpenChange={setMapDropdownOpen}
+                                className="flex-1"
+                              >
+                                <CollapsibleTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    className="w-full text-xs h-7 justify-between"
+                                  >
+                                    Map
+                                    <ChevronDown className={`h-3 w-3 transition-transform ${mapDropdownOpen ? "rotate-180" : ""}`} />
+                                  </Button>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="mt-1">
+                                  <div className="border border-gray-200 rounded-md bg-white shadow-sm overflow-hidden">
+                                    {/* Dummy Map */}
+                                    <div className="w-full h-[300px] bg-gray-100 relative flex items-center justify-center">
+                                      {/* Map placeholder with grid pattern */}
+                                      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-green-50">
+                                        {/* Grid lines */}
+                                        <svg className="w-full h-full opacity-30" xmlns="http://www.w3.org/2000/svg">
+                                          <defs>
+                                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#94a3b8" strokeWidth="1"/>
+                                            </pattern>
+                                          </defs>
+                                          <rect width="100%" height="100%" fill="url(#grid)" />
+                                        </svg>
+                                        {/* Map marker/pin */}
+                                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                          <div className="relative">
+                                            <div className="w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow-lg"></div>
+                                            <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-8 border-transparent border-t-red-500"></div>
+                                          </div>
+                                        </div>
+                                        {/* Map label */}
+                                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-md shadow-sm border border-gray-200">
+                                          <p className="text-xs font-medium text-gray-900">Toronto, ON</p>
+                                        </div>
                                       </div>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Account Details */}
-                                <div className="border-b border-gray-100 pb-4">
-                                  <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Account Details</h4>
-                                  <div className="grid grid-cols-3 gap-x-6 gap-y-3">
-                                  <div>
-                                    <p className="text-xs text-gray-500 mb-1">Plans</p>
-                                    <p className="text-sm font-medium text-gray-900">
-                                        {Array.isArray(selectedClient.plans) ? selectedClient.plans.length : 0} plan(s)
-                                    </p>
-                                  </div>
-                                  <div>
-                                      <p className="text-xs text-gray-500 mb-1">Assets Under Administration (AUA)</p>
-                                    <p className="text-sm font-medium text-gray-900">{selectedClient.assets}</p>
-                                  </div>
-                                    <div>
-                                      <p className="text-xs text-gray-500 mb-1">Total Plans Value</p>
-                                      <p className="text-sm font-medium text-gray-900">
-                                        {Array.isArray(selectedClient.plans) 
-                                          ? formatCurrency(selectedClient.plans.reduce((sum, plan) => sum + plan.marketValue, 0))
-                                          : formatCurrency(0)}
-                                      </p>
-                                </div>
-                                  </div>
-                                </div>
-
-                                {/* Total Assets */}
-                                <div className="border-b border-gray-100 pb-4">
-                                  <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Total Assets</h4>
-                                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                    <div className="flex items-baseline gap-2">
-                                      <p className="text-xs text-gray-500">Total Assets</p>
-                                    </div>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">
-                                      {Array.isArray(selectedClient.plans) 
-                                        ? formatCurrency(selectedClient.plans.reduce((sum, plan) => sum + plan.marketValue, 0))
-                                        : formatCurrency(0)}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {/* Beneficiary Summary */}
-                                {(selectedClient.beneficiary || selectedClient.contingentBeneficiary) && (
-                                  <div>
-                                    <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Beneficiary Information</h4>
-                                    <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                                      {selectedClient.beneficiary && (
-                                        <div>
-                                          <p className="text-xs text-gray-500 mb-1">Primary Beneficiary</p>
-                                          <p className="text-sm font-medium text-gray-900">{selectedClient.beneficiary}</p>
-                                        </div>
-                                      )}
-                                      {selectedClient.contingentBeneficiary && (
-                                        <div>
-                                          <p className="text-xs text-gray-500 mb-1">Contingent Beneficiary</p>
-                                          <p className="text-sm font-medium text-gray-900">{selectedClient.contingentBeneficiary}</p>
-                                        </div>
-                                      )}
                                     </div>
                                   </div>
-                                )}
-                              </CardContent>
-                            </Card>
+                                </CollapsibleContent>
+                              </Collapsible>
+
+                              {/* Client and Plan Exceptions Dropdown */}
+                              <Collapsible 
+                                open={exceptionsDropdownOpen}
+                                onOpenChange={setExceptionsDropdownOpen}
+                                className="flex-1"
+                              >
+                                <CollapsibleTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    className="w-full text-xs h-7 justify-between"
+                                  >
+                                    Client and Plan Exceptions
+                                    <ChevronDown className={`h-3 w-3 transition-transform ${exceptionsDropdownOpen ? "rotate-180" : ""}`} />
+                                  </Button>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="mt-1">
+                                  <div className="border border-gray-200 rounded-md bg-gray-50 shadow-sm">
+                                    {/* Client Exceptions Section */}
+                                    <div className="p-4 border-b border-gray-200">
+                                      <h4 className="text-sm font-bold text-blue-600 mb-2 pb-1 border-b border-blue-600">
+                                        Client Exceptions
+                                      </h4>
+                                      <div className="space-y-2 mt-3">
+                                        <p className="text-xs text-red-600">Please indicate the client's Domestic Politically Exposed Person eligibility</p>
+                                        <p className="text-xs text-red-600">Please indicate the client's Head of International Organization eligibility</p>
+                                        <p className="text-xs text-red-600">Please indicate the client's family member Head of International Organization eligibility</p>
+                                        <p className="text-xs text-red-600">Missing SSN or FATCA No TIN</p>
+                                        <p className="text-xs text-red-600">Please indicate the client's Politically Exposed Person eligibility</p>
+                                        <p className="text-xs text-red-600">Please indicate the client's family member Foreign Politically Exposed Person eligibility</p>
+                                        <p className="text-xs text-red-600">Please select a marital status.</p>
+                                        <p className="text-xs text-red-600">Please indicate the client's family member Domestic Politically Exposed Person eligibility</p>
+                                      </div>
+                                    </div>
+
+                                    {/* Plan Exceptions Section */}
+                                    <div className="p-4">
+                                      <h4 className="text-sm font-bold text-blue-600 mb-2 pb-1 border-b border-blue-600">
+                                        Plan Exceptions
+                                      </h4>
+                                      <div className="space-y-2 mt-3">
+                                        <p className="text-xs text-red-600">Plan 3641343426 Please fill missing Plan Details</p>
+                                        <p className="text-xs text-red-600">Plan 3641343426 Please specify Intent of Use</p>
+                                        <p className="text-xs text-red-600">Plan 3641343426 Please enter all the missing Plan information.</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CollapsibleContent>
+                              </Collapsible>
+                            </div>
 
                             {/* Plans */}
                             {Array.isArray(selectedClient.plans) && selectedClient.plans.length > 0 && (
                               <Card className="border border-gray-200 shadow-sm bg-white">
                                 <CardHeader className="pb-3">
                                   <div className="flex items-center justify-between">
-                                    <CardTitle className="text-sm font-semibold text-gray-900">
-                                      Plans ({selectedClient.plans.length})
-                                    </CardTitle>
+                                  <CardTitle className="text-sm font-semibold text-gray-900">
+                                    Plans ({selectedClient.plans.length})
+                                  </CardTitle>
                                     <Button 
                                       variant="outline" 
                                       size="sm"
@@ -2975,1163 +5391,9 @@ const Clients = () => {
                                 </CardContent>
                               </Card>
                             )}
-                              </div>
-                            </ScrollArea>
-                          </TabsContent>
-                          
-                          <TabsContent value="cash" className="mt-4">
-                            <ScrollArea className="h-[calc(100vh-380px)] pr-2">
-                              <div className="space-y-6">
-                                {/* Cash Balances */}
-                                <div>
-                                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Cash Balances</h3>
-                                  <div className="grid grid-cols-2 gap-4">
-                                    {/* Canadian Dollars Card */}
-                                    <Card className="border-2 border-red-200 bg-red-50/30 shadow-sm">
-                                      <CardContent className="p-4">
-                                        <div className="flex items-center gap-2 mb-4">
-                                          <DollarSign className="h-5 w-5 text-red-600" />
-                                          <h4 className="text-sm font-bold text-gray-900">Canadian Dollars (CAD)</h4>
-                              </div>
-                                        <div className="space-y-3">
-                                          <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-600">Cash Available CAD</span>
-                                            <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
-                                          </div>
-                                          <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-600">Cash Used For Trades CAD</span>
-                                            <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
-                                          </div>
-                                          <div className="border-t border-red-200 pt-3 mt-3">
-                                            <div className="flex justify-between items-center">
-                                              <span className="text-xs font-semibold text-gray-900">Cash Total CAD</span>
-                                              <span className="text-sm font-bold text-red-600">{formatCurrency(0)}</span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-
-                                    {/* United States Dollars Card */}
-                                    <Card className="border-2 border-green-200 bg-green-50/30 shadow-sm">
-                                      <CardContent className="p-4">
-                                        <div className="flex items-center gap-2 mb-4">
-                                          <DollarSign className="h-5 w-5 text-green-600" />
-                                          <h4 className="text-sm font-bold text-gray-900">United States Dollars (USD)</h4>
-                                        </div>
-                                        <div className="space-y-3">
-                                          <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-600">Cash Available USD</span>
-                                            <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
-                                          </div>
-                                          <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-600">Cash Used For Trades USD</span>
-                                            <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
-                                          </div>
-                                          <div className="border-t border-green-200 pt-3 mt-3">
-                                            <div className="flex justify-between items-center">
-                                              <span className="text-xs font-semibold text-gray-900">Cash Total USD</span>
-                                              <span className="text-sm font-bold text-green-600">{formatCurrency(0)}</span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </div>
-                                </div>
-
-                                {/* Recent Cash Transactions */}
-                                <div>
-                                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Cash Transactions</h3>
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                                    <CardContent className="p-4">
-                                      <div className="space-y-4">
-                                        {/* Transaction 1 - Cash Deposit */}
-                                        <div className="flex items-center justify-between">
-                                          <div className="flex items-center gap-3">
-                                            <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
-                                              <Plus className="h-5 w-5 text-white" />
-                                            </div>
-                                            <div>
-                                              <p className="text-sm font-medium text-gray-900">Cash Deposit</p>
-                                              <p className="text-xs text-gray-500">2 days ago</p>
-                                            </div>
-                                          </div>
-                                          <span className="text-sm font-medium text-green-600">+{formatCurrency(1250)} CAD</span>
-                                </div>
-
-                                        {/* Transaction 2 - Currency Exchange */}
-                                        <div className="flex items-center justify-between">
-                                          <div className="flex items-center gap-3">
-                                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
-                                              <ArrowLeftRight className="h-5 w-5 text-white" />
-                                            </div>
-                                            <div>
-                                              <p className="text-sm font-medium text-gray-900">Currency Exchange</p>
-                                              <p className="text-xs text-gray-500">1 week ago</p>
-                                            </div>
-                                          </div>
-                                          <span className="text-sm font-medium text-blue-600">{formatCurrency(500)} USD</span>
-                                        </div>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                </div>
-                              </div>
-                            </ScrollArea>
-                          </TabsContent>
-                          
-                          <TabsContent value="trading-activity" className="mt-4">
-                            <ScrollArea className="h-[calc(100vh-380px)] pr-2">
-                              <div className="space-y-6">
-                                {/* Trading Summary */}
-                                <div>
-                                  <h3 className="text-lg font-bold text-gray-900 mb-4">Trading Summary</h3>
-                                  <div className="grid grid-cols-4 gap-4">
-                                    {/* Total Trades */}
-                                    <Card className="border border-blue-200 bg-blue-50/30 shadow-sm">
-                                      <CardContent className="p-4">
-                                        <p className="text-xs font-medium text-blue-600 mb-2">Total Trades</p>
-                                        <p className="text-2xl font-bold text-blue-600">45</p>
-                                      </CardContent>
-                                    </Card>
-
-                                    {/* Buy Orders */}
-                                    <Card className="border border-green-200 bg-green-50/30 shadow-sm">
-                                      <CardContent className="p-4">
-                                        <p className="text-xs font-medium text-green-600 mb-2">Buy Orders</p>
-                                        <p className="text-2xl font-bold text-green-600">8</p>
-                                      </CardContent>
-                                    </Card>
-
-                                    {/* Sell Orders */}
-                                    <Card className="border border-red-200 bg-red-50/30 shadow-sm">
-                                      <CardContent className="p-4">
-                                        <p className="text-xs font-medium text-red-600 mb-2">Sell Orders</p>
-                                        <p className="text-2xl font-bold text-red-600">4</p>
-                                      </CardContent>
-                                    </Card>
-
-                                    {/* Pending */}
-                                    <Card className="border border-purple-200 bg-purple-50/30 shadow-sm">
-                                      <CardContent className="p-4">
-                                        <p className="text-xs font-medium text-purple-600 mb-2">Pending</p>
-                                        <p className="text-2xl font-bold text-purple-600">2</p>
-                                      </CardContent>
-                                    </Card>
-                                  </div>
-                                </div>
-
-                                {/* Recent Trading Activity */}
-                                <div>
-                                  <h3 className="text-lg font-bold text-gray-900 mb-4">Recent Trading Activity</h3>
-                                  <Card className="border border-gray-200 shadow-sm bg-white">
-                                    <CardContent className="p-0">
-                                      <Table>
-                                        <TableHeader>
-                                          <TableRow>
-                                            <TableHead className="text-xs font-semibold">Date</TableHead>
-                                            <TableHead className="text-xs font-semibold">Type</TableHead>
-                                            <TableHead className="text-xs font-semibold">Security</TableHead>
-                                            <TableHead className="text-xs font-semibold text-center">Quantity</TableHead>
-                                            <TableHead className="text-xs font-semibold text-center">Price</TableHead>
-                                            <TableHead className="text-xs font-semibold text-center">Status</TableHead>
-                                          </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                          {/* Transaction 1 */}
-                                          <TableRow className="hover:bg-gray-50">
-                                            <TableCell className="text-xs text-gray-700">02/12/2025</TableCell>
-                                            <TableCell>
-                                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                                                Buy
-                                              </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                              <div>
-                                                <p className="text-xs font-medium text-gray-900">FIDELITY NORTHSTAR FUND</p>
-                                                <p className="text-xs text-gray-500">Series B ISC</p>
-                                              </div>
-                                            </TableCell>
-                                            <TableCell className="text-center text-xs text-gray-700">100</TableCell>
-                                            <TableCell className="text-center text-xs text-gray-700">{formatCurrency(117.35)}</TableCell>
-                                            <TableCell className="text-center">
-                                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                                                Executed
-                                              </Badge>
-                                            </TableCell>
-                                          </TableRow>
-
-                                          {/* Transaction 2 */}
-                                          <TableRow className="hover:bg-gray-50">
-                                            <TableCell className="text-xs text-gray-700">02/10/2025</TableCell>
-                                            <TableCell>
-                                              <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs font-medium px-2 py-0.5">
-                                                Sell
-                                              </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                              <div>
-                                                <p className="text-xs font-medium text-gray-900">FIDELITY MONTHLY INCOME FUND</p>
-                                                <p className="text-xs text-gray-500">Series B ISC</p>
-                                              </div>
-                                            </TableCell>
-                                            <TableCell className="text-center text-xs text-gray-700">50</TableCell>
-                                            <TableCell className="text-center text-xs text-gray-700">{formatCurrency(605.31)}</TableCell>
-                                            <TableCell className="text-center">
-                                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                                                Executed
-                                              </Badge>
-                                            </TableCell>
-                                          </TableRow>
-
-                                          {/* Transaction 3 */}
-                                          <TableRow className="hover:bg-gray-50">
-                                            <TableCell className="text-xs text-gray-700">02/08/2025</TableCell>
-                                            <TableCell>
-                                              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs font-medium px-2 py-0.5">
-                                                Buy
-                                              </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                              <div>
-                                                <p className="text-xs font-medium text-gray-900">TD CANADIAN EQUITY FUND</p>
-                                                <p className="text-xs text-gray-500">Series A</p>
-                                              </div>
-                                            </TableCell>
-                                            <TableCell className="text-center text-xs text-gray-700">75</TableCell>
-                                            <TableCell className="text-center text-xs text-gray-700">{formatCurrency(339.34)}</TableCell>
-                                            <TableCell className="text-center">
-                                              <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 text-xs font-medium px-2 py-0.5">
-                                                Pending
-                                              </Badge>
-                                            </TableCell>
-                                          </TableRow>
-                                        </TableBody>
-                                      </Table>
-                                    </CardContent>
-                                  </Card>
-                                </div>
-                              </div>
-                            </ScrollArea>
-                          </TabsContent>
-                          
-                          <TabsContent value="documents" className="mt-4">
-                            <div className="space-y-4">
-                              {/* Product Documents Section */}
-                              <div className="border border-gray-200 rounded-lg bg-white">
-                                <button
-                                  onClick={() => setProductDocumentsExpanded(!productDocumentsExpanded)}
-                                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    {productDocumentsExpanded ? (
-                                      <ChevronDown className="h-4 w-4 text-blue-600" />
-                                    ) : (
-                                      <ChevronDown className="h-4 w-4 text-gray-400 rotate-[-90deg]" />
-                                    )}
-                                    <h3 className="text-sm font-semibold text-gray-900">Product Documents for Active Products</h3>
-                                    <AlertTriangle className="h-4 w-4 text-orange-500" />
-                                  </div>
-                                </button>
-                                
-                                {productDocumentsExpanded && (
-                                  <div className="border-t border-gray-200">
-                                    <div className="p-4">
-                                      <Table>
-                                        <TableHeader>
-                                          <TableRow>
-                                            <TableHead className="w-12">
-                                              <Checkbox
-                                                checked={selectedDocuments.size === 4}
-                                                onCheckedChange={(checked) => {
-                                                  if (checked) {
-                                                    setSelectedDocuments(new Set(["doc-1", "doc-2", "doc-3", "doc-4"]));
-                                                  } else {
-                                                    setSelectedDocuments(new Set());
-                                                  }
-                                                }}
-                                              />
-                                            </TableHead>
-                                            <TableHead className="text-xs font-semibold">Security</TableHead>
-                                            <TableHead className="text-xs font-semibold">Document Type</TableHead>
-                                            <TableHead className="text-xs font-semibold">Delivery Type</TableHead>
-                                            <TableHead className="text-xs font-semibold">Delivery Date</TableHead>
-                                            <TableHead className="w-12"></TableHead>
-                                          </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                          {/* Document 1 */}
-                                          <TableRow className="hover:bg-gray-50">
-                                            <TableCell>
-                                              <Checkbox
-                                                checked={selectedDocuments.has("doc-1")}
-                                                onCheckedChange={(checked) => {
-                                                  const newSet = new Set(selectedDocuments);
-                                                  if (checked) {
-                                                    newSet.add("doc-1");
-                                                  } else {
-                                                    newSet.delete("doc-1");
-                                                  }
-                                                  setSelectedDocuments(newSet);
-                                                }}
-                                              />
-                                            </TableCell>
-                                            <TableCell>
-                                              <div>
-                                                <p className="text-xs font-medium text-gray-900">FID-225 FIDELITY TRUE NORTH FUND</p>
-                                                <p className="text-xs text-gray-500">SERIES B ISC</p>
-                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                              <Select defaultValue="fund-facts">
-                                                <SelectTrigger className="h-8 text-xs">
-                                                  <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                  <SelectItem value="fund-facts">Fund Facts</SelectItem>
-                                                  <SelectItem value="prospectus">Prospectus</SelectItem>
-                                                  <SelectItem value="annual-report">Annual Report</SelectItem>
-                                                </SelectContent>
-                                              </Select>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-gray-700">Downloaded</TableCell>
-                                            <TableCell className="text-xs text-gray-700">02-12-2025 02:02 PM</TableCell>
-                                            <TableCell>
-                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
-                                            </TableCell>
-                                          </TableRow>
-
-                                          {/* Document 2 */}
-                                          <TableRow className="hover:bg-gray-50">
-                                            <TableCell>
-                                              <Checkbox
-                                                checked={selectedDocuments.has("doc-2")}
-                                                onCheckedChange={(checked) => {
-                                                  const newSet = new Set(selectedDocuments);
-                                                  if (checked) {
-                                                    newSet.add("doc-2");
-                                                  } else {
-                                                    newSet.delete("doc-2");
-                                                  }
-                                                  setSelectedDocuments(newSet);
-                                                }}
-                                              />
-                                            </TableCell>
-                                            <TableCell>
-                                              <div>
-                                                <p className="text-xs font-medium text-gray-900">FID-234 FIDELITY U.S. FOCUSED STOCK FUND</p>
-                                                <p className="text-xs text-gray-500">SERIES B ISC</p>
-                                  </div>
-                                            </TableCell>
-                                            <TableCell>
-                                              <Select defaultValue="fund-facts">
-                                                <SelectTrigger className="h-8 text-xs">
-                                                  <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                  <SelectItem value="fund-facts">Fund Facts</SelectItem>
-                                                  <SelectItem value="prospectus">Prospectus</SelectItem>
-                                                  <SelectItem value="annual-report">Annual Report</SelectItem>
-                                                </SelectContent>
-                                              </Select>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-gray-700">Downloaded</TableCell>
-                                            <TableCell className="text-xs text-gray-700">02-12-2025 02:02 PM</TableCell>
-                                            <TableCell>
-                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
-                                            </TableCell>
-                                          </TableRow>
-
-                                          {/* Document 3 */}
-                                          <TableRow className="hover:bg-gray-50">
-                                            <TableCell>
-                                              <Checkbox
-                                                checked={selectedDocuments.has("doc-3")}
-                                                onCheckedChange={(checked) => {
-                                                  const newSet = new Set(selectedDocuments);
-                                                  if (checked) {
-                                                    newSet.add("doc-3");
-                                                  } else {
-                                                    newSet.delete("doc-3");
-                                                  }
-                                                  setSelectedDocuments(newSet);
-                                                }}
-                                              />
-                                            </TableCell>
-                                            <TableCell>
-                                              <div>
-                                                <p className="text-xs font-medium text-gray-900">FID-253 FIDELITY NORTHSTAR FUND</p>
-                                                <p className="text-xs text-gray-500">SERIES B ISC</p>
-                                  </div>
-                                            </TableCell>
-                                            <TableCell>
-                                              <Select defaultValue="fund-facts">
-                                                <SelectTrigger className="h-8 text-xs">
-                                                  <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                  <SelectItem value="fund-facts">Fund Facts</SelectItem>
-                                                  <SelectItem value="prospectus">Prospectus</SelectItem>
-                                                  <SelectItem value="annual-report">Annual Report</SelectItem>
-                                                </SelectContent>
-                                              </Select>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-gray-700">Downloaded</TableCell>
-                                            <TableCell className="text-xs text-gray-700">02-12-2025 02:02 PM</TableCell>
-                                            <TableCell>
-                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
-                                            </TableCell>
-                                          </TableRow>
-
-                                          {/* Document 4 */}
-                                          <TableRow className="hover:bg-gray-50">
-                                            <TableCell>
-                                              <Checkbox
-                                                checked={selectedDocuments.has("doc-4")}
-                                                onCheckedChange={(checked) => {
-                                                  const newSet = new Set(selectedDocuments);
-                                                  if (checked) {
-                                                    newSet.add("doc-4");
-                                                  } else {
-                                                    newSet.delete("doc-4");
-                                                  }
-                                                  setSelectedDocuments(newSet);
-                                                }}
-                                              />
-                                            </TableCell>
-                                            <TableCell>
-                                              <div>
-                                                <p className="text-xs font-medium text-gray-900">FID-269 FIDELITY MONTHLY INCOME FUND</p>
-                                                <p className="text-xs text-gray-500">SERIES B ISC</p>
-                                              </div>
-                                            </TableCell>
-                                            <TableCell>
-                                              <Select defaultValue="fund-facts">
-                                                <SelectTrigger className="h-8 text-xs">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                                  <SelectItem value="fund-facts">Fund Facts</SelectItem>
-                                                  <SelectItem value="prospectus">Prospectus</SelectItem>
-                                                  <SelectItem value="annual-report">Annual Report</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-gray-700">Downloaded</TableCell>
-                                            <TableCell className="text-xs text-gray-700">02-12-2025 02:02 PM</TableCell>
-                                            <TableCell>
-                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
-                                            </TableCell>
-                                          </TableRow>
-                                        </TableBody>
-                                      </Table>
-                                </div>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Bottom Action Bar */}
-                              <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                                <div className="flex items-center gap-4">
-                                  <div className="flex items-center gap-3">
-                                    <div className="flex items-center gap-2">
-                                      <Checkbox
-                                        id="lang-en"
-                                        checked={true}
-                                        onCheckedChange={() => {}}
-                                      />
-                                      <Label htmlFor="lang-en" className="text-xs font-medium cursor-pointer">EN</Label>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <Checkbox
-                                        id="lang-fr"
-                                        checked={false}
-                                        onCheckedChange={() => {}}
-                                      />
-                                      <Label htmlFor="lang-fr" className="text-xs font-medium cursor-pointer">FR</Label>
-                                    </div>
-                                  </div>
-                                  <Select defaultValue="email">
-                                    <SelectTrigger className="h-9 w-[200px] text-xs">
-                                      <SelectValue placeholder="Select Delivery Method" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="email">Email</SelectItem>
-                                      <SelectItem value="download">Download</SelectItem>
-                                      <SelectItem value="mail">Mail</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                                  Deliver
-                              </Button>
                             </div>
-                            </div>
-                          </TabsContent>
-                          
-                          <TabsContent value="documents-old" className="mt-4 hidden">
-                            <ScrollArea className="h-[calc(100vh-380px)] pr-2">
-                              <div className="space-y-4">
-                            {/* Document Category 1 */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  1. Beneficiary Designation or Change Form
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                                  <UploadCloud className="mx-auto h-6 w-6 text-gray-400 mb-2" />
-                                  <p className="text-xs font-medium text-gray-900 mb-1">
-                                    Drag & drop files here or click to browse
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 mb-2">
-                                    PDF, DOCX, JPG up to 25 MB
-                                  </p>
-                                  <input
-                                    type="file"
-                                    id="upload-beneficiary"
-                                    className="hidden"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const category = "beneficiary";
-                                        const newDoc = {
-                                          id: `doc-${Date.now()}`,
-                                          name: file.name,
-                                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                          file: file,
-                                        };
-                                        setUploadedDocuments(prev => ({
-                                          ...prev,
-                                          [category]: [...(prev[category] || []), newDoc],
-                                        }));
-                                      }
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    type="button"
-                                    className="border-gray-300 text-xs h-7"
-                                    onClick={() => document.getElementById('upload-beneficiary')?.click()}
-                                  >
-                                    Browse files
-                                  </Button>
-                                </div>
-                                {uploadedDocuments.beneficiary && uploadedDocuments.beneficiary.length > 0 && (
-                                  <div className="text-xs text-gray-500">
-                                    <p className="font-medium mb-2">Uploaded Documents:</p>
-                                    <div className="space-y-1.5">
-                                      {uploadedDocuments.beneficiary.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="text-xs text-gray-700">{doc.name}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">{doc.date}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600"
-                                              onClick={() => {
-                                                setUploadedDocuments(prev => ({
-                                                  ...prev,
-                                                  beneficiary: prev.beneficiary?.filter(d => d.id !== doc.id) || [],
-                                                }));
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-
-                            {/* Document Category 2 */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  2. Successor Holder/Annuitant Election Form
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                                  <UploadCloud className="mx-auto h-6 w-6 text-gray-400 mb-2" />
-                                  <p className="text-xs font-medium text-gray-900 mb-1">
-                                    Drag & drop files here or click to browse
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 mb-2">
-                                    PDF, DOCX, JPG up to 25 MB
-                                  </p>
-                                  <input
-                                    type="file"
-                                    id="upload-successor"
-                                    className="hidden"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const category = "successor";
-                                        const newDoc = {
-                                          id: `doc-${Date.now()}`,
-                                          name: file.name,
-                                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                          file: file,
-                                        };
-                                        setUploadedDocuments(prev => ({
-                                          ...prev,
-                                          [category]: [...(prev[category] || []), newDoc],
-                                        }));
-                                      }
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    type="button"
-                                    className="border-gray-300 text-xs h-7"
-                                    onClick={() => document.getElementById('upload-successor')?.click()}
-                                  >
-                                    Browse files
-                                  </Button>
-                                </div>
-                                {uploadedDocuments.successor && uploadedDocuments.successor.length > 0 && (
-                                  <div className="text-xs text-gray-500">
-                                    <p className="font-medium mb-2">Uploaded Documents:</p>
-                                    <div className="space-y-1.5">
-                                      {uploadedDocuments.successor.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="text-xs text-gray-700">{doc.name}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">{doc.date}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600"
-                                              onClick={() => {
-                                                setUploadedDocuments(prev => ({
-                                                  ...prev,
-                                                  successor: prev.successor?.filter(d => d.id !== doc.id) || [],
-                                                }));
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-
-                            {/* Document Category 3 */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  3. Estate Planning or Will-Related Supporting Documents
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                                  <UploadCloud className="mx-auto h-6 w-6 text-gray-400 mb-2" />
-                                  <p className="text-xs font-medium text-gray-900 mb-1">
-                                    Drag & drop files here or click to browse
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 mb-2">
-                                    PDF, DOCX, JPG up to 25 MB
-                                  </p>
-                                  <input
-                                    type="file"
-                                    id="upload-estate"
-                                    className="hidden"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const category = "estate";
-                                        const newDoc = {
-                                          id: `doc-${Date.now()}`,
-                                          name: file.name,
-                                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                          file: file,
-                                        };
-                                        setUploadedDocuments(prev => ({
-                                          ...prev,
-                                          [category]: [...(prev[category] || []), newDoc],
-                                        }));
-                                      }
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    type="button"
-                                    className="border-gray-300 text-xs h-7"
-                                    onClick={() => document.getElementById('upload-estate')?.click()}
-                                  >
-                                    Browse files
-                                  </Button>
-                                </div>
-                                {uploadedDocuments.estate && uploadedDocuments.estate.length > 0 && (
-                                  <div className="text-xs text-gray-500">
-                                    <p className="font-medium mb-2">Uploaded Documents:</p>
-                                    <div className="space-y-1.5">
-                                      {uploadedDocuments.estate.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="text-xs text-gray-700">{doc.name}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">{doc.date}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600"
-                                              onClick={() => {
-                                                setUploadedDocuments(prev => ({
-                                                  ...prev,
-                                                  estate: prev.estate?.filter(d => d.id !== doc.id) || [],
-                                                }));
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-
-                            {/* Document Category 4 */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  4. Proof of Identity and Relationship Verification
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                                  <UploadCloud className="mx-auto h-6 w-6 text-gray-400 mb-2" />
-                                  <p className="text-xs font-medium text-gray-900 mb-1">
-                                    Drag & drop files here or click to browse
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 mb-2">
-                                    PDF, DOCX, JPG up to 25 MB
-                                  </p>
-                                  <input
-                                    type="file"
-                                    id="upload-identity"
-                                    className="hidden"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const category = "identity";
-                                        const newDoc = {
-                                          id: `doc-${Date.now()}`,
-                                          name: file.name,
-                                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                          file: file,
-                                        };
-                                        setUploadedDocuments(prev => ({
-                                          ...prev,
-                                          [category]: [...(prev[category] || []), newDoc],
-                                        }));
-                                      }
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    type="button"
-                                    className="border-gray-300 text-xs h-7"
-                                    onClick={() => document.getElementById('upload-identity')?.click()}
-                                  >
-                                    Browse files
-                                  </Button>
-                                </div>
-                                {uploadedDocuments.identity && uploadedDocuments.identity.length > 0 && (
-                                  <div className="text-xs text-gray-500">
-                                    <p className="font-medium mb-2">Uploaded Documents:</p>
-                                    <div className="space-y-1.5">
-                                      {uploadedDocuments.identity.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="text-xs text-gray-700">{doc.name}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">{doc.date}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600"
-                                              onClick={() => {
-                                                setUploadedDocuments(prev => ({
-                                                  ...prev,
-                                                  identity: prev.identity?.filter(d => d.id !== doc.id) || [],
-                                                }));
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-
-                            {/* Document Category 5 */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  5. Account Ownership Change Form
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                                  <UploadCloud className="mx-auto h-6 w-6 text-gray-400 mb-2" />
-                                  <p className="text-xs font-medium text-gray-900 mb-1">
-                                    Drag & drop files here or click to browse
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 mb-2">
-                                    PDF, DOCX, JPG up to 25 MB
-                                  </p>
-                                  <input
-                                    type="file"
-                                    id="upload-ownership"
-                                    className="hidden"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const category = "ownership";
-                                        const newDoc = {
-                                          id: `doc-${Date.now()}`,
-                                          name: file.name,
-                                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                          file: file,
-                                        };
-                                        setUploadedDocuments(prev => ({
-                                          ...prev,
-                                          [category]: [...(prev[category] || []), newDoc],
-                                        }));
-                                      }
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    type="button"
-                                    className="border-gray-300 text-xs h-7"
-                                    onClick={() => document.getElementById('upload-ownership')?.click()}
-                                  >
-                                    Browse files
-                                  </Button>
-                                </div>
-                                {uploadedDocuments.ownership && uploadedDocuments.ownership.length > 0 && (
-                                  <div className="text-xs text-gray-500">
-                                    <p className="font-medium mb-2">Uploaded Documents:</p>
-                                    <div className="space-y-1.5">
-                                      {uploadedDocuments.ownership.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="text-xs text-gray-700">{doc.name}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">{doc.date}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600"
-                                              onClick={() => {
-                                                setUploadedDocuments(prev => ({
-                                                  ...prev,
-                                                  ownership: prev.ownership?.filter(d => d.id !== doc.id) || [],
-                                                }));
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-
-                            {/* Document Category 6 */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  6. Power of Attorney (POA) or Third-Party Authorization Form
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                                  <UploadCloud className="mx-auto h-6 w-6 text-gray-400 mb-2" />
-                                  <p className="text-xs font-medium text-gray-900 mb-1">
-                                    Drag & drop files here or click to browse
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 mb-2">
-                                    PDF, DOCX, JPG up to 25 MB
-                                  </p>
-                                  <input
-                                    type="file"
-                                    id="upload-poa"
-                                    className="hidden"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const category = "poa";
-                                        const newDoc = {
-                                          id: `doc-${Date.now()}`,
-                                          name: file.name,
-                                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                          file: file,
-                                        };
-                                        setUploadedDocuments(prev => ({
-                                          ...prev,
-                                          [category]: [...(prev[category] || []), newDoc],
-                                        }));
-                                      }
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    type="button"
-                                    className="border-gray-300 text-xs h-7"
-                                    onClick={() => document.getElementById('upload-poa')?.click()}
-                                  >
-                                    Browse files
-                                  </Button>
-                                </div>
-                                {uploadedDocuments.poa && uploadedDocuments.poa.length > 0 && (
-                                  <div className="text-xs text-gray-500">
-                                    <p className="font-medium mb-2">Uploaded Documents:</p>
-                                    <div className="space-y-1.5">
-                                      {uploadedDocuments.poa.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="text-xs text-gray-700">{doc.name}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">{doc.date}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600"
-                                              onClick={() => {
-                                                setUploadedDocuments(prev => ({
-                                                  ...prev,
-                                                  poa: prev.poa?.filter(d => d.id !== doc.id) || [],
-                                                }));
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-
-                            {/* Document Category 7 */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  7. Death Notification and Claim Forms
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                                  <UploadCloud className="mx-auto h-6 w-6 text-gray-400 mb-2" />
-                                  <p className="text-xs font-medium text-gray-900 mb-1">
-                                    Drag & drop files here or click to browse
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 mb-2">
-                                    PDF, DOCX, JPG up to 25 MB
-                                  </p>
-                                  <input
-                                    type="file"
-                                    id="upload-death"
-                                    className="hidden"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const category = "death";
-                                        const newDoc = {
-                                          id: `doc-${Date.now()}`,
-                                          name: file.name,
-                                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                          file: file,
-                                        };
-                                        setUploadedDocuments(prev => ({
-                                          ...prev,
-                                          [category]: [...(prev[category] || []), newDoc],
-                                        }));
-                                      }
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    type="button"
-                                    className="border-gray-300 text-xs h-7"
-                                    onClick={() => document.getElementById('upload-death')?.click()}
-                                  >
-                                    Browse files
-                                  </Button>
-                                </div>
-                                {uploadedDocuments.death && uploadedDocuments.death.length > 0 && (
-                                  <div className="text-xs text-gray-500">
-                                    <p className="font-medium mb-2">Uploaded Documents:</p>
-                                    <div className="space-y-1.5">
-                                      {uploadedDocuments.death.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="text-xs text-gray-700">{doc.name}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">{doc.date}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600"
-                                              onClick={() => {
-                                                setUploadedDocuments(prev => ({
-                                                  ...prev,
-                                                  death: prev.death?.filter(d => d.id !== doc.id) || [],
-                                                }));
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-
-                            {/* Document Category 8 */}
-                            <Card className="border border-gray-200 shadow-sm bg-white">
-                              <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold text-gray-900">
-                                  8. Tax and Compliance Updates Related to Beneficiaries
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-4">
-                                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                                  <UploadCloud className="mx-auto h-6 w-6 text-gray-400 mb-2" />
-                                  <p className="text-xs font-medium text-gray-900 mb-1">
-                                    Drag & drop files here or click to browse
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 mb-2">
-                                    PDF, DOCX, JPG up to 25 MB
-                                  </p>
-                                  <input
-                                    type="file"
-                                    id="upload-tax"
-                                    className="hidden"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const category = "tax";
-                                        const newDoc = {
-                                          id: `doc-${Date.now()}`,
-                                          name: file.name,
-                                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                          file: file,
-                                        };
-                                        setUploadedDocuments(prev => ({
-                                          ...prev,
-                                          [category]: [...(prev[category] || []), newDoc],
-                                        }));
-                                      }
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    type="button"
-                                    className="border-gray-300 text-xs h-7"
-                                    onClick={() => document.getElementById('upload-tax')?.click()}
-                                  >
-                                    Browse files
-                                  </Button>
-                                </div>
-                                {uploadedDocuments.tax && uploadedDocuments.tax.length > 0 && (
-                                  <div className="text-xs text-gray-500">
-                                    <p className="font-medium mb-2">Uploaded Documents:</p>
-                                    <div className="space-y-1.5">
-                                      {uploadedDocuments.tax.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="text-xs text-gray-700">{doc.name}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">{doc.date}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600"
-                                              onClick={() => {
-                                                setUploadedDocuments(prev => ({
-                                                  ...prev,
-                                                  tax: prev.tax?.filter(d => d.id !== doc.id) || [],
-                                                }));
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-                              </div>
-                            </ScrollArea>
-                          </TabsContent>
-                        </Tabs>
+                          </ScrollArea>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -4149,2492 +5411,8 @@ const Clients = () => {
           </Card>
         </div>
       </PageLayout>
-
-      {/* Disabled Sheet components removed - using inline panels instead */}
-      {/* Upload Documents Sheet - Disabled, using inline panel instead */}
-      {false && (
-      <Sheet open={showUploadDocs} onOpenChange={setShowUploadDocs}>
-        <SheetContent side="right" className="!w-[50vw] !max-w-[50vw] overflow-y-auto bg-gray-50">
-          {selectedClient ? (
-            <>
-              <SheetHeader className="pb-4 border-b border-gray-200">
-                <SheetTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <FileUp className="h-5 w-5" />
-                  Upload Documents
-                </SheetTitle>
-                <SheetDescription className="text-sm text-gray-600 mt-1">
-                  {selectedClient.name} • Account {selectedClient.accountNumber}
-                </SheetDescription>
-              </SheetHeader>
-
-              <ScrollArea className="h-[calc(100vh-120px)] pr-4">
-                <div className="mt-6 space-y-5">
-                  {/* Document Category 1 */}
-                  <Card className="border border-gray-200 shadow-sm bg-white">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold text-gray-900">
-                        1. Beneficiary Designation or Change Form
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                        <UploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          Drag & drop files here
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PDF, DOCX, JPG up to 25 MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3 border-gray-300 text-xs">
-                          Browse files
-                        </Button>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <p className="font-medium mb-2">Uploaded Documents:</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">Beneficiary_Designation_Form_2024.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Oct 15, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Document Category 2 */}
-                  <Card className="border border-gray-200 shadow-sm bg-white">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold text-gray-900">
-                        2. Successor Holder/Annuitant Election Form
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                        <UploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          Drag & drop files here
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PDF, DOCX, JPG up to 25 MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3 border-gray-300 text-xs">
-                          Browse files
-                        </Button>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <p className="font-medium mb-2">Uploaded Documents:</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">Successor_Holder_Election_TFSA.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Nov 2, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Document Category 3 */}
-                  <Card className="border border-gray-200 shadow-sm bg-white">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold text-gray-900">
-                        3. Estate Planning or Will-Related Supporting Documents
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                        <UploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          Drag & drop files here
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PDF, DOCX, JPG up to 25 MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3 border-gray-300 text-xs">
-                          Browse files
-                        </Button>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <p className="font-medium mb-2">Uploaded Documents:</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">Will_Executor_Designation.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Sep 28, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">Trust_Agreement_2024.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Sep 28, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Document Category 4 */}
-                  <Card className="border border-gray-200 shadow-sm bg-white">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold text-gray-900">
-                        4. Proof of Identity and Relationship Verification
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                        <UploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          Drag & drop files here
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PDF, DOCX, JPG up to 25 MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3 border-gray-300 text-xs">
-                          Browse files
-                        </Button>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <p className="font-medium mb-2">Uploaded Documents:</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">Drivers_License_Front.jpg</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Oct 10, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">Marriage_Certificate.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Oct 10, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Document Category 5 */}
-                  <Card className="border border-gray-200 shadow-sm bg-white">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold text-gray-900">
-                        5. Account Ownership Change Form
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                        <UploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          Drag & drop files here
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PDF, DOCX, JPG up to 25 MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3 border-gray-300 text-xs">
-                          Browse files
-                        </Button>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <p className="font-medium mb-2">Uploaded Documents:</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">Joint_Account_Ownership_Form.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Nov 5, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Document Category 6 */}
-                  <Card className="border border-gray-200 shadow-sm bg-white">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold text-gray-900">
-                        6. Power of Attorney (POA) or Third-Party Authorization Form
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                        <UploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          Drag & drop files here
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PDF, DOCX, JPG up to 25 MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3 border-gray-300 text-xs">
-                          Browse files
-                        </Button>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <p className="font-medium mb-2">Uploaded Documents:</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">POA_Financial_Authorization.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Oct 22, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Document Category 7 */}
-                  <Card className="border border-gray-200 shadow-sm bg-white">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold text-gray-900">
-                        7. Death Notification and Claim Forms
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                        <UploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          Drag & drop files here
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PDF, DOCX, JPG up to 25 MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3 border-gray-300 text-xs">
-                          Browse files
-                        </Button>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <p className="font-medium mb-2">Uploaded Documents:</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">T4RSP_Claim_Form_2024.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Sep 10, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Document Category 8 */}
-                  <Card className="border border-gray-200 shadow-sm bg-white">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold text-gray-900">
-                        8. Tax and Compliance Updates Related to Beneficiaries
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center bg-gray-50 hover:border-gray-400 transition-colors">
-                        <UploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          Drag & drop files here
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PDF, DOCX, JPG up to 25 MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3 border-gray-300 text-xs">
-                          Browse files
-                        </Button>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <p className="font-medium mb-2">Uploaded Documents:</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">CRA_RC240_TFSA_Form.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Oct 30, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1.5 hover:bg-gray-50">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3.5 w-3.5 text-gray-400" />
-                              <span className="text-xs text-gray-700">NR301_NonResident_Form.pdf</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-gray-500">Oct 30, 2024</span>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-red-50 hover:text-red-600">
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </ScrollArea>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">No client selected</p>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
-      )}
-
-      <Dialog
-        open={showAddClient}
-        onOpenChange={(open) => {
-          setShowAddClient(open);
-          if (!open) resetForm();
-        }}
-      >
-        <DialogContent className="sm:max-w-lg">
-          <form onSubmit={handleAddClient}>
-            <DialogHeader>
-              <DialogTitle>Add Client</DialogTitle>
-              <DialogDescription>
-                Capture the essential client information.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="mt-4 space-y-4">
-              {formError && (
-                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-                  {formError}
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="client-name">Client Name</Label>
-                  <Input
-                    id="client-name"
-                    value={formValues.name}
-                    onChange={(e) =>
-                      setFormValues((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                    placeholder="e.g. Smith Family Trust"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="account-number">Account Number</Label>
-                  <Input
-                    id="account-number"
-                    value={formValues.accountNumber}
-                    onChange={(e) =>
-                      setFormValues((prev) => ({ ...prev, accountNumber: e.target.value }))
-                    }
-                    placeholder="e.g. A-123456"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formValues.email}
-                      onChange={(e) =>
-                        setFormValues((prev) => ({ ...prev, email: e.target.value }))
-                      }
-                      placeholder="name@clientmail.com"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={formValues.phone}
-                      onChange={(e) =>
-                        setFormValues((prev) => ({ ...prev, phone: e.target.value }))
-                      }
-                      placeholder="(555) 555-5555"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="beneficiary">Beneficiary</Label>
-                  <Input
-                    id="beneficiary"
-                    value={formValues.beneficiary}
-                    onChange={(e) =>
-                      setFormValues((prev) => ({ ...prev, beneficiary: e.target.value }))
-                    }
-                    placeholder="e.g. John Smith"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <select
-                    className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                    value={formValues.status}
-                    onChange={(event) =>
-                      setFormValues((prev) => ({
-                        ...prev,
-                        status: event.target.value as ClientStatus,
-                      }))
-                    }
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Prospect">Prospect</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Required Documents</Label>
-                  <div className="rounded-lg border border-dashed border-gray-300 px-4 py-6 text-center">
-                    <UploadCloud className="mx-auto h-6 w-6 text-gray-400" />
-                    <p className="mt-2 text-sm font-medium text-gray-900">
-                      Attach initial document package
-                    </p>
-                    <p className="text-xs text-gray-500">PDF, DOCX up to 10 MB</p>
-                    <Button variant="outline" size="sm" className="mt-3 border-gray-300">
-                      Browse files
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <DialogFooter className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                className="border-gray-300"
-                onClick={() => {
-                  setShowAddClient(false);
-                  resetForm();
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">Save Client</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Buy More Units Dialog */}
-      <Dialog open={showBuyUnits} onOpenChange={setShowBuyUnits}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-gray-900">
-              <Plus className="h-5 w-5 text-green-600" />
-              Buy More Units
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600">
-              Purchase additional units of {selectedHolding?.holding.name || ""}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedHolding && (
-            <div className="space-y-6 py-4">
-              {/* Account Balance */}
-              <Card className="border border-blue-200 bg-blue-50">
-                <CardContent className="pt-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Account Balance</span>
-                      <span className="text-sm font-semibold text-blue-700">
-                        {selectedHolding.plan.type} CAD
-                      </span>
-                    </div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      {formatCurrency(selectedHolding.plan.marketValue)}
-                    </div>
-                    <div className="flex gap-4 text-xs text-gray-600 pt-2 border-t border-blue-200">
-                      <span>Settled: {formatCurrency(selectedHolding.plan.marketValue)}</span>
-                      <span>Unsettled: {formatCurrency(0)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Current Holdings */}
-              <Card className="border border-gray-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold text-gray-900">
-                    Current Holdings ({selectedHolding.plan.type})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Units</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {selectedHolding.holding.shares.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Price</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(selectedHolding.holding.price)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Market Value</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(selectedHolding.holding.marketValue)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Investment Input */}
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="investmentAmount" className="text-sm font-medium text-gray-700">
-                    Investment Amount ($)
-                  </Label>
-                  <Input
-                    id="investmentAmount"
-                    type="number"
-                    placeholder="Enter amount to invest"
-                    value={buyOrderData.investmentAmount}
-                    onChange={(e) => {
-                      const amount = e.target.value;
-                      setBuyOrderData({
-                        ...buyOrderData,
-                        investmentAmount: amount,
-                        units: amount
-                          ? (
-                              parseFloat(amount) / selectedHolding.holding.price
-                            ).toFixed(4)
-                          : "",
-                        estimatedCost: amount ? parseFloat(amount) : 0,
-                        unitsToPurchase: amount
-                          ? parseFloat(amount) / selectedHolding.holding.price
-                          : 0,
-                      });
-                    }}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="units" className="text-sm font-medium text-gray-700">
-                    Or Number of Units
-                  </Label>
-                  <Input
-                    id="units"
-                    type="number"
-                    step="0.0001"
-                    placeholder="Enter number of units"
-                    value={buyOrderData.units}
-                    onChange={(e) => {
-                      const units = e.target.value;
-                      const unitsNum = parseFloat(units) || 0;
-                      setBuyOrderData({
-                        ...buyOrderData,
-                        units: units,
-                        investmentAmount: unitsNum
-                          ? (unitsNum * selectedHolding.holding.price).toFixed(2)
-                          : "",
-                        estimatedCost: unitsNum * selectedHolding.holding.price,
-                        unitsToPurchase: unitsNum,
-                      });
-                    }}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Estimated Cost */}
-              <Card className="border border-blue-200 bg-blue-50">
-                <CardContent className="pt-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Estimated Cost</span>
-                      <span className="text-lg font-bold text-gray-900">
-                        {formatCurrency(buyOrderData.estimatedCost)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <span>Units to purchase:</span>
-                      <span className="font-medium">
-                        {buyOrderData.unitsToPurchase.toFixed(4)}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-500 pt-2 border-t border-blue-200">
-                      Based on avg. cost {formatCurrency(selectedHolding.holding.price)}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowBuyUnits(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (selectedHolding && buyOrderData.estimatedCost > 0) {
-                  setOrderConfirmationData({
-                    symbol: selectedHolding.holding.symbol,
-                    name: selectedHolding.holding.name,
-                    units: buyOrderData.unitsToPurchase,
-                    price: selectedHolding.holding.price,
-                    totalCost: buyOrderData.estimatedCost,
-                  });
-                  setShowBuyUnits(false);
-                  setShowOrderConfirmation(true);
-                }
-              }}
-              disabled={buyOrderData.estimatedCost === 0}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Place Buy Order
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Order Confirmation Dialog */}
-      <Dialog open={showOrderConfirmation} onOpenChange={setShowOrderConfirmation}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <div className="flex items-center justify-center mb-4">
-              <div className="rounded-full bg-green-100 p-3">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
-              </div>
-            </div>
-            <DialogTitle className="text-center text-xl font-semibold text-gray-900">
-              Order Confirmation
-            </DialogTitle>
-            <DialogDescription className="text-center text-sm text-gray-600">
-              Your buy order has been placed successfully
-            </DialogDescription>
-          </DialogHeader>
-
-          {orderConfirmationData && (
-            <div className="space-y-4 py-4">
-              <Card className="border border-gray-200">
-                <CardContent className="pt-4">
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Product</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {orderConfirmationData.symbol} - {orderConfirmationData.name}
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-200">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Units</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {orderConfirmationData.units.toFixed(4)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Price per Unit</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatCurrency(orderConfirmationData.price)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="pt-3 border-t border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">Total Cost</span>
-                        <span className="text-lg font-bold text-gray-900">
-                          {formatCurrency(orderConfirmationData.totalCost)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button
-              onClick={() => {
-                setShowOrderConfirmation(false);
-                setOrderConfirmationData(null);
-                setBuyOrderData({
-                  investmentAmount: "",
-                  units: "",
-                  estimatedCost: 0,
-                  unitsToPurchase: 0,
-                });
-              }}
-              className="w-full bg-gray-900 hover:bg-gray-800"
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Sell Units Dialog */}
-      <Dialog open={showSellUnits} onOpenChange={setShowSellUnits}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-red-600">
-              <Minus className="h-5 w-5 text-red-600" />
-              Sell Units
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600">
-              Sell units of {selectedHolding?.holding.name || ""}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedHolding && (
-            <div className="space-y-6 py-4">
-              {/* Current Holdings */}
-              <Card className="border border-gray-200 bg-gray-50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold text-gray-900">
-                    Current Holdings ({selectedHolding.plan.type})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Units Available</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {selectedHolding.holding.shares.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Price</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(selectedHolding.holding.price)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Market Value</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(selectedHolding.holding.marketValue)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Sell Input */}
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sellUnits" className="text-sm font-medium text-gray-700">
-                    Number of Units to Sell
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="sellUnits"
-                      type="number"
-                      step="0.0001"
-                      placeholder={`Max: ${selectedHolding.holding.shares.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}`}
-                      value={sellOrderData.units}
-                      onChange={(e) => {
-                        const units = e.target.value;
-                        const unitsNum = parseFloat(units) || 0;
-                        const maxUnits = selectedHolding.holding.shares;
-                        const validUnits = unitsNum > maxUnits ? maxUnits : unitsNum;
-                        setSellOrderData({
-                          ...sellOrderData,
-                          units: units,
-                          dollarAmount: validUnits
-                            ? (validUnits * selectedHolding.holding.price).toFixed(2)
-                            : "",
-                          estimatedProceeds: validUnits * selectedHolding.holding.price,
-                          unitsToSell: validUnits,
-                        });
-                      }}
-                      className="w-full pr-20"
-                      max={selectedHolding.holding.shares}
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const current = parseFloat(sellOrderData.units) || 0;
-                          const newValue = Math.min(current + 1, selectedHolding.holding.shares);
-                          setSellOrderData({
-                            ...sellOrderData,
-                            units: newValue.toString(),
-                            dollarAmount: (newValue * selectedHolding.holding.price).toFixed(2),
-                            estimatedProceeds: newValue * selectedHolding.holding.price,
-                            unitsToSell: newValue,
-                          });
-                        }}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        <ChevronUp className="h-3 w-3" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const current = parseFloat(sellOrderData.units) || 0;
-                          const newValue = Math.max(current - 1, 0);
-                          setSellOrderData({
-                            ...sellOrderData,
-                            units: newValue > 0 ? newValue.toString() : "",
-                            dollarAmount: newValue > 0 ? (newValue * selectedHolding.holding.price).toFixed(2) : "",
-                            estimatedProceeds: newValue * selectedHolding.holding.price,
-                            unitsToSell: newValue,
-                          });
-                        }}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        <ChevronDown className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="sellDollarAmount" className="text-sm font-medium text-gray-700">
-                    Or Dollar Amount ($)
-                  </Label>
-                  <Input
-                    id="sellDollarAmount"
-                    type="number"
-                    placeholder="Enter dollar amount"
-                    value={sellOrderData.dollarAmount}
-                    onChange={(e) => {
-                      const amount = e.target.value;
-                      const amountNum = parseFloat(amount) || 0;
-                      const maxAmount = selectedHolding.holding.marketValue;
-                      const validAmount = amountNum > maxAmount ? maxAmount : amountNum;
-                      const unitsFromAmount = validAmount / selectedHolding.holding.price;
-                      setSellOrderData({
-                        ...sellOrderData,
-                        dollarAmount: amount,
-                        units: validAmount > 0 ? unitsFromAmount.toFixed(4) : "",
-                        estimatedProceeds: validAmount,
-                        unitsToSell: unitsFromAmount,
-                      });
-                    }}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Estimated Proceeds */}
-              <Card className="border border-yellow-200 bg-yellow-50">
-                <CardContent className="pt-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Estimated Proceeds</span>
-                      <span className="text-lg font-bold text-gray-900">
-                        {formatCurrency(sellOrderData.estimatedProceeds)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <span>Units to sell:</span>
-                      <span className="font-medium">
-                        {sellOrderData.unitsToSell.toFixed(4)}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-500 pt-2 border-t border-yellow-200">
-                      Before fees and taxes • Based on avg. cost {formatCurrency(selectedHolding.holding.price)}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSellUnits(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (selectedHolding && sellOrderData.estimatedProceeds > 0) {
-                  setSellOrderConfirmationData({
-                    symbol: selectedHolding.holding.symbol,
-                    name: selectedHolding.holding.name,
-                    units: sellOrderData.unitsToSell,
-                    price: selectedHolding.holding.price,
-                    totalProceeds: sellOrderData.estimatedProceeds,
-                  });
-                  setShowSellUnits(false);
-                  setShowSellOrderConfirmation(true);
-                }
-              }}
-              disabled={sellOrderData.estimatedProceeds === 0}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Place Sell Order
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Sell Order Confirmation Dialog */}
-      <Dialog open={showSellOrderConfirmation} onOpenChange={setShowSellOrderConfirmation}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <div className="flex items-center justify-center mb-4">
-              <div className="rounded-full bg-red-100 p-3">
-                <CheckCircle2 className="h-8 w-8 text-red-600" />
-              </div>
-            </div>
-            <DialogTitle className="text-center text-xl font-semibold text-gray-900">
-              Order Confirmation
-            </DialogTitle>
-            <DialogDescription className="text-center text-sm text-gray-600">
-              Your sell order has been placed successfully
-            </DialogDescription>
-          </DialogHeader>
-
-          {sellOrderConfirmationData && (
-            <div className="space-y-4 py-4">
-              <Card className="border border-gray-200">
-                <CardContent className="pt-4">
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Product</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {sellOrderConfirmationData.symbol} - {sellOrderConfirmationData.name}
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-200">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Units</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {sellOrderConfirmationData.units.toFixed(4)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Price per Unit</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatCurrency(sellOrderConfirmationData.price)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="pt-3 border-t border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">Total Proceeds</span>
-                        <span className="text-lg font-bold text-gray-900">
-                          {formatCurrency(sellOrderConfirmationData.totalProceeds)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button
-              onClick={() => {
-                setShowSellOrderConfirmation(false);
-                setSellOrderConfirmationData(null);
-                setSellOrderData({
-                  units: "",
-                  dollarAmount: "",
-                  estimatedProceeds: 0,
-                  unitsToSell: 0,
-                });
-              }}
-              className="w-full bg-gray-900 hover:bg-gray-800"
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Switch/Convert Fund Dialog */}
-      <Dialog open={showSwitchFund || showConvertFund} onOpenChange={(open) => {
-        if (!open) {
-          setShowSwitchFund(false);
-          setShowConvertFund(false);
-          setIsConvertMode(false);
-        }
-      }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className={`flex items-center gap-2 text-xl font-semibold ${isConvertMode ? "text-orange-600" : "text-blue-600"}`}>
-              <ArrowLeftRight className={`h-5 w-5 ${isConvertMode ? "text-orange-600" : "text-blue-600"}`} />
-              {isConvertMode ? "Convert Fund" : "Switch Fund"}
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600">
-              {isConvertMode 
-                ? `Convert from ${selectedHolding?.holding.name || ""} (${selectedHolding && getCompanyFromFundName(selectedHolding.holding.name)}) to a ${convertData.selectedCompany || "different company"} fund`
-                : `Switch from ${selectedHolding?.holding.name || ""} to another ${selectedHolding && getCompanyFromFundName(selectedHolding.holding.name)} fund`
-              }
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedHolding && (
-            <div className="space-y-6 py-4">
-              {/* Current Fund */}
-              <Card className="border border-gray-200 bg-gray-50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold text-gray-900">
-                    Current Fund ({selectedHolding.plan.type})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900 mb-1">
-                      {selectedHolding.holding.name}
-                    </p>
-                    <p className="text-xs text-gray-600">Company: {getCompanyFromFundName(selectedHolding.holding.name)}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Units Available</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {selectedHolding.holding.shares.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Market Value</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(selectedHolding.holding.marketValue)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Select Fund Company */}
-              <div className="space-y-2">
-                <Label htmlFor="switchCompany" className="text-sm font-medium text-gray-700">
-                  Select Fund Company
-                </Label>
-                <Select
-                  value={isConvertMode ? convertData.selectedCompany : switchData.selectedCompany}
-                  onValueChange={(value) => {
-                    const currentCompany = getCompanyFromFundName(selectedHolding.holding.name);
-                    const isSameCompany = value === currentCompany;
-                    
-                    if (!isSameCompany) {
-                      // Different company - switch to convert mode seamlessly
-                      setIsConvertMode(true);
-                      setConvertData({
-                        units: switchData.units,
-                        selectedCompany: value,
-                        selectedFund: "",
-                        selectedFundSymbol: "",
-                        estimatedValue: 0,
-                      });
-                    } else {
-                      // Same company - switch to switch mode
-                      setIsConvertMode(false);
-                      setSwitchData({
-                        ...switchData,
-                        selectedCompany: value,
-                        selectedFund: "",
-                        selectedFundSymbol: "",
-                        estimatedValue: 0,
-                      });
-                    }
-                  }}
-                >
-                  <SelectTrigger id="switchCompany" className="w-full">
-                    <SelectValue placeholder="Select fund company" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from(new Set(FUND_DATABASE.map(f => f.company))).map((company) => {
-                      const currentCompany = getCompanyFromFundName(selectedHolding.holding.name);
-                      const isSameCompany = company === currentCompany;
-                      return (
-                        <SelectItem key={company} value={company}>
-                          <div className="flex items-center justify-between w-full">
-                            <span>{company}</span>
-                            {isSameCompany && (
-                              <Badge className="ml-2 bg-blue-100 text-blue-700 text-xs">Switch</Badge>
-                            )}
-                            {!isSameCompany && (
-                              <Badge className="ml-2 bg-orange-100 text-orange-700 text-xs">Convert</Badge>
-                            )}
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {(isConvertMode ? convertData.selectedCompany : switchData.selectedCompany) && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge className={isConvertMode ? "bg-orange-100 text-orange-700 border-orange-200" : "bg-blue-100 text-blue-700 border-blue-200"}>
-                      {isConvertMode ? "Conversion" : "Switch"}
-                    </Badge>
-                    <span className="text-sm text-gray-600">
-                      ({selectedHolding.holding.name}) → ({isConvertMode ? convertData.selectedCompany : switchData.selectedCompany})
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Select Fund to Switch/Convert to */}
-              {(isConvertMode ? convertData.selectedCompany : switchData.selectedCompany) && (
-                <div className="space-y-2">
-                  <Label htmlFor="switchFund" className="text-sm font-medium text-gray-700">
-                    Select Fund to {isConvertMode ? "Convert" : "Switch"} to
-                  </Label>
-                  <Select
-                    value={isConvertMode ? convertData.selectedFund : switchData.selectedFund}
-                    onValueChange={(value) => {
-                      const selectedFund = FUND_DATABASE.find(f => f.name === value);
-                      if (selectedFund) {
-                        const units = isConvertMode ? convertData.units : switchData.units;
-                        const unitsNum = parseFloat(units) || 0;
-                        const estimatedValue = unitsNum > 0 ? unitsNum * selectedHolding.holding.price : 0;
-                        
-                        if (isConvertMode) {
-                          setConvertData({
-                            ...convertData,
-                            selectedFund: selectedFund.name,
-                            selectedFundSymbol: selectedFund.symbol,
-                            estimatedValue: estimatedValue,
-                          });
-                        } else {
-                          setSwitchData({
-                            ...switchData,
-                            selectedFund: selectedFund.name,
-                            selectedFundSymbol: selectedFund.symbol,
-                            estimatedValue: estimatedValue,
-                          });
-                        }
-                      }
-                    }}
-                  >
-                    <SelectTrigger id="switchFund" className="w-full">
-                      <SelectValue placeholder={`Select ${isConvertMode ? convertData.selectedCompany : switchData.selectedCompany} fund`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {FUND_DATABASE.filter(f => f.company === (isConvertMode ? convertData.selectedCompany : switchData.selectedCompany)).map((fund) => (
-                        <SelectItem key={fund.symbol} value={fund.name}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{fund.name}</span>
-                            <span className="text-xs text-gray-500">{fund.symbol} • {fund.category || "N/A"}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Units to Switch/Convert */}
-              <div className="space-y-2">
-                <Label htmlFor="switchUnits" className="text-sm font-medium text-gray-700">
-                  Units to {isConvertMode ? "Convert" : "Switch"}
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="switchUnits"
-                    type="number"
-                    step="0.0001"
-                    placeholder={`Max: ${selectedHolding.holding.shares.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}`}
-                    value={isConvertMode ? convertData.units : switchData.units}
-                    onChange={(e) => {
-                      const units = e.target.value;
-                      const unitsNum = parseFloat(units) || 0;
-                      const maxUnits = selectedHolding.holding.shares;
-                      const validUnits = unitsNum > maxUnits ? maxUnits : unitsNum;
-                      const estimatedValue = validUnits * selectedHolding.holding.price;
-                      
-                      if (isConvertMode) {
-                        setConvertData({
-                          ...convertData,
-                          units: units,
-                          estimatedValue: estimatedValue,
-                        });
-                      } else {
-                        setSwitchData({
-                          ...switchData,
-                          units: units,
-                          estimatedValue: estimatedValue,
-                        });
-                      }
-                    }}
-                    className="w-full pr-20"
-                    max={selectedHolding.holding.shares}
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const current = parseFloat(isConvertMode ? convertData.units : switchData.units) || 0;
-                        const newValue = Math.min(current + 1, selectedHolding.holding.shares);
-                        const estimatedValue = newValue * selectedHolding.holding.price;
-                        
-                        if (isConvertMode) {
-                          setConvertData({
-                            ...convertData,
-                            units: newValue.toString(),
-                            estimatedValue: estimatedValue,
-                          });
-                        } else {
-                          setSwitchData({
-                            ...switchData,
-                            units: newValue.toString(),
-                            estimatedValue: estimatedValue,
-                          });
-                        }
-                      }}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <ChevronUp className="h-3 w-3" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const current = parseFloat(isConvertMode ? convertData.units : switchData.units) || 0;
-                        const newValue = Math.max(current - 1, 0);
-                        const estimatedValue = newValue * selectedHolding.holding.price;
-                        
-                        if (isConvertMode) {
-                          setConvertData({
-                            ...convertData,
-                            units: newValue > 0 ? newValue.toString() : "",
-                            estimatedValue: estimatedValue,
-                          });
-                        } else {
-                          setSwitchData({
-                            ...switchData,
-                            units: newValue > 0 ? newValue.toString() : "",
-                            estimatedValue: estimatedValue,
-                          });
-                        }
-                      }}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <ChevronDown className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Switch/Convert Preview */}
-              <Card className={isConvertMode ? "border border-orange-200 bg-orange-50" : "border border-blue-200 bg-blue-50"}>
-                <CardContent className="pt-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className={isConvertMode ? "bg-orange-600 text-white" : "bg-blue-600 text-white"}>
-                        {isConvertMode ? "CONVERSION" : "SWITCH"}
-                      </Badge>
-                      <span className={`text-sm font-medium ${isConvertMode ? "text-orange-700" : "text-blue-700"}`}>
-                        ({selectedHolding.holding.name}) → ({(isConvertMode ? convertData.selectedFund : switchData.selectedFund) || (isConvertMode ? convertData.selectedCompany : switchData.selectedCompany) || "Select fund"})
-                      </span>
-                    </div>
-                    <div className={`flex items-center justify-between text-sm ${isConvertMode ? "text-orange-700" : "text-blue-700"}`}>
-                      <span>Units to {isConvertMode ? "convert" : "switch"}:</span>
-                      <span className="font-medium">
-                        {parseFloat(isConvertMode ? convertData.units : switchData.units) || 0}
-                      </span>
-                    </div>
-                    <div className={`flex items-center justify-between text-sm ${isConvertMode ? "text-orange-700" : "text-blue-700"}`}>
-                      <span>Estimated value:</span>
-                      <span className="font-medium">
-                        {formatCurrency(isConvertMode ? convertData.estimatedValue : switchData.estimatedValue)}
-                      </span>
-                    </div>
-                    <div className={`text-xs pt-2 border-t ${isConvertMode ? "text-orange-600 border-orange-200" : "text-blue-600 border-blue-200"}`}>
-                      This will {isConvertMode ? "convert" : "switch"} {selectedHolding.holding.name} to {(isConvertMode ? convertData.selectedFund : switchData.selectedFund) || (isConvertMode ? convertData.selectedCompany : switchData.selectedCompany) || "selected fund"}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowSwitchFund(false);
-              setShowConvertFund(false);
-              setIsConvertMode(false);
-            }}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (isConvertMode) {
-                  if (selectedHolding && convertData.estimatedValue > 0 && convertData.selectedFund) {
-                    setConvertConfirmationData({
-                      fromFund: selectedHolding.holding.name,
-                      toFund: convertData.selectedFund,
-                      units: parseFloat(convertData.units) || 0,
-                      estimatedValue: convertData.estimatedValue,
-                    });
-                    setShowSwitchFund(false);
-                    setShowConvertFund(false);
-                    setIsConvertMode(false);
-                    setShowConvertConfirmation(true);
-                  }
-                } else {
-                  if (selectedHolding && switchData.estimatedValue > 0 && switchData.selectedFund) {
-                    setSwitchConfirmationData({
-                      fromFund: selectedHolding.holding.name,
-                      toFund: switchData.selectedFund,
-                      units: parseFloat(switchData.units) || 0,
-                      estimatedValue: switchData.estimatedValue,
-                    });
-                    setShowSwitchFund(false);
-                    setShowConvertFund(false);
-                    setIsConvertMode(false);
-                    setShowSwitchConfirmation(true);
-                  }
-                }
-              }}
-              disabled={(isConvertMode ? convertData.estimatedValue : switchData.estimatedValue) === 0 || !(isConvertMode ? convertData.selectedFund : switchData.selectedFund)}
-              className={isConvertMode ? "bg-orange-600 hover:bg-orange-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}
-            >
-              Execute {isConvertMode ? "Conversion" : "Switch"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Convert Fund Dialog - REMOVED - Now using unified dialog above that handles both Switch and Convert */}
-
-      {/* Switch Confirmation Dialog */}
-      <Dialog open={showSwitchConfirmation} onOpenChange={setShowSwitchConfirmation}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <div className="flex items-center justify-center mb-4">
-              <div className="rounded-full bg-blue-100 p-3">
-                <CheckCircle2 className="h-8 w-8 text-blue-600" />
-              </div>
-            </div>
-            <DialogTitle className="text-center text-xl font-semibold text-gray-900">
-              Switch Confirmation
-            </DialogTitle>
-            <DialogDescription className="text-center text-sm text-gray-600">
-              Your switch order has been executed successfully
-            </DialogDescription>
-          </DialogHeader>
-
-          {switchConfirmationData && (
-            <div className="space-y-4 py-4">
-              <Card className="border border-gray-200">
-                <CardContent className="pt-4">
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">From Fund</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {switchConfirmationData.fromFund}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">To Fund</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {switchConfirmationData.toFund}
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-200">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Units Switched</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {switchConfirmationData.units.toFixed(4)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Estimated Value</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatCurrency(switchConfirmationData.estimatedValue)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button
-              onClick={() => {
-                setShowSwitchConfirmation(false);
-                setSwitchConfirmationData(null);
-                setSwitchData({
-                  units: "",
-                  selectedCompany: "",
-                  selectedFund: "",
-                  estimatedValue: 0,
-                });
-              }}
-              className="w-full bg-gray-900 hover:bg-gray-800"
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Convert Confirmation Dialog */}
-      <Dialog open={showConvertConfirmation} onOpenChange={setShowConvertConfirmation}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <div className="flex items-center justify-center mb-4">
-              <div className="rounded-full bg-blue-100 p-3">
-                <CheckCircle2 className="h-8 w-8 text-blue-600" />
-              </div>
-            </div>
-            <DialogTitle className="text-center text-xl font-semibold text-gray-900">
-              Conversion Confirmation
-            </DialogTitle>
-            <DialogDescription className="text-center text-sm text-gray-600">
-              Your conversion order has been executed successfully
-            </DialogDescription>
-          </DialogHeader>
-
-          {convertConfirmationData && (
-            <div className="space-y-4 py-4">
-              <Card className="border border-gray-200">
-                <CardContent className="pt-4">
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">From Fund</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {convertConfirmationData.fromFund}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">To Fund</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {convertConfirmationData.toFund}
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-200">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Units Converted</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {convertConfirmationData.units.toFixed(4)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Estimated Value</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatCurrency(convertConfirmationData.estimatedValue)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button
-              onClick={() => {
-                setShowConvertConfirmation(false);
-                setConvertConfirmationData(null);
-                setConvertData({
-                  units: "",
-                  selectedCompany: "",
-                  selectedFund: "",
-                  estimatedValue: 0,
-                });
-              }}
-              className="w-full bg-gray-900 hover:bg-gray-800"
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Deposit Dialog */}
-      <Dialog open={showDepositDialog} onOpenChange={setShowDepositDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              $ Deposit to Trust Account
-            </DialogTitle>
-            <DialogDescription>
-              Add funds to the client's trust account
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="deposit-amount">Amount (CAD)</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                <Input
-                  id="deposit-amount"
-                  type="text"
-                  value={`$${depositAmount}`}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '');
-                    if (value === '' || value === '.') {
-                      setDepositAmount('0.00');
-                    } else {
-                      const numValue = parseFloat(value);
-                      if (!isNaN(numValue)) {
-                        setDepositAmount(numValue.toFixed(2));
-                      }
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '');
-                    if (value === '' || value === '.') {
-                      setDepositAmount('0.00');
-                    } else {
-                      const numValue = parseFloat(value);
-                      if (!isNaN(numValue)) {
-                        setDepositAmount(numValue.toFixed(2));
-                      }
-                    }
-                  }}
-                  className="pl-8 text-lg font-medium"
-                  placeholder="$0.00"
-                  autoFocus
-                />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowDepositDialog(false);
-                setDepositAmount("0.00");
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => {
-                // Handle deposit logic here
-                setShowDepositDialog(false);
-                setDepositAmount("0.00");
-              }}
-            >
-              Deposit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Plan - Step 0: Select Plan Type */}
-      <Dialog open={showAddPlanDialog && addPlanStep === "select-type"} onOpenChange={(open) => {
-        if (!open) {
-          setShowAddPlanDialog(false);
-          setAddPlanStep("select-type");
-          setSelectedPlanType("");
-        }
-      }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Select Plan Type</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="plan-type-select">Plan Type</Label>
-              <Select
-                value={selectedPlanType}
-                onValueChange={(value) => {
-                  setSelectedPlanType(value as PlanType);
-                }}
-              >
-                <SelectTrigger id="plan-type-select">
-                  <SelectValue placeholder="Select a plan type..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="RRSP">RRSP</SelectItem>
-                  <SelectItem value="RRIF">RRIF</SelectItem>
-                  <SelectItem value="OPEN">OPEN</SelectItem>
-                  <SelectItem value="TFSA">TFSA</SelectItem>
-                  <SelectItem value="LRIF">LRIF</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowAddPlanDialog(false);
-                setAddPlanStep("select-type");
-                setSelectedPlanType("");
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (selectedPlanType) {
-                  setAddPlanStep(1);
-                }
-              }}
-              disabled={!selectedPlanType}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Next
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Plan - Step 1 of 3 */}
-      <Dialog open={showAddPlanDialog && addPlanStep === 1} onOpenChange={(open) => {
-        if (!open) {
-          setShowAddPlanDialog(false);
-          setAddPlanStep("select-type");
-        }
-      }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Plan Setup - {selectedPlanType} (Step 1 of 3)</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="owner-name">
-                Owner/Annuitant Name <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="owner-name"
-                value={newPlanData.ownerName}
-                onChange={(e) => setNewPlanData({ ...newPlanData, ownerName: e.target.value })}
-                placeholder="Enter owner/annuitant name"
-                className="text-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="beneficiary-name">
-                Beneficiary Name <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="beneficiary-name"
-                value={newPlanData.beneficiaryName}
-                onChange={(e) => setNewPlanData({ ...newPlanData, beneficiaryName: e.target.value })}
-                placeholder="Enter beneficiary name"
-                className="text-sm"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setAddPlanStep("select-type");
-              }}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowAddPlanDialog(false);
-                setAddPlanStep("select-type");
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (newPlanData.ownerName && newPlanData.beneficiaryName) {
-                  setAddPlanStep(2);
-                }
-              }}
-              disabled={!newPlanData.ownerName || !newPlanData.beneficiaryName}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Next
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Plan - Step 2 of 3 */}
-      <Dialog open={showAddPlanDialog && addPlanStep === 2} onOpenChange={(open) => {
-        if (!open) {
-          setShowAddPlanDialog(false);
-          setAddPlanStep("select-type");
-        }
-      }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Plan Setup - {selectedPlanType} (Step 2 of 3)</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="intermediary-code">
-                Intermediary Code <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="intermediary-code"
-                value={newPlanData.intermediaryCode}
-                onChange={(e) => {
-                  const value = e.target.value.slice(0, 10);
-                  setNewPlanData({ ...newPlanData, intermediaryCode: value });
-                }}
-                placeholder="Enter intermediary code (max 10 characters)"
-                className="text-sm"
-                maxLength={10}
-              />
-              <p className="text-xs text-gray-500">{newPlanData.intermediaryCode.length}/10 characters</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="intermediary-account-code">
-                Intermediary Account Code <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="intermediary-account-code"
-                value={newPlanData.intermediaryAccountCode}
-                onChange={(e) => {
-                  const value = e.target.value.slice(0, 10);
-                  setNewPlanData({ ...newPlanData, intermediaryAccountCode: value });
-                }}
-                placeholder="Enter intermediary account code (max 10 characters)"
-                className="text-sm"
-                maxLength={10}
-              />
-              <p className="text-xs text-gray-500">{newPlanData.intermediaryAccountCode.length}/10 characters</p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setAddPlanStep(1)}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowAddPlanDialog(false);
-                setAddPlanStep("select-type");
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (newPlanData.intermediaryCode && newPlanData.intermediaryAccountCode) {
-                  setAddPlanStep(3);
-                }
-              }}
-              disabled={!newPlanData.intermediaryCode || !newPlanData.intermediaryAccountCode}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Next
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Plan - Step 3 of 3 */}
-      <Dialog open={showAddPlanDialog && addPlanStep === 3} onOpenChange={(open) => {
-        if (!open) {
-          setShowAddPlanDialog(false);
-          setAddPlanStep("select-type");
-        }
-      }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Plan Setup - {selectedPlanType} (Step 3 of 3)</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
-              <Textarea
-                id="notes"
-                value={newPlanData.notes}
-                onChange={(e) => setNewPlanData({ ...newPlanData, notes: e.target.value })}
-                placeholder="Enter any additional notes..."
-                className="text-sm min-h-[80px]"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="objectives">
-                Objectives <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="objectives"
-                value={newPlanData.objectives}
-                onChange={(e) => setNewPlanData({ ...newPlanData, objectives: e.target.value })}
-                placeholder="Enter plan objectives"
-                className="text-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="risk-tolerance">
-                Risk Tolerance <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={newPlanData.riskTolerance}
-                onValueChange={(value) => setNewPlanData({ ...newPlanData, riskTolerance: value })}
-              >
-                <SelectTrigger id="risk-tolerance">
-                  <SelectValue placeholder="Select risk tolerance..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Conservative">Conservative</SelectItem>
-                  <SelectItem value="Moderate">Moderate</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Aggressive">Aggressive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="time-horizon">
-                Time Horizon (Years) <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="time-horizon"
-                type="number"
-                value={newPlanData.timeHorizon}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === '' || (parseInt(value) >= 1 && parseInt(value) <= 50)) {
-                    setNewPlanData({ ...newPlanData, timeHorizon: value });
-                  }
-                }}
-                placeholder="Enter time horizon (1-50 years)"
-                className="text-sm"
-                min={1}
-                max={50}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setAddPlanStep(2)}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowAddPlanDialog(false);
-                setAddPlanStep("select-type");
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (newPlanData.objectives && newPlanData.riskTolerance && newPlanData.timeHorizon) {
-                  // Generate plan ID and account number
-                  const planId = `PLN-${Date.now()}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-                  const accountNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
-                  
-                  // Create the new plan
-                  const newPlan: Plan = {
-                    id: planId,
-                    type: selectedPlanType as PlanType,
-                    accountNumber: accountNumber,
-                    marketValue: 0,
-                    costBasis: 0,
-                    totalGainLoss: 0,
-                    totalGainLossPercent: 0,
-                    holdings: [],
-                    planCategory: "Individual Plan",
-                    accountHolder: newPlanData.ownerName,
-                    riskLevel: newPlanData.riskTolerance,
-                    objective: newPlanData.objectives,
-                  };
-
-                  // Add plan to client
-                  setClients(prev => prev.map(client => {
-                    if (client.id === selectedClient?.id) {
-                      return {
-                        ...client,
-                        plans: [...(client.plans || []), newPlan]
-                      };
-                    }
-                    return client;
-                  }));
-
-                  // Update selected client
-                  if (selectedClient) {
-                    setSelectedClient({
-                      ...selectedClient,
-                      plans: [...(selectedClient.plans || []), newPlan]
-                    });
-                  }
-
-                  // Store newly created plan info
-                  setNewlyCreatedPlan({
-                    planType: selectedPlanType,
-                    planId: planId,
-                    accountNumber: accountNumber,
-                    owner: newPlanData.ownerName,
-                  });
-
-                  // Close add plan dialog and show add product dialog
-                  setShowAddPlanDialog(false);
-                  setAddPlanStep("select-type");
-                  setShowAddProductAfterPlan(true);
-
-                  // Reset form
-                  setNewPlanData({
-                    ownerName: selectedClient?.name.split(' ')[0] || "",
-                    beneficiaryName: "",
-                    intermediaryCode: "",
-                    intermediaryAccountCode: "",
-                    notes: "",
-                    objectives: "",
-                    riskTolerance: "",
-                    timeHorizon: "",
-                  });
-                  
-                  // Reset add product data for the after-plan dialog
-                  setAddProductData({ fundCompany: "", selectedFund: "", investmentAmount: "" });
-                setFundSearchOpen(false);
-                setFundSearchOpenAfterPlan(false);
-                }
-              }}
-              disabled={!newPlanData.objectives || !newPlanData.riskTolerance || !newPlanData.timeHorizon}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Submit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Product After Plan Creation */}
-      <Dialog 
-        open={showAddProductAfterPlan} 
-        onOpenChange={(open) => {
-          setShowAddProductAfterPlan(open);
-          if (!open && pendingOrderConfirmation && orderConfirmationSource === "after-plan") {
-            setPendingOrderConfirmation(false);
-            setTimeout(() => {
-              setShowOrderConfirmation(true);
-            }, 150);
-          } else if (!open) {
-            setPendingOrderConfirmation(false);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add Product</DialogTitle>
-            <DialogDescription>Add a new investment product to your portfolio.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {/* Success Message */}
-            {newlyCreatedPlan && (
-              <div className="border-2 border-green-500 rounded-lg p-4 bg-green-50">
-                <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  <p className="font-bold text-green-900">New Plan Created Successfully!</p>
-                </div>
-                <div className="space-y-1 text-sm text-gray-700">
-                  <p><span className="font-medium">Plan Type:</span> {newlyCreatedPlan.planType}</p>
-                  <p><span className="font-medium">Plan ID:</span> {newlyCreatedPlan.planId}</p>
-                  <p><span className="font-medium">Account Number:</span> {newlyCreatedPlan.accountNumber}</p>
-                  <p><span className="font-medium">Owner:</span> {newlyCreatedPlan.owner}</p>
-                </div>
-                <div className="mt-3 flex items-center gap-2 text-blue-600 text-sm">
-                  <Sparkles className="h-4 w-4" />
-                  <span className="font-medium">+ Add your first investment to this plan below</span>
-                </div>
-              </div>
-            )}
-
-            {/* Trust Account Info */}
-            <Card className="border border-gray-200">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="h-5 w-5 text-gray-600" />
-                  <p className="font-semibold text-gray-900">Trust Account CAD</p>
-                </div>
-                <p className="text-2xl font-bold text-gray-900 mb-2">{formatCurrency(1250)}</p>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Settled:</span>
-                    <span className="text-green-600 font-medium">{formatCurrency(1250)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Unsettled:</span>
-                    <span className="text-orange-600 font-medium">{formatCurrency(0)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Form Fields */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="fund-company-after-plan">Select Fund Company</Label>
-                <Select
-                  value={addProductData.fundCompany}
-                  onValueChange={(value) => {
-                    setAddProductData({ ...addProductData, fundCompany: value, selectedFund: "" });
-                    setFundSearchOpen(false);
-                    setFundSearchOpenAfterPlan(false);
-                  }}
-                >
-                  <SelectTrigger id="fund-company-after-plan">
-                    <SelectValue placeholder="Choose a company that offers funds" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from(new Set(FUND_DATABASE.map(f => f.company))).map(company => (
-                      <SelectItem key={company} value={company}>{company}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {addProductData.fundCompany && (
-                <div className="space-y-2">
-                  <Label htmlFor="specific-fund-after-plan">Search for Specific Fund</Label>
-                  <Popover open={fundSearchOpenAfterPlan} onOpenChange={setFundSearchOpenAfterPlan}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className="w-full justify-between text-left font-normal"
-                      >
-                        {addProductData.selectedFund
-                          ? FUND_DATABASE.find(f => f.symbol === addProductData.selectedFund)?.name || "Select a fund..."
-                          : "Search for a specific fund..."}
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                      <Command>
-                        <CommandInput placeholder="Search funds..." />
-                        <CommandList>
-                          <CommandEmpty>No funds found.</CommandEmpty>
-                          <CommandGroup>
-                            {FUND_DATABASE
-                              .filter(fund => fund.company === addProductData.fundCompany)
-                              .map((fund) => (
-                                <CommandItem
-                                  key={fund.symbol}
-                                  value={`${fund.name} ${fund.symbol}`}
-                                  onSelect={() => {
-                                    setAddProductData({ ...addProductData, selectedFund: fund.symbol });
-                                    setFundSearchOpenAfterPlan(false);
-                                  }}
-                                >
-                                  <div className="flex-1">
-                                    <p className="font-medium">{fund.name}</p>
-                                    <p className="text-xs text-gray-500">{fund.symbol}</p>
-                                  </div>
-                                  {addProductData.selectedFund === fund.symbol && (
-                                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                                  )}
-                                </CommandItem>
-                              ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="investment-amount-after-plan">Investment Amount ($)</Label>
-                <Input
-                  id="investment-amount-after-plan"
-                  type="text"
-                  value={addProductData.investmentAmount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '');
-                    setAddProductData({ ...addProductData, investmentAmount: value });
-                  }}
-                  placeholder="Enter amount to invest."
-                  className="text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Order Preview */}
-            <Card className="border border-blue-200 bg-blue-50">
-              <CardContent className="p-4">
-                <p className="text-sm font-semibold text-gray-900 mb-1">Order Preview:</p>
-                <p className="text-sm text-gray-700">
-                  Amount: {addProductData.investmentAmount ? formatCurrency(parseFloat(addProductData.investmentAmount) || 0) : formatCurrency(0)}
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  This will purchase the selected fund with the specified amount.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowAddProductAfterPlan(false);
-                setNewlyCreatedPlan(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => {
-                setOrderConfirmationSource("after-plan");
-                setPendingOrderConfirmation(true);
-                setShowAddProductAfterPlan(false);
-              }}
-            >
-              Place Order
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Product Dialog */}
-      <Dialog 
-        open={showAddProductDialog} 
-        onOpenChange={(open) => {
-          setShowAddProductDialog(open);
-          if (!open && pendingOrderConfirmation && orderConfirmationSource === "standalone") {
-            setPendingOrderConfirmation(false);
-            setTimeout(() => {
-              setShowOrderConfirmation(true);
-            }, 150);
-          } else if (!open) {
-            setPendingOrderConfirmation(false);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-blue-600" />
-              Add Product
-            </DialogTitle>
-            <DialogDescription>
-              Add a new investment product to your portfolio.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {/* Account Overview Section */}
-            <Card className="border border-blue-200 bg-blue-50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="h-5 w-5 text-gray-700" />
-                  <p className="font-semibold text-gray-900">Trust Account CAD</p>
-                </div>
-                <p className="text-2xl font-bold text-gray-900 mb-3">{formatCurrency(1250)}</p>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Settled:</span>
-                    <span className="text-green-600 font-medium">{formatCurrency(1250)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Unsettled:</span>
-                    <span className="text-orange-600 font-medium">{formatCurrency(0)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Form Fields */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="add-product-fund-company">Select Fund Company</Label>
-                <Select
-                  value={addProductData.fundCompany}
-                  onValueChange={(value) => {
-                    setAddProductData({ ...addProductData, fundCompany: value, selectedFund: "" });
-                    setFundSearchOpen(false);
-                    setFundSearchOpenAfterPlan(false);
-                  }}
-                >
-                  <SelectTrigger id="add-product-fund-company">
-                    <SelectValue placeholder="Choose a company that offers funds" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from(new Set(FUND_DATABASE.map(f => f.company))).map(company => (
-                      <SelectItem key={company} value={company}>{company}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {addProductData.fundCompany && (
-                <div className="space-y-2">
-                  <Label htmlFor="add-product-specific-fund">Search for Specific Fund</Label>
-                  <Popover open={fundSearchOpen} onOpenChange={setFundSearchOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className="w-full justify-between text-left font-normal"
-                      >
-                        {addProductData.selectedFund
-                          ? FUND_DATABASE.find(f => f.symbol === addProductData.selectedFund)?.name || "Select a fund..."
-                          : "Search for a specific fund..."}
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                      <Command>
-                        <CommandInput placeholder="Search funds..." />
-                        <CommandList>
-                          <CommandEmpty>No funds found.</CommandEmpty>
-                          <CommandGroup>
-                            {FUND_DATABASE
-                              .filter(fund => fund.company === addProductData.fundCompany)
-                              .map((fund) => (
-                                <CommandItem
-                                  key={fund.symbol}
-                                  value={`${fund.name} ${fund.symbol}`}
-                                  onSelect={() => {
-                                    setAddProductData({ ...addProductData, selectedFund: fund.symbol });
-                                    setFundSearchOpen(false);
-                                  }}
-                                >
-                                  <div className="flex-1">
-                                    <p className="font-medium">{fund.name}</p>
-                                    <p className="text-xs text-gray-500">{fund.symbol}</p>
-                                  </div>
-                                  {addProductData.selectedFund === fund.symbol && (
-                                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                                  )}
-                                </CommandItem>
-                              ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="add-product-investment-amount">Investment Amount ($)</Label>
-                <Input
-                  id="add-product-investment-amount"
-                  type="text"
-                  value={addProductData.investmentAmount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '');
-                    setAddProductData({ ...addProductData, investmentAmount: value });
-                  }}
-                  placeholder="Enter amount to invest."
-                  className="text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Order Preview Section */}
-            <Card className="border border-blue-200 bg-blue-50">
-              <CardContent className="p-4">
-                <p className="text-sm font-semibold text-gray-900 mb-1">Order Preview:</p>
-                <p className="text-sm text-gray-700">
-                  Amount: {addProductData.investmentAmount ? formatCurrency(parseFloat(addProductData.investmentAmount) || 0) : formatCurrency(0)}
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  This will purchase the selected fund with the specified amount.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowAddProductDialog(false);
-                setSelectedPlanForProduct(null);
-                setAddProductData({ fundCompany: "", selectedFund: "", investmentAmount: "" });
-                setFundSearchOpen(false);
-                setFundSearchOpenAfterPlan(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => {
-                setOrderConfirmationSource("standalone");
-                setPendingOrderConfirmation(true);
-                setShowAddProductDialog(false);
-              }}
-            >
-              Place Order
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Investment Order Confirmed Dialog */}
-      <Dialog open={showOrderConfirmation} onOpenChange={setShowOrderConfirmation}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-6 w-6"
-              onClick={() => {
-                setShowOrderConfirmation(false);
-                setOrderConfirmationSource(null);
-                if (orderConfirmationSource === "after-plan") {
-                  setNewlyCreatedPlan(null);
-                } else if (orderConfirmationSource === "standalone") {
-                  setSelectedPlanForProduct(null);
-                }
-                setAddProductData({ fundCompany: "", selectedFund: "", investmentAmount: "" });
-                setFundSearchOpen(false);
-                setFundSearchOpenAfterPlan(false);
-              }}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-            <DialogTitle className="flex items-center gap-2 text-blue-600 text-xl font-bold pr-8">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
-              Investment Order Confirmed
-            </DialogTitle>
-            <DialogDescription className="text-gray-600 mt-2">
-              Your investment order has been placed successfully
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {addProductData.selectedFund && (() => {
-              const selectedFund = FUND_DATABASE.find(f => f.symbol === addProductData.selectedFund);
-              const currentDate = new Date();
-              const formattedDate = currentDate.toLocaleDateString('en-US', { 
-                month: '2-digit', 
-                day: '2-digit', 
-                year: 'numeric' 
-              });
-              const formattedTime = currentDate.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
-                hour12: true 
-              });
-              const formattedDateTime = `${formattedDate}, ${formattedTime}`;
-              
-              return (
-                <div className="space-y-4">
-                  {/* Order Details Section */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-blue-600 font-medium mb-3">Order Details:</p>
-                    <div className="space-y-2 text-sm">
-                      <p className="text-blue-600">
-                        <span className="font-medium">Company:</span> {addProductData.fundCompany}
-                      </p>
-                      <p className="text-blue-600">
-                        <span className="font-medium">Fund:</span> {selectedFund?.name || "N/A"}
-                      </p>
-                      <p className="text-blue-600">
-                        <span className="font-medium">Symbol:</span> {selectedFund?.symbol || "N/A"}
-                      </p>
-                      <p className="text-blue-600">
-                        <span className="font-medium">Amount:</span> {addProductData.investmentAmount ? formatCurrency(parseFloat(addProductData.investmentAmount) || 0) : formatCurrency(0)}
-                      </p>
-                      <p className="text-blue-600">
-                        <span className="font-medium">Time:</span> {formattedDateTime}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Processing Status Section */}
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                    <p className="text-orange-600 font-medium mb-2">Processing Status: Pending</p>
-                    <p className="text-orange-600 text-sm">
-                      Order will be processed at next market close
-                    </p>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-          <DialogFooter>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white w-full"
-              onClick={() => {
-                setShowOrderConfirmation(false);
-                setOrderConfirmationSource(null);
-                if (orderConfirmationSource === "after-plan") {
-                  setNewlyCreatedPlan(null);
-                } else if (orderConfirmationSource === "standalone") {
-                  setSelectedPlanForProduct(null);
-                }
-                setAddProductData({ fundCompany: "", selectedFund: "", investmentAmount: "" });
-                setFundSearchOpen(false);
-                setFundSearchOpenAfterPlan(false);
-              }}
-            >
-              Done
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
-};
+}
 
 export default Clients;
