@@ -4995,53 +4995,27 @@ const Clients = () => {
                                         {plan.planCategory && (
                                           <>
                                             <span className="text-gray-400">•</span>
-                                            <Badge className={
-                                              plan.planCategory === "Individual Plan"
-                                                ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-100 font-medium"
-                                                : "bg-pink-100 text-pink-700 hover:bg-pink-100 font-medium"
-                                            }>
-                                              {plan.planCategory}
-                                            </Badge>
+                                            <span className="text-gray-600">{plan.planCategory}</span>
                                           </>
                                         )}
                                         <span className="text-gray-400">•</span>
-                                        <Badge className="bg-cyan-100 text-cyan-700 hover:bg-cyan-100 font-medium">
-                                          Account: {plan.accountNumber}
-                                        </Badge>
+                                        <span className="text-gray-600">Account: {plan.accountNumber}</span>
                                         {plan.accountHolder && (
                                           <>
                                             <span className="text-gray-400">•</span>
-                                            <Badge className="bg-teal-100 text-teal-700 hover:bg-teal-100 font-medium">
-                                              {plan.accountHolder}
-                                            </Badge>
+                                            <span className="text-gray-600">{plan.accountHolder}</span>
                                           </>
                                         )}
                                         {plan.riskLevel && (
                                           <>
                                             <span className="text-gray-400">•</span>
-                                            <Badge className={
-                                              plan.riskLevel === "Low"
-                                                ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 font-medium"
-                                                : plan.riskLevel === "Medium"
-                                                ? "bg-amber-100 text-amber-700 hover:bg-amber-100 font-medium"
-                                                : "bg-red-100 text-red-700 hover:bg-red-100 font-medium"
-                                            }>
-                                              Risk: {plan.riskLevel}
-                                            </Badge>
+                                            <span className="text-gray-600">Risk: {plan.riskLevel}</span>
                                           </>
                                         )}
                                         {plan.objective && (
                                           <>
                                             <span className="text-gray-400">•</span>
-                                            <Badge className={
-                                              plan.objective === "Growth"
-                                                ? "bg-lime-100 text-lime-700 hover:bg-lime-100 font-medium"
-                                                : plan.objective === "Income"
-                                                ? "bg-orange-100 text-orange-700 hover:bg-orange-100 font-medium"
-                                                : "bg-violet-100 text-violet-700 hover:bg-violet-100 font-medium"
-                                            }>
-                                              Objective: {plan.objective}
-                                            </Badge>
+                                            <span className="text-gray-600">Objective: {plan.objective}</span>
                                           </>
                                         )}
                                         <span className="text-gray-400">•</span>
@@ -6282,53 +6256,27 @@ const Clients = () => {
                                                 {plan.planCategory && (
                                                   <>
                                                     <span className="text-gray-400">•</span>
-                                                    <Badge className={
-                                                      plan.planCategory === "Individual Plan"
-                                                        ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-100 font-medium"
-                                                        : "bg-pink-100 text-pink-700 hover:bg-pink-100 font-medium"
-                                                    }>
-                                                      {plan.planCategory}
-                                                    </Badge>
+                                                    <span className="text-gray-600">{plan.planCategory}</span>
                                                   </>
                                                 )}
                                                 <span className="text-gray-400">•</span>
-                                                <Badge className="bg-cyan-100 text-cyan-700 hover:bg-cyan-100 font-medium">
-                                                  Account: {plan.accountNumber}
-                                                </Badge>
+                                                <span className="text-gray-600">Account: {plan.accountNumber}</span>
                                                 {plan.accountHolder && (
                                                   <>
                                                     <span className="text-gray-400">•</span>
-                                                    <Badge className="bg-teal-100 text-teal-700 hover:bg-teal-100 font-medium">
-                                                      {plan.accountHolder}
-                                                    </Badge>
+                                                    <span className="text-gray-600">{plan.accountHolder}</span>
                                                   </>
                                                 )}
                                                 {plan.riskLevel && (
                                                   <>
                                                     <span className="text-gray-400">•</span>
-                                                    <Badge className={
-                                                      plan.riskLevel === "Low"
-                                                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 font-medium"
-                                                        : plan.riskLevel === "Medium"
-                                                        ? "bg-amber-100 text-amber-700 hover:bg-amber-100 font-medium"
-                                                        : "bg-red-100 text-red-700 hover:bg-red-100 font-medium"
-                                                    }>
-                                                      Risk: {plan.riskLevel}
-                                                    </Badge>
+                                                    <span className="text-gray-600">Risk: {plan.riskLevel}</span>
                                                   </>
                                                 )}
                                                 {plan.objective && (
                                                   <>
                                                     <span className="text-gray-400">•</span>
-                                                    <Badge className={
-                                                      plan.objective === "Growth"
-                                                        ? "bg-lime-100 text-lime-700 hover:bg-lime-100 font-medium"
-                                                        : plan.objective === "Income"
-                                                        ? "bg-orange-100 text-orange-700 hover:bg-orange-100 font-medium"
-                                                        : "bg-violet-100 text-violet-700 hover:bg-violet-100 font-medium"
-                                                    }>
-                                                      Objective: {plan.objective}
-                                                    </Badge>
+                                                    <span className="text-gray-600">Objective: {plan.objective}</span>
                                                   </>
                                                 )}
                                                 <span className="text-gray-400">•</span>
