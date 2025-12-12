@@ -19,7 +19,6 @@ import {
   Users,
   BarChart3,
   Clock,
-  TrendingUp,
   Plus,
   Download,
   CheckCircle2,
@@ -226,10 +225,6 @@ export default function TrustDeposits() {
                 <CardTitle className="text-xl font-semibold text-gray-900">
                   {formatCurrency(totalDeposits, 'CAD')}
                 </CardTitle>
-                <div className="flex items-center gap-1 text-xs text-green-600">
-                  <TrendingUp className="h-3 w-3" />
-                  <span>+2.3% this month</span>
-                </div>
               </div>
               <div className="bg-blue-100 text-blue-600 p-3 rounded-lg">
                 <DollarSign className="h-5 w-5" />
@@ -244,10 +239,6 @@ export default function TrustDeposits() {
                   Active Trusts
                 </CardDescription>
                 <CardTitle className="text-xl font-semibold text-gray-900">{activeTrusts}</CardTitle>
-                <div className="flex items-center gap-1 text-xs text-green-600">
-                  <TrendingUp className="h-3 w-3" />
-                  <span>+1 this week</span>
-                </div>
               </div>
               <div className="bg-green-100 text-green-600 p-3 rounded-lg">
                 <Users className="h-5 w-5" />
@@ -264,10 +255,6 @@ export default function TrustDeposits() {
                 <CardTitle className="text-xl font-semibold text-gray-900">
                   {formatCurrency(avgDepositSize, 'CAD')}
                 </CardTitle>
-                <div className="flex items-center gap-1 text-xs text-green-600">
-                  <TrendingUp className="h-3 w-3" />
-                  <span>+5.1% last month</span>
-                </div>
               </div>
               <div className="bg-purple-100 text-purple-600 p-3 rounded-lg">
                 <BarChart3 className="h-5 w-5" />
@@ -282,9 +269,6 @@ export default function TrustDeposits() {
                   Recent Deposits
                 </CardDescription>
                 <CardTitle className="text-xl font-semibold text-gray-900">{recentDeposits}</CardTitle>
-                <div className="flex items-center gap-1 text-xs text-green-600">
-                  <span>3 new this week</span>
-                </div>
               </div>
               <div className="bg-orange-100 text-orange-600 p-3 rounded-lg">
                 <Clock className="h-5 w-5" />
@@ -297,34 +281,34 @@ export default function TrustDeposits() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* CAD Trust Account */}
           <Card className="border border-gray-200 shadow-sm bg-white">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold text-gray-900">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-900">
                 $ Trust Account CAD
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2 pt-2">
               <div>
-                <CardDescription className="text-xs text-gray-500 mb-1">Current Balance</CardDescription>
-                <CardTitle className="text-2xl font-semibold text-gray-900">
+                <CardDescription className="text-xs text-gray-500 mb-0.5">Current Balance</CardDescription>
+                <CardTitle className="text-lg font-semibold text-gray-900">
                   {formatCurrency(cadBalance, 'CAD')}
                 </CardTitle>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-                  <CardDescription className="text-xs text-gray-600 mb-1">Settled</CardDescription>
-                  <CardTitle className="text-lg font-semibold text-green-700">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2 rounded-lg bg-green-50 border border-green-200">
+                  <CardDescription className="text-xs text-gray-600 mb-0.5">Settled</CardDescription>
+                  <CardTitle className="text-sm font-semibold text-green-700">
                     {formatCurrency(cadSettled, 'CAD')}
                   </CardTitle>
                 </div>
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-                  <CardDescription className="text-xs text-gray-600 mb-1">Unsettled</CardDescription>
-                  <CardTitle className="text-lg font-semibold text-red-700">
+                <div className="p-2 rounded-lg bg-red-50 border border-red-200">
+                  <CardDescription className="text-xs text-gray-600 mb-0.5">Unsettled</CardDescription>
+                  <CardTitle className="text-sm font-semibold text-red-700">
                     {formatCurrency(cadUnsettled, 'CAD')}
                   </CardTitle>
                 </div>
               </div>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-1.5">
+                <Plus className="h-3 w-3 mr-1.5" />
                 Deposit
               </Button>
             </CardContent>
@@ -332,34 +316,34 @@ export default function TrustDeposits() {
 
           {/* USD Trust Account */}
           <Card className="border border-gray-200 shadow-sm bg-white">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold text-gray-900">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-900">
                 $ Trust Account USD
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2 pt-2">
               <div>
-                <CardDescription className="text-xs text-gray-500 mb-1">Current Balance</CardDescription>
-                <CardTitle className="text-2xl font-semibold text-gray-900">
+                <CardDescription className="text-xs text-gray-500 mb-0.5">Current Balance</CardDescription>
+                <CardTitle className="text-lg font-semibold text-gray-900">
                   {formatCurrency(usdBalance, 'USD')}
                 </CardTitle>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-                  <CardDescription className="text-xs text-gray-600 mb-1">Settled</CardDescription>
-                  <CardTitle className="text-lg font-semibold text-green-700">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2 rounded-lg bg-green-50 border border-green-200">
+                  <CardDescription className="text-xs text-gray-600 mb-0.5">Settled</CardDescription>
+                  <CardTitle className="text-sm font-semibold text-green-700">
                     {formatCurrency(usdSettled, 'USD')}
                   </CardTitle>
                 </div>
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-                  <CardDescription className="text-xs text-gray-600 mb-1">Unsettled</CardDescription>
-                  <CardTitle className="text-lg font-semibold text-red-700">
+                <div className="p-2 rounded-lg bg-red-50 border border-red-200">
+                  <CardDescription className="text-xs text-gray-600 mb-0.5">Unsettled</CardDescription>
+                  <CardTitle className="text-sm font-semibold text-red-700">
                     {formatCurrency(usdUnsettled, 'USD')}
                   </CardTitle>
                 </div>
               </div>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-1.5">
+                <Plus className="h-3 w-3 mr-1.5" />
                 Deposit
               </Button>
             </CardContent>

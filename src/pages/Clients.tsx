@@ -3642,8 +3642,50 @@ const Clients = () => {
     }
   }, [location.state, clients]);
   const [clientViewTab, setClientViewTab] = useState<"details">("details");
-  const [activeView, setActiveView] = useState<"clients" | "households">("clients");
-  const [householdSearchTerm, setHouseholdSearchTerm] = useState("");
+  const [activeView, setActiveView] = useState<"clients" | "details" | "notes" | "approvals">("clients");
+  const [detailsSearchTerm, setDetailsSearchTerm] = useState("");
+  const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
+  const [contactInfoOpen, setContactInfoOpen] = useState(false);
+  const [spouseAddressOpen, setSpouseAddressOpen] = useState(false);
+  const [webAccessOpen, setWebAccessOpen] = useState(false);
+  const [permissionsOpen, setPermissionsOpen] = useState(false);
+  const [employmentOpen, setEmploymentOpen] = useState(false);
+  const [bankAccountOpen, setBankAccountOpen] = useState(false);
+  const [kycOpen, setKycOpen] = useState(false);
+  const [pepOpen, setPepOpen] = useState(false);
+  const [idDocumentsOpen, setIdDocumentsOpen] = useState(false);
+  const [trustedContactOpen, setTrustedContactOpen] = useState(false);
+  const [customQuestionsOpen, setCustomQuestionsOpen] = useState(false);
+  const [userFlagsOpen, setUserFlagsOpen] = useState(false);
+  const [viewAdditionalNotesOpen, setViewAdditionalNotesOpen] = useState(false);
+  const [noteTypes, setNoteTypes] = useState<Record<string, boolean>>({
+    "Client Notes": true,
+    "Fund Account Notes": false,
+    "Plan Reviews": false,
+    "GIC Transaction Notes": false,
+    "ETF Transaction Reviews": false,
+    "Include Account Opening Notes": false,
+    "Emails Sent to Client": false,
+    "GIC Notes": false,
+    "Fund Transaction Notes": false,
+    "GIC Transaction Reviews": false,
+    "Include Inactive Plans and Accounts": false,
+    "Plan Notes": false,
+    "ETF Account Notes": false,
+    "Fund Transaction Reviews": false,
+    "ETF Transaction Notes": false,
+    "Include KYC Update Notes": false,
+  });
+  const [showAddNoteDialog, setShowAddNoteDialog] = useState(false);
+  const [newNoteContent, setNewNoteContent] = useState("");
+  const [newNoteTags, setNewNoteTags] = useState<Record<string, boolean>>({});
+  const [clientNotes, setClientNotes] = useState<Array<{
+    id: string;
+    content: string;
+    tags: string[];
+    createdAt: string;
+    createdBy: string;
+  }>>([]);
   const [statusFilter, setStatusFilter] = useState<Record<string, boolean>>({
     "ACTIVE": false,
     "PENDING REVIEW": false,
@@ -3651,6 +3693,7 @@ const Clients = () => {
   const [showAddClient, setShowAddClient] = useState(false);
   const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
   const [productDocumentsExpanded, setProductDocumentsExpanded] = useState(true);
+  const [activeTab, setActiveTab] = useState<"investments" | "cash" | "recent-trading" | "product-documents">("investments");
   const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
   const [uploadedDocuments, setUploadedDocuments] = useState<Record<string, Array<{ id: string; name: string; date: string; file?: File }>>>({});
   const [showBuyUnits, setShowBuyUnits] = useState(false);
@@ -4119,18 +4162,18 @@ const Clients = () => {
                     Summary
                   </Button>
                   <Button 
-                    variant={activeView === "households" ? "default" : "outline"} 
+                    variant={activeView === "details" ? "default" : "outline"} 
                     className="text-sm font-normal"
-                    onClick={() => setActiveView("households")}
+                    onClick={() => setActiveView("details")}
                   >
-                    Households
+                    Details
                   </Button>
                   <Button 
-                    variant={activeView === "income-plans" ? "default" : "outline"} 
+                    variant={activeView === "notes" ? "default" : "outline"} 
                     className="text-sm font-normal"
-                    onClick={() => setActiveView("income-plans")}
+                    onClick={() => setActiveView("notes")}
                   >
-                    Income Plans
+                    Notes
                   </Button>
                   <Button 
                     variant={activeView === "approvals" ? "default" : "outline"} 
@@ -4146,15 +4189,15 @@ const Clients = () => {
 
                 <div className="flex items-center gap-2 flex-wrap">
                 <Input
-                    value={activeView === "households" ? householdSearchTerm : searchTerm}
+                    value={activeView === "details" ? detailsSearchTerm : searchTerm}
                     onChange={(event) => {
-                      if (activeView === "households") {
-                        setHouseholdSearchTerm(event.target.value);
+                      if (activeView === "details") {
+                        setDetailsSearchTerm(event.target.value);
                       } else {
                         setSearchTerm(event.target.value);
                       }
                     }}
-                    placeholder={activeView === "households" ? "Search households by name, ID, or primary client..." : activeView === "income-plans" ? "Search income plans by client, plan, or representative..." : activeView === "approvals" ? "Search approvals by client name, module, or status..." : "Search by client, account, or status"}
+                    placeholder={activeView === "details" ? "Search details by name, ID, or primary client..." : activeView === "notes" ? "Search notes by client, plan, or representative..." : activeView === "approvals" ? "Search approvals by client name, module, or status..." : "Search by client, account, or status"}
                   className="text-sm lg:w-72 xl:w-96"
                 />
 
@@ -4164,8 +4207,8 @@ const Clients = () => {
                         variant="outline"
                         className="w-[150px] justify-between text-sm font-normal"
                       >
-                        {activeView === "households" || activeView === "income-plans" || activeView === "approvals" ? (
-                          activeView === "households" ? (
+                        {activeView === "details" || activeView === "notes" || activeView === "approvals" ? (
+                          activeView === "details" ? (
                             (() => {
                               const selectedCount = Object.values(statusFilter).filter(Boolean).length;
                               if (selectedCount === 0) return "Status";
@@ -4190,7 +4233,7 @@ const Clients = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-[150px] p-2" align="start">
                       <div className="space-y-1">
-                        {activeView === "households" ? (
+                        {activeView === "details" ? (
                           (["ACTIVE", "PENDING REVIEW"] as string[]).map(
                             (status) => (
                               <label
@@ -4208,7 +4251,7 @@ const Clients = () => {
                               </label>
                             )
                           )
-                        ) : activeView === "income-plans" ? (
+                        ) : activeView === "notes" ? (
                           (["Payment Scheduled", "Instructions Required"] as string[]).map(
                             (status) => (
                               <label
@@ -4263,7 +4306,7 @@ const Clients = () => {
 
                 <Button onClick={() => setShowAddClient(true)}>
                   <Plus className="mr-2 h-4 w-4" />
-                  {activeView === "households" ? "Add New Household" : activeView === "income-plans" ? "Add Income Plan" : activeView === "approvals" ? "Add Approval" : "Add Client"}
+                  {activeView === "details" ? "Add New Detail" : activeView === "notes" ? "Add Note" : activeView === "approvals" ? "Add Approval" : "Add Client"}
                 </Button>
                 </div>
               </div>
@@ -4538,306 +4581,1186 @@ const Clients = () => {
                     </Table>
                   </div>
                 </div>
-              ) : activeView === "income-plans" ? (
+              ) : activeView === "notes" ? (
                 <div className="p-6">
-                  {/* Income Plans Table */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-gray-50">
-                          <TableHead className="text-xs font-semibold text-gray-700">Client</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Plan</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Representative</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700 text-right">Minimum</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700 text-right">Balance to Min</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700 text-right">Maximum</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700 text-right">Balance to Max</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700 text-right">YTD Paid</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700 text-right">YTD Tax</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Payment Status</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {/* Row 1 */}
-                        <TableRow className="hover:bg-gray-50">
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">Carriere, Dora</p>
-                              <p className="text-xs text-gray-500">ID: 29720</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">S108113354</p>
-                              <p className="text-xs text-gray-500">Locked in RLIF Broker/Nominee, Individual</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-xs text-gray-700">9823-2232</p>
-                              <p className="text-xs text-gray-500">Marsh, Antoine</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(2992.35)}</TableCell>
-                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(1575.79)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(4249.71)}</TableCell>
-                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(2833.15)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(1374.64)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(41.92)}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50 text-xs font-medium px-2 py-0.5">
-                              <Clock className="h-3 w-3 mr-1 inline" />
-                              Scheduled
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4 text-gray-600" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
+                  <div className="space-y-4">
+                    {/* Notes Summary Header and Action Buttons */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-gray-900">Client Notes</h3>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-sm"
+                          onClick={() => setShowAddNoteDialog(true)}
+                        >
+                          <Plus className="h-4 w-4 mr-1.5" />
+                          Add Client Note
+                        </Button>
+                        <Button variant="outline" className="h-8 text-sm">
+                          <FileText className="h-4 w-4 mr-1.5" />
+                          Print Notes
+                        </Button>
+                      </div>
+                    </div>
 
-                        {/* Row 2 */}
-                        <TableRow className="hover:bg-gray-50">
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">Sharma, Melanie</p>
-                              <p className="text-xs text-gray-500">ID: 2663</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">1322488010</p>
-                              <p className="text-xs text-gray-500">RRIF Broker/Nominee, Individual, Fee for Service</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-xs text-gray-700">9823-2232</p>
-                              <p className="text-xs text-gray-500">Marsh, Antoine</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(77219.08)}</TableCell>
-                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-red-600">-{formatCurrency(77219.08)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(54053.35)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(23165.73)}</TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                              <CheckCircle2 className="h-3 w-3 mr-1 inline" />
-                              Completed
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4 text-gray-600" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
+                    {/* View Additional Notes Section - Filter */}
+                    <Collapsible open={viewAdditionalNotesOpen} onOpenChange={setViewAdditionalNotesOpen}>
+                      <Card className="border border-gray-200 shadow-sm">
+                        <CardHeader className="pb-3">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between">
+                            <CardTitle className="text-sm font-semibold text-gray-900">View Additional Notes</CardTitle>
+                            {viewAdditionalNotesOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                          </CollapsibleTrigger>
+                        </CardHeader>
+                        <CollapsibleContent>
+                          <CardContent className="pt-0">
+                            <div className="grid grid-cols-3 gap-4">
+                              {/* Column 1 */}
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="client-notes"
+                                    checked={noteTypes["Client Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Client Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="client-notes" className="text-xs text-gray-700 cursor-pointer">Client Notes</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="fund-account-notes"
+                                    checked={noteTypes["Fund Account Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Fund Account Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="fund-account-notes" className="text-xs text-gray-700 cursor-pointer">Fund Account Notes</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="plan-reviews"
+                                    checked={noteTypes["Plan Reviews"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Plan Reviews": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="plan-reviews" className="text-xs text-gray-700 cursor-pointer">Plan Reviews</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="gic-transaction-notes"
+                                    checked={noteTypes["GIC Transaction Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "GIC Transaction Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="gic-transaction-notes" className="text-xs text-gray-700 cursor-pointer">GIC Transaction Notes</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="etf-transaction-reviews"
+                                    checked={noteTypes["ETF Transaction Reviews"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "ETF Transaction Reviews": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="etf-transaction-reviews" className="text-xs text-gray-700 cursor-pointer">ETF Transaction Reviews</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="include-account-opening-notes"
+                                    checked={noteTypes["Include Account Opening Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Include Account Opening Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="include-account-opening-notes" className="text-xs text-gray-700 cursor-pointer">Include Account Opening Notes</Label>
+                                </div>
+                              </div>
 
-                        {/* Row 3 */}
-                        <TableRow className="hover:bg-gray-50">
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">Sharma, Melanie</p>
-                              <p className="text-xs text-gray-500">ID: 2663</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">4527271322</p>
-                              <p className="text-xs text-gray-500">RRIF Broker/Nominee, Spousal, Fee for Service</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-xs text-gray-700">9823-2232</p>
-                              <p className="text-xs text-gray-500">Marsh, Antoine</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-red-600">-{formatCurrency(8185.32)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                              <CheckCircle2 className="h-3 w-3 mr-1 inline" />
-                              Completed
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4 text-gray-600" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
+                              {/* Column 2 */}
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="emails-sent-to-client"
+                                    checked={noteTypes["Emails Sent to Client"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Emails Sent to Client": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="emails-sent-to-client" className="text-xs text-gray-700 cursor-pointer">Emails Sent to Client</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="gic-notes"
+                                    checked={noteTypes["GIC Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "GIC Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="gic-notes" className="text-xs text-gray-700 cursor-pointer">GIC Notes</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="fund-transaction-notes"
+                                    checked={noteTypes["Fund Transaction Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Fund Transaction Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="fund-transaction-notes" className="text-xs text-gray-700 cursor-pointer">Fund Transaction Notes</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="gic-transaction-reviews"
+                                    checked={noteTypes["GIC Transaction Reviews"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "GIC Transaction Reviews": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="gic-transaction-reviews" className="text-xs text-gray-700 cursor-pointer">GIC Transaction Reviews</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="include-inactive-plans"
+                                    checked={noteTypes["Include Inactive Plans and Accounts"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Include Inactive Plans and Accounts": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="include-inactive-plans" className="text-xs text-gray-700 cursor-pointer">Include Inactive Plans and Accounts</Label>
+                                </div>
+                              </div>
 
-                        {/* Row 4 */}
-                        <TableRow className="hover:bg-gray-50">
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">Sharma, Melanie</p>
-                              <p className="text-xs text-gray-500">ID: 2663</p>
+                              {/* Column 3 */}
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="plan-notes"
+                                    checked={noteTypes["Plan Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Plan Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="plan-notes" className="text-xs text-gray-700 cursor-pointer">Plan Notes</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="etf-account-notes"
+                                    checked={noteTypes["ETF Account Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "ETF Account Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="etf-account-notes" className="text-xs text-gray-700 cursor-pointer">ETF Account Notes</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="fund-transaction-reviews"
+                                    checked={noteTypes["Fund Transaction Reviews"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Fund Transaction Reviews": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="fund-transaction-reviews" className="text-xs text-gray-700 cursor-pointer">Fund Transaction Reviews</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="etf-transaction-notes"
+                                    checked={noteTypes["ETF Transaction Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "ETF Transaction Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="etf-transaction-notes" className="text-xs text-gray-700 cursor-pointer">ETF Transaction Notes</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox 
+                                    id="include-kyc-update-notes"
+                                    checked={noteTypes["Include KYC Update Notes"]}
+                                    onCheckedChange={(checked) => setNoteTypes({...noteTypes, "Include KYC Update Notes": checked as boolean})}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor="include-kyc-update-notes" className="text-xs text-gray-700 cursor-pointer">Include KYC Update Notes</Label>
+                                </div>
+                              </div>
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">7545538518</p>
-                              <p className="text-xs text-gray-500">Locked in LIF Broker/Nominee, Individual, Fee for Service</p>
+                            {/* All/None Buttons */}
+                            <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-7 text-xs"
+                                onClick={() => {
+                                  const allChecked = Object.keys(noteTypes).reduce((acc, key) => ({...acc, [key]: true}), {});
+                                  setNoteTypes(allChecked as Record<string, boolean>);
+                                }}
+                              >
+                                All
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-7 text-xs"
+                                onClick={() => {
+                                  const allUnchecked = Object.keys(noteTypes).reduce((acc, key) => ({...acc, [key]: false}), {});
+                                  setNoteTypes(allUnchecked as Record<string, boolean>);
+                                }}
+                              >
+                                None
+                              </Button>
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-xs text-gray-700">9823-2232</p>
-                              <p className="text-xs text-gray-500">Marsh, Antoine</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(7162.91)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-green-600">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell className="text-right text-xs text-gray-700">{formatCurrency(0)}</TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                              <CheckCircle2 className="h-3 w-3 mr-1 inline" />
-                              Completed
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4 text-gray-600" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
+                          </CardContent>
+                        </CollapsibleContent>
+                      </Card>
+                    </Collapsible>
+
+                    {/* Notes List */}
+                    <div className="space-y-3">
+                      {clientNotes.length === 0 ? (
+                        <Card className="border border-gray-200 shadow-sm">
+                          <CardContent className="p-8 text-center">
+                            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                            <p className="text-sm text-gray-500">No notes found. Click "Add Client Note" to create your first note.</p>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        clientNotes
+                          .filter(note => {
+                            // Filter notes based on selected note types
+                            const selectedTypes = Object.entries(noteTypes)
+                              .filter(([_, checked]) => checked)
+                              .map(([key, _]) => key);
+                            return note.tags.some(tag => selectedTypes.includes(tag));
+                          })
+                          .map((note) => (
+                            <Card key={note.id} className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                              <CardContent className="p-4">
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex-1">
+                                    <p className="text-sm text-gray-900 mb-2 whitespace-pre-wrap">{note.content}</p>
+                                    <div className="flex flex-wrap gap-1.5 mb-2">
+                                      {note.tags.map((tag) => (
+                                        <Badge key={tag} variant="secondary" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                          {tag}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                                      <Clock className="h-3 w-3" />
+                                      <span>{note.createdAt}</span>
+                                      <span>•</span>
+                                      <span>{note.createdBy}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-1 ml-4">
+                                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                      <Pencil className="h-3.5 w-3.5 text-gray-600" />
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                      <Trash2 className="h-3.5 w-3.5 text-red-600" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))
+                      )}
+                    </div>
                   </div>
+
+                  {/* Add Note Dialog */}
+                  <Dialog open={showAddNoteDialog} onOpenChange={setShowAddNoteDialog}>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Add Client Note</DialogTitle>
+                        <DialogDescription>
+                          Create a new note for this client and select relevant tags.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div>
+                          <Label htmlFor="note-content" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Note Content
+                          </Label>
+                          <Textarea
+                            id="note-content"
+                            placeholder="Enter your note here..."
+                            value={newNoteContent}
+                            onChange={(e) => setNewNoteContent(e.target.value)}
+                            className="min-h-[120px] text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700 mb-3 block">
+                            Select Tags
+                          </Label>
+                          <ScrollArea className="h-[300px] border border-gray-200 rounded-lg p-4">
+                            <div className="grid grid-cols-2 gap-3">
+                              {Object.keys(noteTypes).map((tagName) => (
+                                <div key={tagName} className="flex items-center gap-2">
+                                  <Checkbox
+                                    id={`new-note-${tagName}`}
+                                    checked={newNoteTags[tagName] || false}
+                                    onCheckedChange={(checked) => {
+                                      setNewNoteTags({...newNoteTags, [tagName]: checked as boolean});
+                                    }}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label htmlFor={`new-note-${tagName}`} className="text-xs text-gray-700 cursor-pointer">
+                                    {tagName}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                          <div className="flex items-center gap-2 mt-3">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => {
+                                const allChecked = Object.keys(noteTypes).reduce((acc, key) => ({...acc, [key]: true}), {});
+                                setNewNoteTags(allChecked);
+                              }}
+                            >
+                              All
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => {
+                                setNewNoteTags({});
+                              }}
+                            >
+                              None
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => {
+                          setShowAddNoteDialog(false);
+                          setNewNoteContent("");
+                          setNewNoteTags({});
+                        }}>
+                          Cancel
+                        </Button>
+                        <Button
+                          className="bg-blue-600 hover:bg-blue-700"
+                          onClick={() => {
+                            if (newNoteContent.trim()) {
+                              const selectedTags = Object.entries(newNoteTags)
+                                .filter(([_, checked]) => checked)
+                                .map(([key, _]) => key);
+                              
+                              const newNote = {
+                                id: Date.now().toString(),
+                                content: newNoteContent,
+                                tags: selectedTags,
+                                createdAt: new Date().toLocaleString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                }),
+                                createdBy: "Current User"
+                              };
+                              
+                              setClientNotes([newNote, ...clientNotes]);
+                              setNewNoteContent("");
+                              setNewNoteTags({});
+                              setShowAddNoteDialog(false);
+                            }
+                          }}
+                          disabled={!newNoteContent.trim()}
+                        >
+                          Save Note
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
-              ) : activeView === "households" ? (
+              ) : activeView === "details" ? (
                 <div className="p-6">
-                  {/* Households Table */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-gray-50">
-                          <TableHead className="text-xs font-semibold text-gray-700">Household ID</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Name</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Primary Client</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Members</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Total Assets</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Accounts</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Status</TableHead>
-                          <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {/* Household 1 */}
-                        <TableRow className="hover:bg-gray-50">
-                          <TableCell className="text-xs font-medium text-gray-900">HH001</TableCell>
-                          <TableCell className="text-xs text-gray-900">Johnson Family</TableCell>
-                          <TableCell className="text-xs text-gray-700">Robert Johnson</TableCell>
-                          <TableCell className="text-xs text-gray-700">3</TableCell>
-                          <TableCell className="text-xs text-gray-700">{formatCurrency(750000)}</TableCell>
-                          <TableCell className="text-xs text-gray-700">4</TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                              ACTIVE
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Pencil className="h-4 w-4 text-gray-600" />
-                              </Button>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Trash2 className="h-4 w-4 text-gray-600" />
-                              </Button>
+                  <ScrollArea className="h-[calc(100vh-200px)]">
+                    <Card className="border border-gray-200 shadow-sm bg-white">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          {/* Personal Information */}
+                          <Collapsible open={personalInfoOpen} onOpenChange={setPersonalInfoOpen}>
+                            <CollapsibleTrigger className="w-full flex items-center justify-between mb-2">
+                              <h3 className="text-sm font-semibold text-gray-900">Personal Information</h3>
+                              {personalInfoOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs text-gray-700 mb-0.5 block">ID</Label>
+                                <Input value="95780" readOnly className="h-7 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700 mb-0.5 block">Title</Label>
+                                <Select defaultValue="ms">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="mr">Mr.</SelectItem>
+                                    <SelectItem value="mrs">Mrs.</SelectItem>
+                                    <SelectItem value="ms">Ms.</SelectItem>
+                                    <SelectItem value="dr">Dr.</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700 mb-0.5 block">Type</Label>
+                                <Select defaultValue="individual">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="individual">Individual</SelectItem>
+                                    <SelectItem value="joint">Joint</SelectItem>
+                                    <SelectItem value="corporate">Corporate</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">First Name</Label>
+                                <Input defaultValue="Elton" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Surname</Label>
+                                <Input defaultValue="Andrews" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Alias</Label>
+                                <Input className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Gender</Label>
+                                <Select defaultValue="female">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Marital Status</Label>
+                                <Select defaultValue="single">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="single">Single</SelectItem>
+                                    <SelectItem value="married">Married</SelectItem>
+                                    <SelectItem value="divorced">Divorced</SelectItem>
+                                    <SelectItem value="widowed">Widowed</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Dependants</Label>
+                                <Select defaultValue="0">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                                      <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Date of Birth</Label>
+                                <Input type="date" defaultValue="1947-08-22" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Age</Label>
+                                <Input value="78" readOnly className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Language</Label>
+                                <Select defaultValue="english">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="english">English</SelectItem>
+                                    <SelectItem value="french">French</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">SIN</Label>
+                                <Input defaultValue="934270117" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">CDIC Client Identifier</Label>
+                                <Input defaultValue="OB2D666" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">File ID</Label>
+                                <Input className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Delivery Status</Label>
+                                <Select defaultValue="estatements">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="estatements">eStatements</SelectItem>
+                                    <SelectItem value="mail">Mail</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Delivery Status Consent Date</Label>
+                                <Input type="date" defaultValue="2022-09-26" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Status</Label>
+                                <Select defaultValue="active">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                    <SelectItem value="prospect">Prospect</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">LTA Date</Label>
+                                <Input type="date" className="h-8 text-xs" />
+                              </div>
+                              <div className="flex items-center gap-2 pt-4">
+                                <Checkbox id="lta" />
+                                <Label htmlFor="lta" className="text-xs text-gray-700">LTA</Label>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">POA Date</Label>
+                                <Input type="date" defaultValue="2021-02-07" className="h-8 text-xs" />
+                              </div>
+                              <div className="flex items-center gap-2 pt-6">
+                                <Checkbox id="poa" defaultChecked />
+                                <Label htmlFor="poa" className="text-xs text-gray-700">POA</Label>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">POA Name</Label>
+                                <Input defaultValue="Ivan Schellekens" className="h-8 text-xs" />
+                              </div>
+                              <div className="col-span-2">
+                                <Label className="text-xs text-gray-700">POA Address</Label>
+                                <Textarea defaultValue="678 2nd St, Somewhere, ON, N1N1N1" className="h-12 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Tax Code</Label>
+                                <Select defaultValue="ontario">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="ontario">ONTARIO</SelectItem>
+                                    <SelectItem value="quebec">QUEBEC</SelectItem>
+                                    <SelectItem value="bc">BRITISH COLUMBIA</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Citizenship</Label>
+                                <Input className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Pro Account</Label>
+                                <Select defaultValue="no">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="yes">Yes</SelectItem>
+                                    <SelectItem value="no">No</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Pro Account Date</Label>
+                                <Input type="date" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Representative Defined Field 1</Label>
+                                <Input className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Representative Defined Field 2</Label>
+                                <Input className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Representative Defined Field 3</Label>
+                                <Input className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Date of Death</Label>
+                                <Input type="date" className="h-8 text-xs" />
+                              </div>
+                              <div className="flex items-center gap-2 pt-6">
+                                <Checkbox id="casl" />
+                                <Label htmlFor="casl" className="text-xs text-gray-700">CASL Permission (consents to receive emails)</Label>
+                              </div>
                             </div>
-                          </TableCell>
-                        </TableRow>
+                            </CollapsibleContent>
+                          </Collapsible>
 
-                        {/* Household 2 */}
-                        <TableRow className="hover:bg-gray-50">
-                          <TableCell className="text-xs font-medium text-gray-900">HH002</TableCell>
-                          <TableCell className="text-xs text-gray-900">Smith Household</TableCell>
-                          <TableCell className="text-xs text-gray-700">Michael Smith</TableCell>
-                          <TableCell className="text-xs text-gray-700">2</TableCell>
-                          <TableCell className="text-xs text-gray-700">{formatCurrency(425000)}</TableCell>
-                          <TableCell className="text-xs text-gray-700">2</TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                              ACTIVE
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Pencil className="h-4 w-4 text-gray-600" />
-                              </Button>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Trash2 className="h-4 w-4 text-gray-600" />
-                              </Button>
+                          {/* Contact Information */}
+                          <Collapsible open={contactInfoOpen} onOpenChange={setContactInfoOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Contact Information</h3>
+                                {contactInfoOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <h4 className="text-xs font-semibold text-gray-900 mb-1.5">Returned Mail</h4>
+                                <div className="space-y-1.5">
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Returned Mail</Label>
+                                    <Select defaultValue="no">
+                                      <SelectTrigger className="h-7 text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="yes">Yes</SelectItem>
+                                        <SelectItem value="no">No</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Returned Mail Date</Label>
+                                    <Input type="date" className="h-7 text-xs" />
+                                  </div>
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-semibold text-gray-900 mb-1.5">Mobility Exemption</h4>
+                                <p className="text-xs text-gray-700">No Mobility Exemptions</p>
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-semibold text-gray-900 mb-1.5">Residential Address</h4>
+                                <div className="space-y-1.5">
+                                  <Input defaultValue="2144 Pelissier St. Suite 10" placeholder="Address Line 1" className="h-8 text-xs" />
+                                  <Input placeholder="Address Line 2" className="h-8 text-xs" />
+                                  <Input defaultValue="Windsor" placeholder="City" className="h-8 text-xs" />
+                                  <Select defaultValue="canada">
+                                    <SelectTrigger className="h-7 text-xs">
+                                      <SelectValue placeholder="Country" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="canada">Canada</SelectItem>
+                                      <SelectItem value="usa">United States</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Select defaultValue="ontario">
+                                    <SelectTrigger className="h-7 text-xs">
+                                      <SelectValue placeholder="Province" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="ontario">ONTARIO</SelectItem>
+                                      <SelectItem value="quebec">QUEBEC</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Input defaultValue="H0H 0H0" placeholder="Postal" className="h-7 text-xs" />
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-semibold text-gray-900 mb-1.5">Mailing Address</h4>
+                                <div className="flex items-center gap-2 pt-2">
+                                  <Checkbox id="same-as-residential" defaultChecked />
+                                  <Label htmlFor="same-as-residential" className="text-xs text-gray-700">Same as residential</Label>
+                                </div>
+                              </div>
+                              <div className="col-span-2">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Home Phone</Label>
+                                    <Input defaultValue="555-555-5555" className="h-7 text-xs" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Work Phone</Label>
+                                    <Input defaultValue="555-555-5555" className="h-7 text-xs" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Cell Phone</Label>
+                                    <Input defaultValue="555-555-5555" className="h-7 text-xs" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Fax</Label>
+                                    <Input defaultValue="000-000-0000" className="h-7 text-xs" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Email</Label>
+                                    <Input defaultValue="client@onebosstest.com" className="h-7 text-xs" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Verify Email</Label>
+                                    <Input className="h-7 text-xs" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Email (Secondary)</Label>
+                                    <Input defaultValue="client95780@onebosstest.com" className="h-7 text-xs" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-0.5 block">Verify Secondary Email</Label>
+                                    <Input className="h-7 text-xs" />
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </TableCell>
-                        </TableRow>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
 
-                        {/* Household 3 */}
-                        <TableRow className="hover:bg-gray-50">
-                          <TableCell className="text-xs font-medium text-gray-900">HH003</TableCell>
-                          <TableCell className="text-xs text-gray-900">Williams Trust</TableCell>
-                          <TableCell className="text-xs text-gray-700">David Williams</TableCell>
-                          <TableCell className="text-xs text-gray-700">4</TableCell>
-                          <TableCell className="text-xs text-gray-700">{formatCurrency(1250000)}</TableCell>
-                          <TableCell className="text-xs text-gray-700">6</TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs font-medium px-2 py-0.5">
-                              ACTIVE
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Pencil className="h-4 w-4 text-gray-600" />
-                              </Button>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Trash2 className="h-4 w-4 text-gray-600" />
-                              </Button>
+                          {/* Spouse Addresses */}
+                          <Collapsible open={spouseAddressOpen} onOpenChange={setSpouseAddressOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Spouse Addresses</h3>
+                                {spouseAddressOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Spouse Residential Address</h4>
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Checkbox id="same-as-client-residential" />
+                                  <Label htmlFor="same-as-client-residential" className="text-xs text-gray-700">Same as Client Residential Address</Label>
+                                </div>
+                                <div className="space-y-1.5">
+                                  <Input placeholder="Address Line 1" className="h-7 text-xs" />
+                                  <Input placeholder="Address Line 2" className="h-7 text-xs" />
+                                  <Input placeholder="City" className="h-7 text-xs" />
+                                  <Select defaultValue="unknown">
+                                    <SelectTrigger className="h-7 text-xs">
+                                      <SelectValue placeholder="Country" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="unknown">Unknown</SelectItem>
+                                      <SelectItem value="canada">Canada</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Input placeholder="Province" className="h-7 text-xs" />
+                                  <Input placeholder="Postal" className="h-7 text-xs" />
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900 mb-3">Spouse Mailing Address</h4>
+                                <div className="flex items-center gap-2 pt-2">
+                                  <Checkbox id="same-as-residential-spouse" defaultChecked />
+                                  <Label htmlFor="same-as-residential-spouse" className="text-xs text-gray-700">Same as residential</Label>
+                                </div>
+                              </div>
+                                </div>
+                              </CollapsibleContent>
                             </div>
-                          </TableCell>
-                        </TableRow>
+                          </Collapsible>
 
-                        {/* Household 4 */}
-                        <TableRow className="hover:bg-gray-50">
-                          <TableCell className="text-xs font-medium text-gray-900">HH004</TableCell>
-                          <TableCell className="text-xs text-gray-900">Brown Estate</TableCell>
-                          <TableCell className="text-xs text-gray-700">Patricia Brown</TableCell>
-                          <TableCell className="text-xs text-gray-700">1</TableCell>
-                          <TableCell className="text-xs text-gray-700">{formatCurrency(180000)}</TableCell>
-                          <TableCell className="text-xs text-gray-700">1</TableCell>
-                          <TableCell>
-                            <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 text-xs font-medium px-2 py-0.5">
-                              PENDING REVIEW
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Pencil className="h-4 w-4 text-gray-600" />
-                              </Button>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Trash2 className="h-4 w-4 text-gray-600" />
-                              </Button>
+                          {/* Reset Client Web Access */}
+                          <Collapsible open={webAccessOpen} onOpenChange={setWebAccessOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Reset Client Web Access</h3>
+                                {webAccessOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="flex gap-2">
+                              <Button size="sm" className="h-7 text-xs">View Client Portal as Andrews, Elton</Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs">Reset Client Web Access</Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs">View Portal Login History</Button>
+                              </div>
+                              </CollapsibleContent>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
+                          </Collapsible>
+
+                          {/* Permissions */}
+                          <Collapsible open={permissionsOpen} onOpenChange={setPermissionsOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Permissions</h3>
+                                {permissionsOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Checkbox id="fund-alerts" />
+                              <Label htmlFor="fund-alerts" className="text-xs text-gray-700">Client may access Fund Alerts</Label>
+                            </div>
+                            <Button size="sm" className="h-7 text-xs">Apply Permissions</Button>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* Employment Information */}
+                          <Collapsible open={employmentOpen} onOpenChange={setEmploymentOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Employment Information</h3>
+                                {employmentOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs text-gray-700">Occupation</Label>
+                                <Input defaultValue="Retired" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Employer</Label>
+                                <Input defaultValue="N/A" className="h-8 text-xs" />
+                              </div>
+                            </div>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* Bank Account Information */}
+                          <Collapsible open={bankAccountOpen} onOpenChange={setBankAccountOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Bank Account Information</h3>
+                                {bankAccountOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="border border-gray-200 rounded-lg overflow-hidden mb-3">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-gray-50">
+                                    <TableHead className="text-xs font-semibold text-gray-700">Description</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Transit Number</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Institution Number</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Account Number</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Holder Name</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow>
+                                    <TableCell className="text-xs">Demo bank account 72034</TableCell>
+                                    <TableCell className="text-xs">001</TableCell>
+                                    <TableCell className="text-xs"></TableCell>
+                                    <TableCell className="text-xs">5522476</TableCell>
+                                    <TableCell className="text-xs">Elton Andrews</TableCell>
+                                    <TableCell>
+                                      <Button variant="ghost" size="sm" className="h-7 text-xs">
+                                        <Pencil className="h-3 w-3 mr-1" />
+                                        Edit
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+                            <Button size="sm" className="h-8 text-xs">
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add New Bank Account
+                            </Button>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* Personal KYC Information */}
+                          <Collapsible open={kycOpen} onOpenChange={setKycOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Personal KYC Information</h3>
+                                {kycOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs text-gray-700">Liquid Assets</Label>
+                                <Input defaultValue="$8,000.00" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Fixed Assets</Label>
+                                <Input defaultValue="$50,000.00" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Liabilities</Label>
+                                <Input defaultValue="$2,000.00" className="h-8 text-xs" />
+                              </div>
+                              <div className="flex items-end gap-2">
+                                <div className="flex-1">
+                                  <Label className="text-xs text-gray-700">Total</Label>
+                                  <Input value="$56,000.00" readOnly className="h-8 text-xs" />
+                                </div>
+                                <Button size="sm" className="h-8 text-xs">Calculate</Button>
+                              </div>
+                              <div className="flex items-center gap-2 pt-2">
+                                <Checkbox id="assets-includes-spouse" />
+                                <Label htmlFor="assets-includes-spouse" className="text-xs text-gray-700">Assets Includes Spouse</Label>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Personal Income</Label>
+                                <Input defaultValue="$32,540.00" className="h-8 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Personal Income</Label>
+                                <Select defaultValue="25000-49999">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="0-24999">$0 - $24,999</SelectItem>
+                                    <SelectItem value="25000-49999">$25,000 - $49,999</SelectItem>
+                                    <SelectItem value="50000-99999">$50,000 - $99,999</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="flex items-center gap-2 pt-2">
+                                <Checkbox id="income-includes-spouse" />
+                                <Label htmlFor="income-includes-spouse" className="text-xs text-gray-700">Income Includes Spouse</Label>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Investor Knowledge</Label>
+                                <Select defaultValue="novice">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="novice">Novice</SelectItem>
+                                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                                    <SelectItem value="advanced">Advanced</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700">Accredited Investor</Label>
+                                <Select defaultValue="no">
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="yes">Yes</SelectItem>
+                                    <SelectItem value="no">No</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* Politically Exposed Person & FATCA/CRS */}
+                          <Collapsible open={pepOpen} onOpenChange={setPepOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Politically Exposed Person & FATCA/CRS Information</h3>
+                                {pepOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-gray-900 mb-4">Politically Exposed Person Information</h4>
+                                <div className="space-y-1.5">
+                                  <div>
+                                    <Label className="text-xs text-gray-700">Politically exposed person?</Label>
+                                    <Select defaultValue="no">
+                                      <SelectTrigger className="h-7 text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="yes">Yes</SelectItem>
+                                        <SelectItem value="no">No</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Checkbox id="pep-family" />
+                                    <Label htmlFor="pep-family" className="text-xs text-gray-700">Client or family member</Label>
+                                  </div>
+                                </div>
+                              </div>
+                              <div>
+                                <h3 className="text-sm font-semibold text-blue-600 underline mb-4">FATCA/CRS Information</h3>
+                                <div>
+                                  <Label className="text-xs text-gray-700">Tax resident of a jurisdiction other than Canada*</Label>
+                                  <Select defaultValue="no">
+                                    <SelectTrigger className="h-7 text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="yes">Yes</SelectItem>
+                                      <SelectItem value="no">No</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                                </div>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* ID Documents */}
+                          <Collapsible open={idDocumentsOpen} onOpenChange={setIdDocumentsOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">ID Documents</h3>
+                                {idDocumentsOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="mb-4">
+                              <Label className="text-xs text-gray-700 mb-2 block">Identification Methods</Label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {["In Person", "Video Conference", "By Agent", "By Affiliate", "By CCCSMember", "Independent Product", "By Credit File", "Attestation From Commissioner", "Cleared Cheque", "Deposit Account"].map((method) => (
+                                  <div key={method} className="flex items-center gap-2">
+                                    <Checkbox id={method.toLowerCase().replace(/\s+/g, '-')} />
+                                    <Label htmlFor={method.toLowerCase().replace(/\s+/g, '-')} className="text-xs text-gray-700">{method}</Label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <Button size="sm" className="h-7 text-xs mb-2">
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add New ID Document
+                            </Button>
+                            <div className="border border-gray-200 rounded-lg overflow-hidden">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-gray-50">
+                                    <TableHead className="text-xs font-semibold text-gray-700">Type</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">ID/License Number</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Description</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Location</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Issued Date</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Expiry Date</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Owner</TableHead>
+                                    <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow>
+                                    <TableCell className="text-xs">
+                                      <div className="flex items-center gap-2">
+                                        <input type="radio" name="id-type" defaultChecked />
+                                        <span>Driver's License</span>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="text-xs">5510468643</TableCell>
+                                    <TableCell className="text-xs"></TableCell>
+                                    <TableCell className="text-xs">ON</TableCell>
+                                    <TableCell className="text-xs">01/01/2015</TableCell>
+                                    <TableCell className="text-xs">06/19/2026</TableCell>
+                                    <TableCell className="text-xs">Client</TableCell>
+                                    <TableCell>
+                                      <Button variant="ghost" size="sm" className="h-7 text-xs">
+                                        <Pencil className="h-3 w-3 mr-1" />
+                                        Edit
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* Trusted Contact Persons */}
+                          <Collapsible open={trustedContactOpen} onOpenChange={setTrustedContactOpen}>
+                            <div className="border-t border-gray-200 pt-3">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-2">
+                                <h3 className="text-sm font-semibold text-gray-900">Trusted Contact Persons</h3>
+                                {trustedContactOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <Select defaultValue="declined">
+                              <SelectTrigger className="h-7 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="declined">Client Declined to Provide Trusted Contact</SelectItem>
+                                <SelectItem value="add">Add Trusted Contact</SelectItem>
+                              </SelectContent>
+                            </Select>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* Client Custom Questions */}
+                          <Collapsible open={customQuestionsOpen} onOpenChange={setCustomQuestionsOpen}>
+                            <div className="border-t border-gray-200 pt-3">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-2">
+                                <h3 className="text-sm font-semibold text-gray-900">Client Custom Questions</h3>
+                                {customQuestionsOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="complaint-procedures" />
+                                <Label htmlFor="complaint-procedures" className="text-xs text-gray-700">I have received the complaint procedures document explaining how to file a complaint.</Label>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700 mb-1 block">Favourite Season</Label>
+                                <div className="flex gap-3">
+                                  {["Spring", "Summer", "Fall", "Winter"].map((season) => (
+                                    <div key={season} className="flex items-center gap-2">
+                                      <input type="radio" name="favourite-season" id={season.toLowerCase()} />
+                                      <Label htmlFor={season.toLowerCase()} className="text-xs text-gray-700">{season}</Label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700 mb-0.5 block">Blood Type</Label>
+                                <Input className="h-7 text-xs" />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-gray-700 mb-0.5 block">Favorite Color</Label>
+                                <Input className="h-7 text-xs" />
+                              </div>
+                            </div>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* User Defined Flags */}
+                          <Collapsible open={userFlagsOpen} onOpenChange={setUserFlagsOpen}>
+                            <div className="border-t border-gray-200 pt-6">
+                              <CollapsibleTrigger className="w-full flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-gray-900">User Defined Flags</h3>
+                                {userFlagsOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="flag-1" />
+                                <Label htmlFor="flag-1" className="text-xs text-gray-700">1</Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="transfer-fee" />
+                                <Label htmlFor="transfer-fee" className="text-xs text-gray-700">Transfer Fee Agreement on file</Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="rebate-primary" />
+                                <Label htmlFor="rebate-primary" className="text-xs text-gray-700">Rebate- Primary</Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="rebate-secondary" />
+                                <Label htmlFor="rebate-secondary" className="text-xs text-gray-700">Rebate - Secondary</Label>
+                              </div>
+                            </div>
+                              </CollapsibleContent>
+                            </div>
+                          </Collapsible>
+
+                          {/* Save Button */}
+                          <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Checkbox id="display-pendings" />
+                              <Label htmlFor="display-pendings" className="text-xs text-gray-700">Display confirmed pendings</Label>
+                            </div>
+                            <Button className="bg-green-600 hover:bg-green-700 text-white h-7 text-xs">
+                              Save Client Details
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </ScrollArea>
                 </div>
               ) : isLoading ? (
                 <div className="flex items-center justify-center py-16 text-gray-500">
@@ -5067,14 +5990,44 @@ const Clients = () => {
                               </Collapsible>
                             </div>
 
-                            {/* Plans */}
-                            {Array.isArray(selectedClient.plans) && selectedClient.plans.length > 0 && (
-                              <Card className="border border-gray-200 shadow-sm bg-white">
+                            {/* Plans/Investments/Cash Card */}
+                            <Card className="border border-gray-200 shadow-sm bg-white">
                                 <CardHeader className="pb-3">
                                   <div className="flex items-center justify-between">
-                                  <CardTitle className="text-sm font-semibold text-gray-900">
-                                    Plans ({selectedClient.plans.length})
-                                  </CardTitle>
+                                    <div className="flex items-center gap-2">
+                                      <Button 
+                                        variant={activeTab === "investments" ? "default" : "outline"}
+                                        size="sm"
+                                        className="text-sm font-semibold h-7"
+                                        onClick={() => setActiveTab("investments")}
+                                      >
+                                        Investments {selectedClient && Array.isArray(selectedClient.plans) && selectedClient.plans.length > 0 ? `(${selectedClient.plans.length})` : ''}
+                                      </Button>
+                                      <Button 
+                                        variant={activeTab === "cash" ? "default" : "outline"}
+                                        size="sm"
+                                        className="text-sm font-semibold h-7"
+                                        onClick={() => setActiveTab("cash")}
+                                      >
+                                        Cash
+                                      </Button>
+                                      <Button 
+                                        variant={activeTab === "recent-trading" ? "default" : "outline"}
+                                        size="sm"
+                                        className="text-sm font-semibold h-7"
+                                        onClick={() => setActiveTab("recent-trading")}
+                                      >
+                                        Recent Trading Activity
+                                      </Button>
+                                      <Button 
+                                        variant={activeTab === "product-documents" ? "default" : "outline"}
+                                        size="sm"
+                                        className="text-sm font-semibold h-7"
+                                        onClick={() => setActiveTab("product-documents")}
+                                      >
+                                        Product Documents
+                                      </Button>
+                                    </div>
                                     <Button 
                                       variant="outline" 
                                       size="sm"
@@ -5101,57 +6054,55 @@ const Clients = () => {
                                   </div>
                                 </CardHeader>
                                 <CardContent>
-                                  <div className="space-y-3">
-                                    {selectedClient.plans.map((plan) => {
-                                      const isExpanded = expandedPlans.has(plan.id);
-                                      return (
+                                  {activeTab === "investments" && (
+                                    <div className="space-y-3">
+                                      {selectedClient && Array.isArray(selectedClient.plans) && selectedClient.plans.length > 0 ? (
+                                        selectedClient.plans.map((plan) => {
+                                          const isExpanded = expandedPlans.has(plan.id);
+                                          return (
                                         <div key={plan.id} className="border border-gray-200 rounded-lg overflow-hidden">
                                           <button
                                             onClick={() => togglePlanExpansion(plan.id)}
                                             className="w-full p-3 hover:bg-gray-50 transition-colors text-left"
                                           >
-                                            <div className="flex items-center justify-between">
-                                              <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                                  <span className="text-sm font-medium text-gray-900">
-                                                    {plan.type === "RESP" ? "RESP Education Savings Plan" : plan.type}
-                                                  </span>
-                                                  {plan.planCategory && (
-                                                    <>
-                                                      <span className="text-gray-400">•</span>
-                                                      <span className="text-sm text-gray-600">{plan.planCategory}</span>
-                                                    </>
-                                                  )}
-                                        </div>
-                                                <div className="flex items-center gap-2 text-xs text-gray-600 flex-wrap">
-                                                  <span>Account: {plan.accountNumber}</span>
-                                                  {plan.accountHolder && (
-                                                    <>
-                                                      <span className="text-gray-400">•</span>
-                                                      <span>{plan.accountHolder}</span>
-                                                    </>
-                                                  )}
-                                                  {plan.riskLevel && (
-                                                    <>
-                                                      <span className="text-gray-400">•</span>
-                                                      <span>Risk: {plan.riskLevel}</span>
-                                                    </>
-                                                  )}
-                                                  {plan.objective && (
-                                                    <>
-                                                      <span className="text-gray-400">•</span>
-                                                      <span>Objective: {plan.objective}</span>
-                                                    </>
-                                                  )}
-                                                </div>
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                  Market Value: {formatCurrency(plan.marketValue)}
-                                      </div>
+                                            <div className="flex items-center justify-between gap-3">
+                                              <div className="flex-1 flex items-center gap-2 text-xs text-gray-900 flex-wrap min-w-0">
+                                                <span className="font-medium">
+                                                  {plan.type === "RESP" ? "RESP Education Savings Plan" : plan.type}
+                                                </span>
+                                                {plan.planCategory && (
+                                                  <>
+                                                    <span className="text-gray-400">•</span>
+                                                    <span className="text-gray-600">{plan.planCategory}</span>
+                                                  </>
+                                                )}
+                                                <span className="text-gray-400">•</span>
+                                                <span className="text-gray-600">Account: {plan.accountNumber}</span>
+                                                {plan.accountHolder && (
+                                                  <>
+                                                    <span className="text-gray-400">•</span>
+                                                    <span className="text-gray-600">{plan.accountHolder}</span>
+                                                  </>
+                                                )}
+                                                {plan.riskLevel && (
+                                                  <>
+                                                    <span className="text-gray-400">•</span>
+                                                    <span className="text-gray-600">Risk: {plan.riskLevel}</span>
+                                                  </>
+                                                )}
+                                                {plan.objective && (
+                                                  <>
+                                                    <span className="text-gray-400">•</span>
+                                                    <span className="text-gray-600">Objective: {plan.objective}</span>
+                                                  </>
+                                                )}
+                                                <span className="text-gray-400">•</span>
+                                                <span className="text-gray-500">Market Value: {formatCurrency(plan.marketValue)}</span>
                                               </div>
                                               {isExpanded ? (
-                                                <ChevronUp className="h-4 w-4 text-gray-400 ml-2" />
+                                                <ChevronUp className="h-4 w-4 text-gray-400 flex-shrink-0" />
                                               ) : (
-                                                <ChevronDown className="h-4 w-4 text-gray-400 ml-2" />
+                                                <ChevronDown className="h-4 w-4 text-gray-400 flex-shrink-0" />
                                               )}
                                             </div>
                                           </button>
@@ -5299,13 +6250,13 @@ const Clients = () => {
                                                 </Table>
                                                 
                                                 {/* Trust Account Cards */}
-                                                <div className="mt-6 grid grid-cols-3 gap-4">
+                                                <div className="mt-6 grid grid-cols-3 gap-3">
                                                   {/* Trust Account CAD */}
                                                   <Card className="border border-gray-200 shadow-sm">
-                                                    <CardContent className="p-4">
-                                                      <p className="text-xs text-gray-500 mb-2">Trust Account CAD</p>
-                                                      <p className="text-2xl font-bold text-gray-900 mb-3">$0.00</p>
-                                                      <div className="space-y-1">
+                                                    <CardContent className="p-3">
+                                                      <p className="text-xs text-gray-500 mb-1">Trust Account CAD</p>
+                                                      <p className="text-lg font-bold text-gray-900 mb-2">$0.00</p>
+                                                      <div className="space-y-0.5">
                                                         <div className="flex justify-between text-xs">
                                                           <span className="text-gray-500">Settled:</span>
                                                           <span className="text-green-600 font-medium">$0.00</span>
@@ -5320,10 +6271,10 @@ const Clients = () => {
 
                                                   {/* Trust Account USD */}
                                                   <Card className="border border-gray-200 shadow-sm">
-                                                    <CardContent className="p-4">
-                                                      <p className="text-xs text-gray-500 mb-2">Trust Account USD</p>
-                                                      <p className="text-2xl font-bold text-gray-900 mb-3">$0.00</p>
-                                                      <div className="space-y-1">
+                                                    <CardContent className="p-3">
+                                                      <p className="text-xs text-gray-500 mb-1">Trust Account USD</p>
+                                                      <p className="text-lg font-bold text-gray-900 mb-2">$0.00</p>
+                                                      <div className="space-y-0.5">
                                                         <div className="flex justify-between text-xs">
                                                           <span className="text-gray-500">Settled:</span>
                                                           <span className="text-green-600 font-medium">$0.00</span>
@@ -5338,9 +6289,9 @@ const Clients = () => {
 
                                                   {/* Total in CAD */}
                                                   <Card className="border border-gray-200 shadow-sm">
-                                                    <CardContent className="p-4">
-                                                      <p className="text-xs text-gray-500 mb-2">Total in CAD</p>
-                                                      <p className="text-2xl font-bold text-green-600">
+                                                    <CardContent className="p-3">
+                                                      <p className="text-xs text-gray-500 mb-1">Total in CAD</p>
+                                                      <p className="text-lg font-bold text-green-600">
                                                         {formatCurrency(
                                                           plan.holdings.reduce((sum, holding) => sum + holding.marketValue, 0)
                                                         )}
@@ -5368,12 +6319,259 @@ const Clients = () => {
                                             </div>
                                           )}
                                         </div>
-                                      );
-                                    })}
-                                  </div>
+                                          );
+                                        })
+                                      ) : (
+                                        <p className="text-sm text-gray-600 text-center py-8">No plans found.</p>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {activeTab === "cash" && (
+                                    <div className="space-y-3">
+                                      {/* Cash Balance Summary */}
+                                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs font-semibold text-gray-900">Cash Available CAD</span>
+                                          <span className="text-xs text-gray-900">$0.00</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs font-semibold text-gray-900">Cash Available USD</span>
+                                          <span className="text-xs text-gray-900">$0.00</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs font-semibold text-gray-900">Cash Used For Trades CAD</span>
+                                          <span className="text-xs text-gray-900">$0.00</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs font-semibold text-gray-900">Cash Used For Trades USD</span>
+                                          <span className="text-xs text-gray-900">$0.00</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs font-semibold text-gray-900">Cash Total CAD</span>
+                                          <span className="text-xs text-gray-900">$0.00</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs font-semibold text-gray-900">Cash Total USD</span>
+                                          <span className="text-xs text-gray-900">$0.00</span>
+                                        </div>
+                                      </div>
+
+                                      {/* Recent Trust Transactions */}
+                                      <div className="border-t border-gray-200 pt-3 mt-2">
+                                        <button className="text-sm font-semibold text-blue-600 underline mb-3">
+                                          Recent Trust Transactions
+                                        </button>
+                                        <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                          <Table>
+                                            <TableHeader>
+                                              <TableRow className="bg-gray-50">
+                                                <TableHead className="text-xs font-semibold text-gray-700">Plan</TableHead>
+                                                <TableHead className="text-xs font-semibold text-gray-700">Date</TableHead>
+                                                <TableHead className="text-xs font-semibold text-gray-700">Trust Account Code</TableHead>
+                                                <TableHead className="text-xs font-semibold text-gray-700">Transaction Type</TableHead>
+                                                <TableHead className="text-xs font-semibold text-gray-700">Status</TableHead>
+                                                <TableHead className="text-xs font-semibold text-gray-700">Settled Date</TableHead>
+                                                <TableHead className="text-xs font-semibold text-gray-700">Amount</TableHead>
+                                              </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                              <TableRow>
+                                                <TableCell colSpan={7} className="text-center text-xs text-gray-500 italic py-8">
+                                                  No Trust Transactions Found
+                                                </TableCell>
+                                              </TableRow>
+                                            </TableBody>
+                                          </Table>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {activeTab === "recent-trading" && (
+                                    <div className="space-y-3">
+                                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                        <Table>
+                                          <TableHeader>
+                                            <TableRow className="bg-gray-50">
+                                              <TableHead className="text-xs font-semibold text-gray-700">Plan</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Fund Account</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Trade Type</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Trade Status</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Net Amount</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Trade Date</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
+                                            </TableRow>
+                                          </TableHeader>
+                                          <TableBody>
+                                            <TableRow className="hover:bg-gray-50">
+                                              <TableCell className="text-xs text-gray-900">340009 (OPEN, Broker/Nominee, Joint)</TableCell>
+                                              <TableCell className="text-xs text-gray-900">AGF-185 ()</TableCell>
+                                              <TableCell className="text-xs text-gray-900">Buy Gross</TableCell>
+                                              <TableCell>
+                                                <button className="text-xs text-blue-600 underline">
+                                                  Unsubmitted
+                                                </button>
+                                              </TableCell>
+                                              <TableCell className="text-xs text-red-600">$1.00</TableCell>
+                                              <TableCell className="text-xs text-gray-900">12/03/2025</TableCell>
+                                              <TableCell>
+                                                <Button variant="outline" size="sm" className="h-7 text-xs">
+                                                  View Details
+                                                </Button>
+                                              </TableCell>
+                                            </TableRow>
+                                          </TableBody>
+                                        </Table>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {activeTab === "product-documents" && (
+                                    <div className="space-y-4">
+                                      {/* Product Documents Header */}
+                                      <div className="bg-blue-600 text-white p-3 rounded-lg flex items-center gap-2">
+                                        <span className="text-sm font-semibold">Product Documents for Active Products</span>
+                                        <AlertTriangle className="h-4 w-4 text-yellow-300" />
+                                      </div>
+
+                                      {/* Product Documents Table */}
+                                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                        <Table>
+                                          <TableHeader>
+                                            <TableRow className="bg-gray-50">
+                                              <TableHead className="w-12">
+                                                <Checkbox />
+                                              </TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Product</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Document Type</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Delivery Type</TableHead>
+                                              <TableHead className="text-xs font-semibold text-gray-700">Delivery Date</TableHead>
+                                              <TableHead className="w-12"></TableHead>
+                                            </TableRow>
+                                          </TableHeader>
+                                          <TableBody>
+                                            <TableRow className="hover:bg-gray-50">
+                                              <TableCell>
+                                                <Checkbox />
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-900">
+                                                AGF-185 AGF CANADIAN DIVIDEND INCOME FUND SERIES F
+                                              </TableCell>
+                                              <TableCell>
+                                                <Select defaultValue="fund-facts">
+                                                  <SelectTrigger className="h-7 text-xs w-[120px]">
+                                                    <SelectValue />
+                                                  </SelectTrigger>
+                                                  <SelectContent>
+                                                    <SelectItem value="fund-facts">Fund Facts</SelectItem>
+                                                    <SelectItem value="prospectus">Prospectus</SelectItem>
+                                                    <SelectItem value="annual-report">Annual Report</SelectItem>
+                                                  </SelectContent>
+                                                </Select>
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-500">
+                                                {/* Empty - delivery type field */}
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-500">
+                                                {/* Empty - delivery date field */}
+                                              </TableCell>
+                                              <TableCell>
+                                                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                                              </TableCell>
+                                            </TableRow>
+                                            <TableRow className="hover:bg-gray-50">
+                                              <TableCell>
+                                                <Checkbox />
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-900">
+                                                MFC-2238 MACKENZIE STRATEGIC INCOME FUND A FE
+                                              </TableCell>
+                                              <TableCell>
+                                                <Select defaultValue="fund-facts">
+                                                  <SelectTrigger className="h-7 text-xs w-[120px]">
+                                                    <SelectValue />
+                                                  </SelectTrigger>
+                                                  <SelectContent>
+                                                    <SelectItem value="fund-facts">Fund Facts</SelectItem>
+                                                    <SelectItem value="prospectus">Prospectus</SelectItem>
+                                                    <SelectItem value="annual-report">Annual Report</SelectItem>
+                                                  </SelectContent>
+                                                </Select>
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-500">
+                                                {/* Empty - delivery type field */}
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-500">
+                                                {/* Empty - delivery date field */}
+                                              </TableCell>
+                                              <TableCell>
+                                                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                                              </TableCell>
+                                            </TableRow>
+                                            <TableRow className="hover:bg-gray-50">
+                                              <TableCell>
+                                                <Checkbox />
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-900">
+                                                MFC-724 MACKENZIE BLUEWATER CANADIAN GROWTH BALANCED FUND A FE
+                                              </TableCell>
+                                              <TableCell>
+                                                <Select defaultValue="fund-facts">
+                                                  <SelectTrigger className="h-7 text-xs w-[120px]">
+                                                    <SelectValue />
+                                                  </SelectTrigger>
+                                                  <SelectContent>
+                                                    <SelectItem value="fund-facts">Fund Facts</SelectItem>
+                                                    <SelectItem value="prospectus">Prospectus</SelectItem>
+                                                    <SelectItem value="annual-report">Annual Report</SelectItem>
+                                                  </SelectContent>
+                                                </Select>
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-500">
+                                                {/* Empty - delivery type field */}
+                                              </TableCell>
+                                              <TableCell className="text-xs text-gray-500">
+                                                {/* Empty - delivery date field */}
+                                              </TableCell>
+                                              <TableCell>
+                                                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                                              </TableCell>
+                                            </TableRow>
+                                          </TableBody>
+                                        </Table>
+                                      </div>
+
+                                      {/* Delivery Options */}
+                                      <div className="flex items-center gap-4 pt-2">
+                                        <Button variant="default" size="sm" className="h-7 text-xs">
+                                          Deliver
+                                        </Button>
+                                        <div className="flex items-center gap-3">
+                                          <div className="flex items-center gap-2">
+                                            <Checkbox defaultChecked />
+                                            <span className="text-xs text-gray-700">EN</span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <Checkbox />
+                                            <span className="text-xs text-gray-700">FR</span>
+                                          </div>
+                                        </div>
+                                        <Select>
+                                          <SelectTrigger className="h-7 text-xs w-[120px]">
+                                            <SelectValue placeholder="Select" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="email">Email</SelectItem>
+                                            <SelectItem value="mail">Mail</SelectItem>
+                                            <SelectItem value="portal">Portal</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    </div>
+                                  )}
                                 </CardContent>
                               </Card>
-                            )}
 
                             {/* Recent Activity */}
                             {selectedClient.recentActivity && selectedClient.recentActivity.length > 0 && (
@@ -5382,7 +6580,7 @@ const Clients = () => {
                                   <CardTitle className="text-sm font-semibold text-gray-900">Recent Activity</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                  <div className="space-y-2">
+                                  <div className="space-y-1.5">
                                     {selectedClient.recentActivity.map((item, index) => (
                                       <div key={index} className="text-sm text-gray-700">
                                         <p className="font-medium">{item.label}</p>

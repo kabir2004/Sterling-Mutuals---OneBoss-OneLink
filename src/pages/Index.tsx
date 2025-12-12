@@ -385,7 +385,7 @@ const Index = () => {
   const tradesPendingCard = { label: 'TRADES PENDING', value: '3', icon: Clock, iconBg: 'bg-orange-100', iconColor: 'text-orange-600' };
 
   const statsCards = [
-    { label: 'ASSETS UNDER MANAGEMENT', value: '$127.4M', icon: Wallet2, iconBg: 'bg-green-100', iconColor: 'text-green-600' },
+    { label: 'ASSETS UNDER MANAGEMENT', value: '$127,400,000', icon: Wallet2, iconBg: 'bg-green-100', iconColor: 'text-green-600' },
     { label: 'Active Accounts', value: '1,247', icon: Users, iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
     { label: 'AVERAGE ACCOUNT SIZE', value: '$102.2K', icon: BarChart3, iconBg: 'bg-purple-100', iconColor: 'text-purple-600' },
     { label: 'Fund Families', value: '24', icon: Building2, iconBg: 'bg-orange-100', iconColor: 'text-orange-600' },
@@ -1746,17 +1746,17 @@ const Index = () => {
 
               {/* Trust Account CAD */}
               <Card className="border border-gray-200 bg-white">
-                <CardContent className="pt-4">
-                  <div className="space-y-2">
+                <CardContent className="pt-3">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-green-600">
+                      <span className="text-xs font-medium text-green-600">
                         $ Trust Account CAD
                       </span>
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-lg font-bold text-gray-900">
                       {formatCurrency(1250)}
                     </div>
-                    <div className="flex gap-4 text-xs pt-2 border-t border-gray-200">
+                    <div className="flex gap-3 text-xs pt-1.5 border-t border-gray-200">
                       <span className="text-green-600">Settled: {formatCurrency(1250)}</span>
                       <span className="text-red-600">Unsettled: {formatCurrency(0)}</span>
                     </div>

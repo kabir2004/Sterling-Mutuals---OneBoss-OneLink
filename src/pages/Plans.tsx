@@ -3049,6 +3049,25 @@ export default function Plans() {
                         <TabsContent value="details" className="mt-4">
                           <ScrollArea className="h-[calc(100vh-380px)] pr-2">
                             <div className="space-y-4">
+                          {/* New Card Above Plan Summary */}
+                          <Card className="border border-gray-200 shadow-sm bg-white">
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm font-semibold text-gray-900">Overview</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-xs text-gray-500 mb-1">Account Number</p>
+                                  <p className="text-sm font-medium text-gray-900">{selectedPlan.accountNumber}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500 mb-1">Account Holder</p>
+                                  <p className="text-sm font-medium text-gray-900">{selectedPlan.accountHolder}</p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
                           {/* Plan Summary */}
                           <Card className="border border-gray-200 shadow-sm bg-white">
                             <CardHeader className="pb-3">
@@ -3782,17 +3801,17 @@ export default function Plans() {
 
                 {/* Trust Account CAD */}
                 <Card className="border border-blue-200 bg-blue-50">
-                  <CardContent className="pt-4">
-                    <div className="space-y-2">
+                  <CardContent className="pt-3">
+                    <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-xs font-medium text-gray-700">
                           $ Trust Account CAD
                         </span>
                       </div>
-                      <div className="text-2xl font-bold text-gray-900">
+                      <div className="text-lg font-bold text-gray-900">
                         {formatCurrency(1250)}
                       </div>
-                      <div className="flex gap-4 text-xs text-gray-600 pt-2 border-t border-blue-200">
+                      <div className="flex gap-3 text-xs text-gray-600 pt-1.5 border-t border-blue-200">
                         <span className="text-green-600">Settled: {formatCurrency(1250)}</span>
                         <span className="text-orange-600">Unsettled: {formatCurrency(0)}</span>
                       </div>
