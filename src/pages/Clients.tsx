@@ -4995,31 +4995,59 @@ const Clients = () => {
                                         {plan.planCategory && (
                                           <>
                                             <span className="text-gray-400">•</span>
-                                            <span className="text-gray-600">{plan.planCategory}</span>
+                                            <Badge className={
+                                              plan.planCategory === "Individual Plan"
+                                                ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-100 font-medium"
+                                                : "bg-pink-100 text-pink-700 hover:bg-pink-100 font-medium"
+                                            }>
+                                              {plan.planCategory}
+                                            </Badge>
                                           </>
                                         )}
                                         <span className="text-gray-400">•</span>
-                                        <span className="text-gray-600">Account: {plan.accountNumber}</span>
+                                        <Badge className="bg-cyan-100 text-cyan-700 hover:bg-cyan-100 font-medium">
+                                          Account: {plan.accountNumber}
+                                        </Badge>
                                         {plan.accountHolder && (
                                           <>
                                             <span className="text-gray-400">•</span>
-                                            <span className="text-gray-600">{plan.accountHolder}</span>
+                                            <Badge className="bg-teal-100 text-teal-700 hover:bg-teal-100 font-medium">
+                                              {plan.accountHolder}
+                                            </Badge>
                                           </>
                                         )}
                                         {plan.riskLevel && (
                                           <>
                                             <span className="text-gray-400">•</span>
-                                            <span className="text-gray-600">Risk: {plan.riskLevel}</span>
+                                            <Badge className={
+                                              plan.riskLevel === "Low"
+                                                ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 font-medium"
+                                                : plan.riskLevel === "Medium"
+                                                ? "bg-amber-100 text-amber-700 hover:bg-amber-100 font-medium"
+                                                : "bg-red-100 text-red-700 hover:bg-red-100 font-medium"
+                                            }>
+                                              Risk: {plan.riskLevel}
+                                            </Badge>
                                           </>
                                         )}
                                         {plan.objective && (
                                           <>
                                             <span className="text-gray-400">•</span>
-                                            <span className="text-gray-600">Objective: {plan.objective}</span>
+                                            <Badge className={
+                                              plan.objective === "Growth"
+                                                ? "bg-lime-100 text-lime-700 hover:bg-lime-100 font-medium"
+                                                : plan.objective === "Income"
+                                                ? "bg-orange-100 text-orange-700 hover:bg-orange-100 font-medium"
+                                                : "bg-violet-100 text-violet-700 hover:bg-violet-100 font-medium"
+                                            }>
+                                              Objective: {plan.objective}
+                                            </Badge>
                                           </>
                                         )}
                                         <span className="text-gray-400">•</span>
-                                        <span className="text-gray-500">Market Value: {formatCurrency(plan.marketValue)}</span>
+                                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100 font-medium">
+                                          Market Value: {formatCurrency(plan.marketValue)}
+                                        </Badge>
                                       </div>
                                     </div>
                                     
@@ -6236,37 +6264,77 @@ const Clients = () => {
                                           >
                                             <div className="flex items-center justify-between gap-3">
                                               <div className="flex-1 flex items-center gap-2 text-xs text-gray-900 flex-wrap min-w-0">
-                                                <span className="font-medium">
+                                                <Badge 
+                                                  className={
+                                                    plan.type === "RRSP" 
+                                                      ? "bg-blue-100 text-blue-700 hover:bg-blue-100 font-medium"
+                                                      : plan.type === "TFSA"
+                                                      ? "bg-green-100 text-green-700 hover:bg-green-100 font-medium"
+                                                      : plan.type === "Non-Registered"
+                                                      ? "bg-purple-100 text-purple-700 hover:bg-purple-100 font-medium"
+                                                      : plan.type === "RESP"
+                                                      ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100 font-medium"
+                                                      : "bg-gray-100 text-gray-700 hover:bg-gray-100 font-medium"
+                                                  }
+                                                >
                                                   {plan.type === "RESP" ? "RESP Education Savings Plan" : plan.type}
-                                                </span>
+                                                </Badge>
                                                 {plan.planCategory && (
                                                   <>
                                                     <span className="text-gray-400">•</span>
-                                                    <span className="text-gray-600">{plan.planCategory}</span>
+                                                    <Badge className={
+                                                      plan.planCategory === "Individual Plan"
+                                                        ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-100 font-medium"
+                                                        : "bg-pink-100 text-pink-700 hover:bg-pink-100 font-medium"
+                                                    }>
+                                                      {plan.planCategory}
+                                                    </Badge>
                                                   </>
                                                 )}
                                                 <span className="text-gray-400">•</span>
-                                                <span className="text-gray-600">Account: {plan.accountNumber}</span>
+                                                <Badge className="bg-cyan-100 text-cyan-700 hover:bg-cyan-100 font-medium">
+                                                  Account: {plan.accountNumber}
+                                                </Badge>
                                                 {plan.accountHolder && (
                                                   <>
                                                     <span className="text-gray-400">•</span>
-                                                    <span className="text-gray-600">{plan.accountHolder}</span>
+                                                    <Badge className="bg-teal-100 text-teal-700 hover:bg-teal-100 font-medium">
+                                                      {plan.accountHolder}
+                                                    </Badge>
                                                   </>
                                                 )}
                                                 {plan.riskLevel && (
                                                   <>
                                                     <span className="text-gray-400">•</span>
-                                                    <span className="text-gray-600">Risk: {plan.riskLevel}</span>
+                                                    <Badge className={
+                                                      plan.riskLevel === "Low"
+                                                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 font-medium"
+                                                        : plan.riskLevel === "Medium"
+                                                        ? "bg-amber-100 text-amber-700 hover:bg-amber-100 font-medium"
+                                                        : "bg-red-100 text-red-700 hover:bg-red-100 font-medium"
+                                                    }>
+                                                      Risk: {plan.riskLevel}
+                                                    </Badge>
                                                   </>
                                                 )}
                                                 {plan.objective && (
                                                   <>
                                                     <span className="text-gray-400">•</span>
-                                                    <span className="text-gray-600">Objective: {plan.objective}</span>
+                                                    <Badge className={
+                                                      plan.objective === "Growth"
+                                                        ? "bg-lime-100 text-lime-700 hover:bg-lime-100 font-medium"
+                                                        : plan.objective === "Income"
+                                                        ? "bg-orange-100 text-orange-700 hover:bg-orange-100 font-medium"
+                                                        : "bg-violet-100 text-violet-700 hover:bg-violet-100 font-medium"
+                                                    }>
+                                                      Objective: {plan.objective}
+                                                    </Badge>
                                                   </>
                                                 )}
                                                 <span className="text-gray-400">•</span>
-                                                <span className="text-gray-500">Market Value: {formatCurrency(plan.marketValue)}</span>
+                                                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 font-medium">
+                                                  Market Value: {formatCurrency(plan.marketValue)}
+                                                </Badge>
                                               </div>
                                               {isExpanded ? (
                                                 <ChevronUp className="h-4 w-4 text-gray-400 flex-shrink-0" />
@@ -6497,33 +6565,92 @@ const Clients = () => {
                                   )}
 
                                   {activeTab === "cash" && (
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                       {/* Cash Balance Summary */}
-                                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-xs font-semibold text-gray-900">Cash Available CAD</span>
-                                          <span className="text-xs text-gray-900">$0.00</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-xs font-semibold text-gray-900">Cash Available USD</span>
-                                          <span className="text-xs text-gray-900">$0.00</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-xs font-semibold text-gray-900">Cash Used For Trades CAD</span>
-                                          <span className="text-xs text-gray-900">$0.00</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-xs font-semibold text-gray-900">Cash Used For Trades USD</span>
-                                          <span className="text-xs text-gray-900">$0.00</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-xs font-semibold text-gray-900">Cash Total CAD</span>
-                                          <span className="text-xs text-gray-900">$0.00</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-xs font-semibold text-gray-900">Cash Total USD</span>
-                                          <span className="text-xs text-gray-900">$0.00</span>
-                                        </div>
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-3">
+                                            <div className="flex items-center justify-between gap-2">
+                                              <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-blue-100 rounded-md">
+                                                  <DollarSign className="h-4 w-4 text-blue-600" />
+                                                </div>
+                                                <p className="text-xs font-semibold text-gray-700">Cash Available CAD</p>
+                                              </div>
+                                              <p className="text-lg font-bold text-gray-900">$0.00</p>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-3">
+                                            <div className="flex items-center justify-between gap-2">
+                                              <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-blue-100 rounded-md">
+                                                  <DollarSign className="h-4 w-4 text-blue-600" />
+                                                </div>
+                                                <p className="text-xs font-semibold text-gray-700">Cash Available USD</p>
+                                              </div>
+                                              <p className="text-lg font-bold text-gray-900">$0.00</p>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-3">
+                                            <div className="flex items-center justify-between gap-2">
+                                              <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-orange-100 rounded-md">
+                                                  <DollarSign className="h-4 w-4 text-orange-600" />
+                                                </div>
+                                                <p className="text-xs font-semibold text-gray-700">Cash Used For Trades CAD</p>
+                                              </div>
+                                              <p className="text-lg font-bold text-gray-900">$0.00</p>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-3">
+                                            <div className="flex items-center justify-between gap-2">
+                                              <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-orange-100 rounded-md">
+                                                  <DollarSign className="h-4 w-4 text-orange-600" />
+                                                </div>
+                                                <p className="text-xs font-semibold text-gray-700">Cash Used For Trades USD</p>
+                                              </div>
+                                              <p className="text-lg font-bold text-gray-900">$0.00</p>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-3">
+                                            <div className="flex items-center justify-between gap-2">
+                                              <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-green-100 rounded-md">
+                                                  <DollarSign className="h-4 w-4 text-green-600" />
+                                                </div>
+                                                <p className="text-xs font-semibold text-gray-700">Cash Total CAD</p>
+                                              </div>
+                                              <p className="text-lg font-bold text-green-600">$0.00</p>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card className="border border-gray-200 shadow-sm">
+                                          <CardContent className="p-3">
+                                            <div className="flex items-center justify-between gap-2">
+                                              <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-green-100 rounded-md">
+                                                  <DollarSign className="h-4 w-4 text-green-600" />
+                                                </div>
+                                                <p className="text-xs font-semibold text-gray-700">Cash Total USD</p>
+                                              </div>
+                                              <p className="text-lg font-bold text-green-600">$0.00</p>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
                                       </div>
 
                                       {/* Recent Trust Transactions */}
