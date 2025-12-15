@@ -1193,7 +1193,62 @@ const ClientDetails = () => {
         {clientViewTab === "about" && (
           <ScrollArea className="h-[calc(100vh-300px)] pr-4 bg-gray-50">
             <div className="space-y-6 p-4">
-            {/* Action Buttons - Moved to bottom per images */}
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button 
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => {
+                  // Handle Save Client Details
+                }}
+              >
+                Save Client Details
+              </Button>
+              <Button 
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  // Handle Cancel
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  // Handle Non Financial Change
+                }}
+              >
+                Non Financial Change
+              </Button>
+              <Button 
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  // Handle View NFC Submissions
+                }}
+              >
+                View NFC Submissions
+              </Button>
+              <Button 
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  // Handle View NFU Messages
+                }}
+              >
+                View NFU Messages
+              </Button>
+              <Button 
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  // Handle Start KYP Review
+                }}
+              >
+                Start KYP Review
+              </Button>
+            </div>
             
             {/* Two Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
