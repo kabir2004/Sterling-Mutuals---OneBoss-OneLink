@@ -494,7 +494,7 @@ const ClientDetails = () => {
         {/* Client Name and Account - Above Navigation Tabs */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Client: {client.name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Client: {client.name.split(" ").reverse().join(", ")}</h1>
             <p className="text-sm text-gray-600 mt-1">Account {client.id}</p>
           </div>
           <Button
