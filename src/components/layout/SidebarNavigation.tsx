@@ -155,10 +155,22 @@ export function SidebarNavigation() {
   const { currentInterface, isIntermediaryInterface } = useInterface();
   const { isMenuHidden } = useMenuVisibility();
 
-  // Auto-expand clients dropdown when on clients page
+  // Auto-expand clients dropdown when on clients page or client details page
   useEffect(() => {
-    if (location.pathname === '/clients') {
+    if (location.pathname === '/clients' || location.pathname.startsWith('/clients/')) {
       setIsClientsExpanded(true);
+    }
+  }, [location.pathname]);
+
+  // Set selected client ID from URL when on client details page
+  useEffect(() => {
+    if (location.pathname.startsWith('/clients/')) {
+      const clientId = location.pathname.split('/clients/')[1];
+      if (clientId) {
+        setSelectedClientId(clientId);
+      }
+    } else if (location.pathname === '/clients') {
+      setSelectedClientId(null);
     }
   }, [location.pathname]);
 
@@ -190,7 +202,7 @@ export function SidebarNavigation() {
 
   const handleClientClick = (clientId: string) => {
     setSelectedClientId(clientId);
-    navigate('/clients', { state: { selectedClientId: clientId } });
+    navigate(`/clients/${clientId}`);
   };
 
   return (
