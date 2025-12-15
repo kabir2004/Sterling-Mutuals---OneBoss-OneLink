@@ -207,7 +207,7 @@ const ClientDetails = () => {
   // Add Plan workflow states
   const [isSelectPlanTypeOpen, setIsSelectPlanTypeOpen] = useState(false);
   const [selectedPlanType, setSelectedPlanType] = useState("");
-  const [planSetupStep, setPlanSetupStep] = useState(1);
+  const [planSetupStep, setPlanSetupStep] = useState(0);
   const [ownerName, setOwnerName] = useState("John Smith");
   const [beneficiaryName, setBeneficiaryName] = useState("");
   const [intermediaryCode, setIntermediaryCode] = useState("");
@@ -2536,10 +2536,11 @@ const ClientDetails = () => {
       </Dialog>
 
       {/* Plan Setup Step 1 Dialog */}
-      <Dialog open={planSetupStep === 1 && !isSelectPlanTypeOpen} onOpenChange={(open) => {
+      <Dialog open={planSetupStep === 1 && !isSelectPlanTypeOpen && !!selectedPlanType} onOpenChange={(open) => {
         if (!open) {
           setPlanSetupStep(0);
           setIsSelectPlanTypeOpen(false);
+          setSelectedPlanType("");
         }
       }}>
         <DialogContent className="sm:max-w-[500px]">
@@ -2591,10 +2592,11 @@ const ClientDetails = () => {
       </Dialog>
 
       {/* Plan Setup Step 2 Dialog */}
-      <Dialog open={planSetupStep === 2} onOpenChange={(open) => {
+      <Dialog open={planSetupStep === 2 && !!selectedPlanType} onOpenChange={(open) => {
         if (!open) {
           setPlanSetupStep(0);
           setIsSelectPlanTypeOpen(false);
+          setSelectedPlanType("");
         }
       }}>
         <DialogContent className="sm:max-w-[500px]">
@@ -2659,10 +2661,11 @@ const ClientDetails = () => {
       </Dialog>
 
       {/* Plan Setup Step 3 Dialog */}
-      <Dialog open={planSetupStep === 3} onOpenChange={(open) => {
+      <Dialog open={planSetupStep === 3 && !!selectedPlanType} onOpenChange={(open) => {
         if (!open) {
           setPlanSetupStep(0);
           setIsSelectPlanTypeOpen(false);
+          setSelectedPlanType("");
         }
       }}>
         <DialogContent className="sm:max-w-[500px]">
