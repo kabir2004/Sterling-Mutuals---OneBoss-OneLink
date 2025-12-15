@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -53,6 +55,16 @@ import {
   List,
   Grid3x3,
   ArrowLeftRight,
+  X,
+  RefreshCw,
+  HelpCircle,
+  Lightbulb,
+  Bell,
+  Folder,
+  ArrowUpRight,
+  Star,
+  Building2,
+  Eye,
 } from "lucide-react";
 import { CLIENTS } from "./Clients";
 
@@ -174,12 +186,23 @@ const ClientDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("investments");
+  const [clientViewTab, setClientViewTab] = useState("summary");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("Active");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set(["plan1", "plan2"]));
   const [companySearchTerm, setCompanySearchTerm] = useState("");
   const [fundSearchTerm, setFundSearchTerm] = useState("");
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [planDetailTab, setPlanDetailTab] = useState("details");
+  const [planDetailsSubTab, setPlanDetailsSubTab] = useState("details");
+  const [allocationsView, setAllocationsView] = useState<"chart" | "table">("chart");
+  const [chartsSubTab, setChartsSubTab] = useState<"smart-charts" | "allocations">("smart-charts");
+  const [attachmentsSubTab, setAttachmentsSubTab] = useState<"rep-attachments" | "dealer-attachments" | "statement-history" | "trade-confirmations">("rep-attachments");
+  const [includeInactivePlans, setIncludeInactivePlans] = useState(false);
+  const [includeInactiveAccounts, setIncludeInactiveAccounts] = useState(false);
+  const [accountViewType, setAccountViewType] = useState<"fund-accounts" | "gics">("fund-accounts");
+  const [selectedPlanForDetails, setSelectedPlanForDetails] = useState<string | null>("3641343426");
   const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState("0.00");
   const [isBuyUnitsDialogOpen, setIsBuyUnitsDialogOpen] = useState(false);
@@ -229,6 +252,8 @@ const ClientDetails = () => {
   const [standaloneFundSearch, setStandaloneFundSearch] = useState("");
   const [standaloneSelectedFund, setStandaloneSelectedFund] = useState("");
   const [standaloneAmount, setStandaloneAmount] = useState("");
+  const [portfolioSubTab, setPortfolioSubTab] = useState<"investments" | "cash" | "recent-trading" | "product-documents">("investments");
+  const [collapsedAccounts, setCollapsedAccounts] = useState<Set<string>>(new Set());
 
   // Find the client by ID
   const client = CLIENTS.find((c) => c.id === id);
@@ -268,14 +293,15 @@ const ClientDetails = () => {
     plans: [
       {
         id: "plan1",
-        type: "RRSP",
-        shortType: "RRSP",
-        account: "RRSP-984512",
-        category: "Individual Plan",
-        holder: "Smith, John",
+        type: "DCPP",
+        shortType: "DCPP",
+        account: "5434273615",
+        category: "Individual",
+        holder: "Client Name",
         risk: "Medium",
         objective: "Growth",
-        marketValue: "$82,905.00",
+        marketValue: "$180.53",
+        accountDesignation: "Broker/Nominee",
         badgeColor: "bg-blue-100 text-blue-700",
         products: [
           {
@@ -321,6 +347,7 @@ const ClientDetails = () => {
         risk: "Medium",
         objective: "Growth",
         marketValue: "$107,325.00",
+        accountDesignation: "Broker/Nominee",
         badgeColor: "bg-green-100 text-green-700",
         products: [
           {
@@ -353,6 +380,7 @@ const ClientDetails = () => {
         risk: "Medium",
         objective: "Growth",
         marketValue: "$73,650.00",
+        accountDesignation: "Broker/Nominee",
         badgeColor: "bg-purple-100 text-purple-700",
         products: [],
         totals: {
@@ -371,6 +399,7 @@ const ClientDetails = () => {
         risk: "Medium",
         objective: "Speculation",
         marketValue: "$65,120.00",
+        accountDesignation: "Broker/Nominee",
         badgeColor: "bg-yellow-100 text-yellow-700",
         products: [
           {
@@ -414,31 +443,39 @@ const ClientDetails = () => {
   return (
     <PageLayout title="">
       <div className="space-y-6">
-        {/* Primary Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
-          <Button
+        {/* Primary Navigation Tabs - Always Visible */}
+        <div className="flex items-center gap-2 border-b border-gray-200 pb-2 sticky top-0 bg-white z-10 py-2">
+          <Button 
             variant="default"
             className="bg-blue-600 text-white hover:bg-blue-700"
             onClick={() => navigate("/clients")}
           >
             <User className="h-4 w-4 mr-2" />
-            All Clients
+            Client
           </Button>
           <Button
+            variant="ghost"
+            className="text-gray-700 hover:bg-gray-100"
+            onClick={() => navigate("/advanced-search")}
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Advanced Search
+          </Button>
+          <Button 
             variant="ghost"
             className="text-gray-700 hover:bg-gray-100"
             onClick={() => navigate("/households")}
           >
             Households
           </Button>
-          <Button
+          <Button 
             variant="ghost"
             className="text-gray-700 hover:bg-gray-100"
             onClick={() => navigate("/income-plans")}
           >
             Income Plans
           </Button>
-          <Button
+          <Button 
             variant="ghost"
             className="text-gray-700 hover:bg-gray-100"
             onClick={() => navigate("/approvals")}
@@ -452,155 +489,125 @@ const ClientDetails = () => {
           >
             Reports
           </Button>
+        </div>
+
+        {/* Client Name and Account - Above Navigation Tabs */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Client: {client.name}</h1>
+            <p className="text-sm text-gray-600 mt-1">Account {client.id}</p>
+          </div>
           <Button
             variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/advanced-search")}
+            size="sm"
+            className="h-8 w-8 p-0"
+            onClick={() => navigate("/clients")}
           >
-            <Search className="h-4 w-4 mr-2" />
-            Advanced Search
+            <X className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search clients by name, email, ID, or location..."
-            className="pl-10 bg-gray-50 border-gray-200 rounded-lg"
-          />
+        {/* Client View Navigation Tabs */}
+        <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+          <Button
+            variant={clientViewTab === "summary" ? "default" : "ghost"}
+            className={clientViewTab === "summary" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("summary")}
+          >
+            Summary
+          </Button>
+          <Button
+            variant={clientViewTab === "about" ? "default" : "ghost"}
+            className={clientViewTab === "about" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("about")}
+          >
+            About
+          </Button>
+          <Button
+            variant={clientViewTab === "notes" ? "default" : "ghost"}
+            className={clientViewTab === "notes" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("notes")}
+          >
+            Notes
+          </Button>
+          <Button
+            variant={clientViewTab === "portfolio" ? "default" : "ghost"}
+            className={clientViewTab === "portfolio" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("portfolio")}
+          >
+            Plans
+          </Button>
+          <Button
+            variant={clientViewTab === "trading" ? "default" : "ghost"}
+            className={clientViewTab === "trading" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("trading")}
+          >
+            Trading
+            <HelpCircle className="h-3 w-3 ml-1" />
+          </Button>
+          <Button
+            variant={clientViewTab === "questionnaires" ? "default" : "ghost"}
+            className={clientViewTab === "questionnaires" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("questionnaires")}
+          >
+            Questionnaires
+            <HelpCircle className="h-3 w-3 ml-1" />
+          </Button>
+          <Button
+            variant={clientViewTab === "client-reports" ? "default" : "ghost"}
+            className={clientViewTab === "client-reports" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("client-reports")}
+          >
+            Client Reports
+            <HelpCircle className="h-3 w-3 ml-1" />
+          </Button>
+          <Button
+            variant={clientViewTab === "charts" ? "default" : "ghost"}
+            className={clientViewTab === "charts" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("charts")}
+          >
+            Charts
+            <HelpCircle className="h-3 w-3 ml-1" />
+          </Button>
+          <Button
+            variant={clientViewTab === "approvals" ? "default" : "ghost"}
+            className={clientViewTab === "approvals" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("approvals")}
+          >
+            Approvals
+          </Button>
+          <Button
+            variant={clientViewTab === "attachments" ? "default" : "ghost"}
+            className={clientViewTab === "attachments" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}
+            onClick={() => setClientViewTab("attachments")}
+          >
+            Attachments
+          </Button>
         </div>
 
-        {/* Filter Options and View Toggles */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="active-filter"
-                checked={activeFilter === "Active"}
-                onCheckedChange={() => setActiveFilter("Active")}
-                className="h-4 w-4"
-              />
-              <label htmlFor="active-filter" className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Active ({activeCount})
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="inactive-filter"
-                checked={activeFilter === "Inactive"}
-                onCheckedChange={() => setActiveFilter("Inactive")}
-                className="h-4 w-4"
-              />
-              <label htmlFor="inactive-filter" className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
-                <Minus className="h-4 w-4 text-gray-600" />
-                Inactive ({inactiveCount})
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="prospects-filter"
-                checked={activeFilter === "Prospects"}
-                onCheckedChange={() => setActiveFilter("Prospects")}
-                className="h-4 w-4"
-              />
-              <label htmlFor="prospects-filter" className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
-                <Clock className="h-4 w-4 text-gray-600" />
-                Prospects ({prospectsCount})
-              </label>
-            </div>
-          </div>
 
-          {/* View Toggles */}
-          <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-1">
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              className={`h-8 w-8 p-0 ${
-                viewMode === "list" ? "bg-gray-100 text-gray-900" : "text-gray-600"
-              }`}
-              onClick={() => setViewMode("list")}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              className={`h-8 w-8 p-0 ${
-                viewMode === "grid" ? "bg-gray-100 text-gray-900" : "text-gray-600"
-              }`}
-              onClick={() => setViewMode("grid")}
-            >
-              <Grid3x3 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Client Summary Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm rounded-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-8">
-              {/* Client ID Section */}
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <User className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Client ID</p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {client.id} - {client.name}
-                  </p>
-                </div>
-              </div>
-
-              {/* Total Assets Section */}
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Total Assets</p>
-                  <p className="text-sm font-bold text-green-600">{clientDetails.totalAssets}</p>
-                </div>
-              </div>
-
-              {/* Total Trades Section */}
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <BarChart3 className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Total Trades</p>
-                  <p className="text-sm font-bold text-gray-900">{clientDetails.totalTrades}</p>
-                </div>
-              </div>
-
-              {/* Join Date Section */}
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Calendar className="h-5 w-5 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Join Date</p>
-                  <p className="text-sm font-bold text-gray-900">{clientDetails.joinDate}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Information Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Content based on selected tab */}
+        {clientViewTab === "summary" && (
+          <>
+            {/* Information Cards */}
+        <div className="grid grid-cols-6 gap-4">
           {/* Mailing Address Card */}
-          <Card className="border border-gray-200 shadow-sm">
+          <Card className="border border-gray-200 shadow-sm bg-white">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-600" />
-                Mailing Address
-              </CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900">Mailing Address</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm text-gray-700">{clientDetails.mailingAddress.line1}</p>
+              <p className="text-sm text-gray-700">{clientDetails.mailingAddress.line2}</p>
+              <p className="text-sm text-gray-700 mt-1">Home: {clientDetails.contact.home}</p>
+              <p className="text-sm text-gray-700">Cell: {clientDetails.contact.cell}</p>
+            </CardContent>
+          </Card>
+
+          {/* Residential Address Card */}
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-gray-900">Residential Address</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-sm text-gray-700">{clientDetails.mailingAddress.line1}</p>
@@ -608,541 +615,360 @@ const ClientDetails = () => {
             </CardContent>
           </Card>
 
-          {/* Contact Information Card */}
-          <Card className="border border-gray-200 shadow-sm">
+          {/* Email Address Card */}
+          <Card className="border border-gray-200 shadow-sm bg-white">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <Phone className="h-4 w-4 text-gray-600" />
-                Contact Information
-              </CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900">Email Address</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <p className="text-sm text-gray-700">Home: {clientDetails.contact.home}</p>
-              <p className="text-sm text-gray-700">Cell: {clientDetails.contact.cell}</p>
-              <p className="text-sm text-gray-700">Email: {clientDetails.contact.email}</p>
+              <p className="text-sm text-gray-700">{clientDetails.contact.email}</p>
             </CardContent>
           </Card>
 
-          {/* Representative Card */}
-          <Card className="border border-gray-200 shadow-sm">
+          {/* Preferred Language Card */}
+          <Card className="border border-gray-200 shadow-sm bg-white">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <User className="h-4 w-4 text-gray-600" />
-                Representative
-              </CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900">Preferred Language</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm text-gray-700">{clientDetails.representative.language}</p>
+            </CardContent>
+          </Card>
+
+          {/* Current Representative Card */}
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-gray-900">Current Representative</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-sm text-gray-700">{clientDetails.representative.name}</p>
-              <p className="text-sm text-gray-700">ID: {clientDetails.representative.id}</p>
-              <p className="text-sm text-gray-700">Language: {clientDetails.representative.language}</p>
+            </CardContent>
+          </Card>
+
+          {/* Total Assets Card */}
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-gray-900">Total Assets</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm font-bold text-green-600">{clientDetails.totalAssets}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Map and Client and Plan Exceptions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-gray-900">Map</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm text-gray-500">Map view coming soon...</p>
+            </CardContent>
+          </Card>
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-gray-900">Client and Plan Exceptions</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm text-gray-500">No exceptions</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Financial Portfolio Section */}
         <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-gray-600" />
-                Financial Portfolio
-              </CardTitle>
-              <Button 
-                size="sm" 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => {
-                  setIsSelectPlanTypeOpen(true);
-                  setSelectedPlanType("");
-                  setPlanSetupStep(1);
-                  setOwnerName("John Smith");
-                  setBeneficiaryName("");
-                  setIntermediaryCode("");
-                  setIntermediaryAccountCode("");
-                  setPlanNotes("");
-                  setPlanObjectives("");
-                  setRiskTolerance("");
-                  setTimeHorizon("");
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Plan
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="pt-3 pb-3">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-4">
-                <TabsTrigger value="investments" className="text-sm">
+              <TabsList className="flex w-full mb-2 h-8 bg-transparent p-0 gap-1">
+                <TabsTrigger value="investments" className="text-[10px] px-2 py-1.5 flex-1 whitespace-nowrap min-w-0">
                   Investments
                 </TabsTrigger>
-                <TabsTrigger value="cash" className="text-sm">
+                <TabsTrigger value="cash" className="text-[10px] px-2 py-1.5 flex-1 whitespace-nowrap min-w-0">
                   Cash
                 </TabsTrigger>
-                <TabsTrigger value="trading-activity" className="text-sm">
-                  Trading Activity
+                <TabsTrigger value="trading-activity" className="text-[10px] px-2 py-1.5 flex-1 whitespace-nowrap min-w-0">
+                  Recent Trading Activity
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="text-sm relative">
+                <TabsTrigger value="documents" className="text-[10px] px-2 py-1.5 flex-1 relative whitespace-nowrap min-w-0">
                   Documents
-                  <span className="absolute top-0 right-0 h-2 w-2 bg-orange-500 rounded-full"></span>
+                  <span className="absolute top-0 right-0 h-1.5 w-1.5 bg-orange-500 rounded-full"></span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="investments" className="space-y-3">
-                {clientDetails.plans.map((plan) => {
-                  const isExpanded = expandedPlans.has(plan.id);
-                  return (
-                    <Card key={plan.id} className="border border-gray-200 shadow-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <button
-                            onClick={() => togglePlanExpansion(plan.id)}
-                            className="flex items-center gap-3 flex-1 text-left"
-                          >
-                            <ChevronUp
-                              className={`h-4 w-4 text-gray-400 transition-transform flex-shrink-0 ${
-                                isExpanded ? "" : "rotate-180"
-                              }`}
-                            />
-                            <div className="flex items-center gap-2 flex-wrap text-xs text-gray-600">
-                              <Badge className={`${plan.badgeColor} hover:${plan.badgeColor} font-normal px-2 py-0.5 text-xs`}>
-                                {plan.shortType}
-                              </Badge>
-                              <span>•</span>
-                              <span>{plan.category}</span>
-                              <span>•</span>
-                              <span>Account: {plan.account}</span>
-                              <span>•</span>
-                              <span>{plan.holder}</span>
-                              <span>•</span>
-                              <span className="underline">Risk: {plan.risk}</span>
-                              <span>•</span>
-                              <span className="underline">Objective: {plan.objective}</span>
-                            </div>
-                          </button>
-                          {!isExpanded && (
-                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 font-normal px-2 py-0.5 text-xs flex-shrink-0">
-                              Market Value: {plan.marketValue}
-                            </Badge>
-                          )}
+              <TabsContent value="investments" className="space-y-2 mt-2">
+                {/* Joint Investment Account Section */}
+                <div className="border border-gray-300 rounded">
+                  <div className="bg-white text-gray-900 px-3 py-1.5 flex items-center justify-between border-b border-gray-200">
+                    <div className="flex items-center gap-1.5 flex-1">
+                      <Folder className="h-3 w-3" />
+                      <div className="flex-1">
+                        <p className="text-xs">
+                          <span className="underline cursor-pointer">340009</span> (OPEN Broker/Nominee, Joint) NOM 340009 - 9823-2232 <span className="underline cursor-pointer">Marsh, Antoine</span>
+                        </p>
+                        <div className="mt-0.5 px-1.5 py-0.5">
+                          <p className="text-[10px] text-gray-700">Joint with <span className="underline cursor-pointer">Armstrong, Oliver</span> (Primary)</p>
                         </div>
-                        {isExpanded && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            {plan.products && plan.products.length > 0 ? (
-                              <>
-                            {/* Investment Table */}
-                            <div className="mb-4">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow className="bg-gray-50">
-                                    <TableHead className="text-xs font-semibold text-gray-700">Supplier</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Account</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Product</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Objective</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Units</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Price</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Net Invested</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Market Value</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Book Value</TableHead>
-                                    <TableHead className="text-xs font-semibold text-gray-700">Trading</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {plan.products.map((product, index) => (
-                                    <TableRow key={index} className="hover:bg-gray-50">
-                                      <TableCell>
-                                        <div className="flex items-center gap-2">
-                                          <div className="p-1 bg-blue-100 rounded text-blue-600 text-xs font-bold w-6 h-6 flex items-center justify-center">
-                                            F
-                                          </div>
-                                          <span className="text-xs text-gray-900">{product.supplier}</span>
-                                        </div>
-                                      </TableCell>
-                                      <TableCell className="text-xs text-gray-700">{product.account}</TableCell>
-                                      <TableCell className="text-xs text-gray-900 font-medium">{product.product}</TableCell>
-                                      <TableCell className="text-xs text-gray-700">{product.objective}</TableCell>
-                                      <TableCell className="text-xs text-gray-700">{product.units}</TableCell>
-                                      <TableCell className="text-xs text-gray-700">{product.price}</TableCell>
-                                      <TableCell className="text-xs text-gray-700">{product.netInvested}</TableCell>
-                                      <TableCell>
-                                        <div>
-                                          <p className="text-xs font-semibold text-green-600">{product.marketValue}</p>
-                                          <p className={`text-[10px] ${product.marketValueChangePositive ? "text-green-600" : "text-red-600"}`}>
-                                            {product.marketValueChange}
-                                          </p>
-                                        </div>
-                                      </TableCell>
-                                      <TableCell className="text-xs text-gray-700">{product.bookValue}</TableCell>
-                                      <TableCell>
-                                        <div className="flex items-center gap-1">
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-6 w-6 p-0"
-                                            onClick={() => {
-                                              setSelectedProduct(product);
-                                              setSelectedPlan(plan);
-                                              setInvestmentAmount("200");
-                                              setNumberOfUnits("");
-                                              setIsBuyUnitsDialogOpen(true);
-                                            }}
-                                          >
-                                            <Plus className="h-3 w-3" />
-                                          </Button>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-6 w-6 p-0"
-                                            onClick={() => {
-                                              setSelectedProduct(product);
-                                              setSelectedPlan(plan);
-                                              setSellUnits("200");
-                                              setSellDollarAmount("");
-                                              setIsSellUnitsDialogOpen(true);
-                                            }}
-                                          >
-                                            <Minus className="h-3 w-3" />
-                                          </Button>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-6 w-6 p-0"
-                                            onClick={() => {
-                                              setSelectedProduct(product);
-                                              setSelectedPlan(plan);
-                                              setSelectedFundCompany("");
-                                              setSelectedFundToSwitch("");
-                                              setUnitsToSwitch("");
-                                              setCompanySearchTerm("");
-                                              setFundSearchTerm("");
-                                              // Determine if it's a switch (same company) or convert (different company)
-                                              // For now, we'll open switch dialog by default, user can change company
-                                              setIsSwitchDialogOpen(true);
-                                            }}
-                                          >
-                                            <ArrowLeftRight className="h-3 w-3" />
-                                          </Button>
-                                        </div>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                  {/* Total Row */}
-                                  <TableRow className="bg-gray-50 font-semibold">
-                                    <TableCell>
-                                      <div className="flex items-center gap-2">
-                                        <div className="p-1 bg-blue-100 rounded text-blue-600 text-xs font-bold w-6 h-6 flex items-center justify-center">
-                                          T
-                                        </div>
-                                        <span className="text-xs text-gray-900">Total</span>
-                                      </div>
-                                    </TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell className="text-xs text-gray-900">{plan.totals.netInvested}</TableCell>
-                                    <TableCell className="text-xs font-semibold text-green-600">{plan.totals.totalMarketValue}</TableCell>
-                                    <TableCell className="text-xs text-gray-900">{plan.totals.totalBookValue}</TableCell>
-                                    <TableCell></TableCell>
-                                  </TableRow>
-                                </TableBody>
-                              </Table>
-                            </div>
-
-                            {/* Add Product Button */}
-                            <div className="flex justify-end mb-4">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
-                                onClick={() => {
-                                  setIsStandaloneAddProductOpen(true);
-                                  setStandaloneFundCompany("");
-                                  setStandaloneFundSearch("");
-                                  setStandaloneSelectedFund("");
-                                  setStandaloneAmount("");
-                                }}
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Product
-                              </Button>
-                            </div>
-                              </>
-                            ) : (
-                              <div className="text-center py-8 text-gray-500">
-                                <p className="text-sm">No products in this plan.</p>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="mt-4 bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
-                                  onClick={() => {
-                                    setIsStandaloneAddProductOpen(true);
-                                    setStandaloneFundCompany("");
-                                    setStandaloneFundSearch("");
-                                    setStandaloneSelectedFund("");
-                                    setStandaloneAmount("");
-                                  }}
-                                >
-                                  <Plus className="h-4 w-4 mr-2" />
-                                  Add Product
-                                </Button>
-                              </div>
-                            )}
-
-                            {/* Trust Account Cards - Always show */}
-                            <div className="grid grid-cols-3 gap-3 mb-4 mt-4">
-                              <Card className="border border-gray-200 shadow-sm">
-                                <CardContent className="p-3">
-                                  <p className="text-xs text-gray-500 mb-1">Trust Account CAD</p>
-                                  <p className="text-sm font-bold text-gray-900 mb-2">$0.00</p>
-                                  <div className="space-y-0.5">
-                                    <div className="flex justify-between text-xs">
-                                      <span className="text-gray-500">Settled:</span>
-                                      <span className="text-green-600 font-medium">$0.00</span>
-                                    </div>
-                                    <div className="flex justify-between text-xs">
-                                      <span className="text-gray-500">Unsettled:</span>
-                                      <span className="text-orange-600 font-medium">$0.00</span>
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-
-                              <Card className="border border-gray-200 shadow-sm">
-                                <CardContent className="p-3">
-                                  <p className="text-xs text-gray-500 mb-1">Trust Account USD</p>
-                                  <p className="text-sm font-bold text-gray-900 mb-2">$0.00</p>
-                                  <div className="space-y-0.5">
-                                    <div className="flex justify-between text-xs">
-                                      <span className="text-gray-500">Settled:</span>
-                                      <span className="text-green-600 font-medium">$0.00</span>
-                                    </div>
-                                    <div className="flex justify-between text-xs">
-                                      <span className="text-gray-500">Unsettled:</span>
-                                      <span className="text-orange-600 font-medium">$0.00</span>
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-
-                              <Card className="border border-gray-200 shadow-sm">
-                                <CardContent className="p-3">
-                                  <p className="text-xs text-gray-500 mb-1">Total in CAD</p>
-                                  <p className="text-sm font-bold text-green-600">{plan.marketValue}</p>
-                                </CardContent>
-                              </Card>
-                            </div>
-
-                            {/* Deposit Button - Always show */}
-                            <div className="flex justify-center">
-                              <Button
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                onClick={() => setIsDepositDialogOpen(true)}
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Deposit
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </TabsContent>
-
-              <TabsContent value="cash">
-                <div className="space-y-6">
-                  {/* Cash Balances Section */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Cash Balances</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* Canadian Dollars (CAD) Card */}
-                      <Card className="border border-gray-200 shadow-sm bg-red-50">
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-2 mb-4">
-                            <DollarSign className="h-4 w-4 text-red-600" />
-                            <h4 className="text-sm font-semibold text-gray-900">Canadian Dollars (CAD)</h4>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-700">Cash Available CAD</span>
-                              <span className="text-xs font-medium text-gray-900">$0.00</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-700">Cash Used For Trades CAD</span>
-                              <span className="text-xs font-medium text-gray-900">$0.00</span>
-                            </div>
-                            <div className="flex justify-between items-center pt-2 border-t border-red-200">
-                              <span className="text-xs font-semibold text-red-600">Cash Total CAD</span>
-                              <span className="text-xs font-semibold text-red-600">$0.00</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      {/* United States Dollars (USD) Card */}
-                      <Card className="border border-gray-200 shadow-sm bg-green-50">
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-2 mb-4">
-                            <DollarSign className="h-4 w-4 text-green-600" />
-                            <h4 className="text-sm font-semibold text-gray-900">United States Dollars (USD)</h4>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-700">Cash Available USD</span>
-                              <span className="text-xs font-medium text-gray-900">$0.00</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-700">Cash Used For Trades USD</span>
-                              <span className="text-xs font-medium text-gray-900">$0.00</span>
-                            </div>
-                            <div className="flex justify-between items-center pt-2 border-t border-green-200">
-                              <span className="text-xs font-semibold text-green-600">Cash Total USD</span>
-                              <span className="text-xs font-semibold text-green-600">$0.00</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <BarChart3 className="h-3 w-3 cursor-pointer text-gray-700" />
+                      <div className="bg-green-600 p-0.5 rounded">
+                        <DollarSign className="h-3 w-3 text-white" />
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 text-gray-700 hover:bg-gray-100"
+                        onClick={() => {
+                          const newCollapsed = new Set(collapsedAccounts);
+                          if (newCollapsed.has("account1")) {
+                            newCollapsed.delete("account1");
+                          } else {
+                            newCollapsed.add("account1");
+                          }
+                          setCollapsedAccounts(newCollapsed);
+                        }}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
-
-                  {/* Recent Cash Transactions Section */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Recent Cash Transactions</h3>
-                    <Card className="border border-gray-200 shadow-sm">
-                      <CardContent className="p-4">
-                        <div className="space-y-4">
-                          {/* Cash Deposit Transaction */}
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3">
-                              <div className="p-1.5 bg-green-100 rounded-full">
-                                <Plus className="h-4 w-4 text-green-600" />
+                  {!collapsedAccounts.has("account1") && (
+                    <div className="p-2">
+                      {/* Investment Details Table */}
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-gray-100">
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Supplier</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Account</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Product</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Risk</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Objective</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Market value</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="text-xs py-1.5 px-2">
+                              <span className="font-bold text-blue-600 underline cursor-pointer">AGF-185</span>
+                            </TableCell>
+                            <TableCell className="text-xs py-1.5 px-2"></TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">AGF CANADIAN DIVIDEND INCOME FUND SERIES F</TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">M</TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">
+                              <div className="flex flex-col gap-0.5">
+                                <span>100% Gr</span>
+                                <div className="flex items-center gap-0.5">
+                                  <FileText className="h-2.5 w-2.5 text-blue-600" />
+                                  <Folder className="h-2.5 w-2.5 text-red-600" />
+                                  <Lightbulb className="h-2.5 w-2.5 text-yellow-600" />
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">Cash Deposit</p>
-                                <p className="text-xs text-gray-500 mt-0.5">2 days ago</p>
-                              </div>
-                            </div>
-                            <span className="text-sm font-semibold text-green-600">+$1,250.00 CAD</span>
-                          </div>
-
-                          {/* Currency Exchange Transaction */}
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3">
-                              <div className="p-1.5 bg-blue-100 rounded-full">
-                                <ArrowLeftRight className="h-4 w-4 text-blue-600" />
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">Currency Exchange</p>
-                                <p className="text-xs text-gray-500 mt-0.5">1 week ago</p>
-                              </div>
-                            </div>
-                            <span className="text-sm font-semibold text-blue-600">$500.00 USD</span>
-                          </div>
+                            </TableCell>
+                            <TableCell className="text-xs font-semibold py-1.5 px-2">$0.00</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                      {/* Settled Trust Account Balance */}
+                      <div className="bg-blue-50 mt-2 p-2 rounded">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-xs text-gray-700">Settled Trust Account Balance CAD</span>
+                          <span className="text-xs font-semibold">$0.00</span>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-xs text-gray-700">Settled Trust Account Balance USD</span>
+                          <span className="text-xs font-semibold">$0.00</span>
+                        </div>
+                        <div className="flex justify-between items-center pt-1 border-t border-blue-200">
+                          <span className="text-xs font-semibold text-gray-900">Total in CAD</span>
+                          <span className="text-xs font-bold">$0.00</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* RRIF Client Account Section */}
+                <div className="border border-gray-300 rounded">
+                  <div className="bg-white text-gray-900 px-3 py-1.5 flex items-center justify-between border-b border-gray-200">
+                    <div className="flex items-center gap-1.5 flex-1">
+                      <Folder className="h-3 w-3" />
+                      <p className="text-xs">
+                        <span className="underline cursor-pointer">0137617685</span> (RRIF Client Name, Individual) - 9823-2232 <span className="underline cursor-pointer">Marsh, Antoine</span>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <BarChart3 className="h-3 w-3 cursor-pointer text-gray-700" />
+                      <div className="bg-green-600 p-0.5 rounded">
+                        <DollarSign className="h-3 w-3 text-white" />
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 text-gray-700 hover:bg-gray-100"
+                        onClick={() => {
+                          const newCollapsed = new Set(collapsedAccounts);
+                          if (newCollapsed.has("account2")) {
+                            newCollapsed.delete("account2");
+                          } else {
+                            newCollapsed.add("account2");
+                          }
+                          setCollapsedAccounts(newCollapsed);
+                        }}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
+                  {!collapsedAccounts.has("account2") && (
+                    <div className="p-2">
+                      {/* Investment Details Table */}
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-gray-100">
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Supplier</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Account</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Product</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Risk</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Objective</TableHead>
+                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Market value</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow className="bg-blue-50">
+                            <TableCell className="text-xs py-1.5 px-2">
+                              <span className="font-bold text-blue-600 underline cursor-pointer">MFC-724</span>
+                            </TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">4132056511</TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">MACKENZIE BLUEWATER CANADIAN GROWTH BALANCED FUND A FE</TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">LM</TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">
+                              <div className="flex flex-col gap-0.5">
+                                <span>25% In, 75% Gr</span>
+                                <div className="flex items-center gap-0.5">
+                                  <FileText className="h-2.5 w-2.5 text-blue-600" />
+                                  <Folder className="h-2.5 w-2.5 text-red-600" />
+                                  <Lightbulb className="h-2.5 w-2.5 text-yellow-600" />
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-xs font-semibold py-1.5 px-2">
+                              <div className="flex flex-col gap-0.5">
+                                <span>$13,792.63</span>
+                                <TrendingUp className="h-2.5 w-2.5 text-gray-600" />
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="text-xs py-1.5 px-2">
+                              <span className="font-bold text-blue-600 underline cursor-pointer">MFC-2238</span>
+                            </TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">1134475341</TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">MACKENZIE STRATEGIC INCOME FUND A FE</TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">LM</TableCell>
+                            <TableCell className="text-xs py-1.5 px-2">
+                              <div className="flex flex-col gap-0.5">
+                                <span>50% In, 50% Gr</span>
+                                <div className="flex items-center gap-0.5">
+                                  <FileText className="h-2.5 w-2.5 text-blue-600" />
+                                  <Folder className="h-2.5 w-2.5 text-red-600" />
+                                  <Lightbulb className="h-2.5 w-2.5 text-yellow-600" />
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-xs font-semibold py-1.5 px-2">
+                              <div className="flex flex-col gap-0.5">
+                                <span>$9,718.53</span>
+                                <TrendingUp className="h-2.5 w-2.5 text-gray-600" />
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                      {/* Settled Trust Account Balance */}
+                      <div className="bg-blue-50 mt-2 p-2 rounded">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-xs text-gray-700">Settled Trust Account Balance CAD</span>
+                          <span className="text-xs font-semibold">$0.00</span>
+                        </div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-xs text-gray-700">Settled Trust Account Balance USD</span>
+                          <span className="text-xs font-semibold">$0.00</span>
+                        </div>
+                        <div className="flex justify-between items-center pt-1 border-t border-blue-200">
+                          <span className="text-xs font-semibold text-gray-900">Total in CAD</span>
+                          <span className="text-xs font-bold">$23,511.16</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 
-              <TabsContent value="trading-activity">
-                <div className="space-y-6">
-                  {/* Trading Summary Section */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Trading Summary</h3>
-                    <div className="grid grid-cols-4 gap-4">
-                      <Card className="border border-gray-200 shadow-sm">
-                        <CardContent className="p-4">
-                          <p className="text-xs text-gray-500 mb-1">Total Trades</p>
-                          <p className="text-2xl font-bold text-blue-600">45</p>
-                        </CardContent>
-                      </Card>
-                      <Card className="border border-gray-200 shadow-sm">
-                        <CardContent className="p-4">
-                          <p className="text-xs text-gray-500 mb-1">Buy Orders</p>
-                          <p className="text-2xl font-bold text-green-600">8</p>
-                        </CardContent>
-                      </Card>
-                      <Card className="border border-gray-200 shadow-sm">
-                        <CardContent className="p-4">
-                          <p className="text-xs text-gray-500 mb-1">Sell Orders</p>
-                          <p className="text-2xl font-bold text-red-600">4</p>
-                        </CardContent>
-                      </Card>
-                      <Card className="border border-gray-200 shadow-sm">
-                        <CardContent className="p-4">
-                          <p className="text-xs text-gray-500 mb-1">Pending</p>
-                          <p className="text-2xl font-bold text-purple-600">2</p>
-                        </CardContent>
-                      </Card>
+              <TabsContent value="cash">
+                <div className="space-y-4">
+                  {/* Cash Summary Section */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Left Column - CAD */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-700">Cash Available CAD</span>
+                        <span className="flex-1 border-b border-dotted border-gray-400"></span>
+                        <span className="text-xs text-gray-900">$0.00</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-700">Cash Used For Trades CAD</span>
+                        <span className="flex-1 border-b border-dotted border-gray-400"></span>
+                        <span className="text-xs text-gray-900">$0.00</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-700">Cash Total CAD</span>
+                        <span className="flex-1 border-b border-dotted border-gray-400"></span>
+                        <span className="text-xs text-gray-900">$0.00</span>
+                      </div>
+                    </div>
+                    {/* Right Column - USD */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-700">Cash Available USD</span>
+                        <span className="flex-1 border-b border-dotted border-gray-400"></span>
+                        <span className="text-xs text-gray-900">$0.00</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-700">Cash Used For Trades USD</span>
+                        <span className="flex-1 border-b border-dotted border-gray-400"></span>
+                        <span className="text-xs text-gray-900">$0.00</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-700">Cash Total USD</span>
+                        <span className="flex-1 border-b border-dotted border-gray-400"></span>
+                        <span className="text-xs text-gray-900">$0.00</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Recent Trading Activity Section */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Recent Trading Activity</h3>
+                  {/* Recent Trust Transactions Section */}
+                  <div className="mt-4">
+                    <h3 className="text-xs font-semibold text-blue-600 underline mb-2 cursor-pointer">Recent Trust Transactions</h3>
                     <Card className="border border-gray-200 shadow-sm">
                       <CardContent className="p-0">
                         <Table>
                           <TableHeader>
-                            <TableRow className="bg-gray-50">
-                              <TableHead className="text-xs font-semibold text-gray-700">Date</TableHead>
-                              <TableHead className="text-xs font-semibold text-gray-700">Type</TableHead>
-                              <TableHead className="text-xs font-semibold text-gray-700">Security</TableHead>
-                              <TableHead className="text-xs font-semibold text-gray-700">Quantity</TableHead>
-                              <TableHead className="text-xs font-semibold text-gray-700">Price</TableHead>
-                              <TableHead className="text-xs font-semibold text-gray-700">Status</TableHead>
+                            <TableRow className="bg-gray-100">
+                              <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Plan</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Date</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Trust Account Code</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Transaction Type</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Status</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Settled Date</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Amount</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            <TableRow className="hover:bg-gray-50">
-                              <TableCell className="text-xs text-gray-900">02/12/2025</TableCell>
-                              <TableCell>
-                                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 font-normal px-2 py-0.5 text-xs">
-                                  Buy
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-xs text-gray-900">FIDELITY NORTHSTAR FUND Series B ISC</TableCell>
-                              <TableCell className="text-xs text-gray-700">100</TableCell>
-                              <TableCell className="text-xs text-gray-700">$117.35</TableCell>
-                              <TableCell>
-                                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 font-normal px-2 py-0.5 text-xs">
-                                  Executed
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow className="hover:bg-gray-50">
-                              <TableCell className="text-xs text-gray-900">02/10/2025</TableCell>
-                              <TableCell>
-                                <Badge className="bg-red-100 text-red-700 hover:bg-red-100 font-normal px-2 py-0.5 text-xs">
-                                  Sell
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-xs text-gray-900">FIDELITY MONTHLY INCOME FUND Series B ISC</TableCell>
-                              <TableCell className="text-xs text-gray-700">50</TableCell>
-                              <TableCell className="text-xs text-gray-700">$605.31</TableCell>
-                              <TableCell>
-                                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 font-normal px-2 py-0.5 text-xs">
-                                  Executed
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow className="hover:bg-gray-50">
-                              <TableCell className="text-xs text-gray-900">02/08/2025</TableCell>
-                              <TableCell>
-                                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 font-normal px-2 py-0.5 text-xs">
-                                  Buy
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-xs text-gray-900">TD CANADIAN EQUITY FUND Series A</TableCell>
-                              <TableCell className="text-xs text-gray-700">75</TableCell>
-                              <TableCell className="text-xs text-gray-700">$339.34</TableCell>
-                              <TableCell>
-                                <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 font-normal px-2 py-0.5 text-xs">
-                                  Pending
-                                </Badge>
+                            <TableRow>
+                              <TableCell colSpan={7} className="text-center py-4">
+                                <p className="text-xs text-gray-500 italic">No Trust Transactions Found</p>
                               </TableCell>
                             </TableRow>
                           </TableBody>
@@ -1151,6 +977,32 @@ const ClientDetails = () => {
                     </Card>
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="trading-activity">
+                <Card className="border border-gray-200 shadow-sm">
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-100">
+                          <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Plan</TableHead>
+                          <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Fund Account</TableHead>
+                          <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Trade Type</TableHead>
+                          <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Trade Status</TableHead>
+                          <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Net Amount</TableHead>
+                          <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Trade Date</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-4">
+                            <p className="text-xs text-gray-500 italic">No Trading Activities Found</p>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               <TabsContent value="documents">
@@ -1335,6 +1187,3791 @@ const ClientDetails = () => {
             </Tabs>
           </CardContent>
         </Card>
+          </>
+        )}
+
+        {clientViewTab === "about" && (
+          <ScrollArea className="h-[calc(100vh-300px)] pr-4 bg-gray-50">
+            <div className="space-y-6 p-4">
+            {/* Action Buttons - Moved to bottom per images */}
+            
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-6">
+                {/* Personal Information */}
+                <div className="bg-white p-4 rounded border border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Personal Information</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">ID</Label>
+                    <Input className="h-8 text-sm" defaultValue="30013" readOnly />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Title</Label>
+                    <Select defaultValue="mr">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="mr">Mr.</SelectItem>
+                        <SelectItem value="mrs">Mrs.</SelectItem>
+                        <SelectItem value="ms">Ms.</SelectItem>
+                        <SelectItem value="dr">Dr.</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Type</Label>
+                    <Select defaultValue="individual">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="individual">Individual</SelectItem>
+                        <SelectItem value="joint">Joint</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">First Name</Label>
+                    <Input className="h-8 text-sm" defaultValue="Toney" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Surname</Label>
+                    <Input className="h-8 text-sm" defaultValue="Andrews" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Alias</Label>
+                    <Input className="h-8 text-sm" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Gender</Label>
+                    <Select defaultValue="male">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Marital Status</Label>
+                    <div className="flex items-center gap-2">
+                      <Select defaultValue="none">
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="single">Single</SelectItem>
+                          <SelectItem value="married">Married</SelectItem>
+                          <SelectItem value="divorced">Divorced</SelectItem>
+                          <SelectItem value="widowed">Widowed</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <AlertTriangle className="h-4 w-4 text-orange-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Dependants</Label>
+                    <Select defaultValue="0">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4+">4+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Date of Birth</Label>
+                    <div className="flex items-center gap-2">
+                      <Input className="h-8 text-sm" defaultValue="11/06/1960" />
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Age</Label>
+                    <Input className="h-8 text-sm" defaultValue="65" readOnly />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Language</Label>
+                    <Select defaultValue="english">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="english">English</SelectItem>
+                        <SelectItem value="french">French</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">SIN</Label>
+                    <Input className="h-8 text-sm" defaultValue="912174828" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">CDIC Client Identifier</Label>
+                    <Input className="h-8 text-sm" defaultValue="OBW1K0" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">File ID</Label>
+                    <Input className="h-8 text-sm" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Delivery Status</Label>
+                    <Select defaultValue="estatements">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="estatements">eStatements</SelectItem>
+                        <SelectItem value="mail">Mail</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Delivery Status Consent Date</Label>
+                    <div className="flex items-center gap-2">
+                      <Input className="h-8 text-sm" defaultValue="03/21/2017" />
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
+                    <Select defaultValue="active">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">LTA Date</Label>
+                    <div className="flex items-center gap-2">
+                      <Input className="h-8 text-sm" />
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">LTA</Label>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="lta" />
+                      <Input className="h-8 text-sm flex-1" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">POA Date</Label>
+                    <div className="flex items-center gap-2">
+                      <Input className="h-8 text-sm" />
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">POA</Label>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="poa" />
+                      <Input className="h-8 text-sm flex-1" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">POA Name</Label>
+                    <Input className="h-8 text-sm" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">POA Address</Label>
+                    <Input className="h-8 text-sm" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Tax Code</Label>
+                    <Input className="h-8 text-sm" defaultValue="ONTARIO" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Citizenship</Label>
+                    <Select defaultValue="unknown">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="canadian">Canadian</SelectItem>
+                        <SelectItem value="us">US</SelectItem>
+                        <SelectItem value="unknown">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Pro Account</Label>
+                    <Select>
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Pro Account Date</Label>
+                    <div className="flex items-center gap-2">
+                      <Input className="h-8 text-sm" />
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Representative Defined Field 1</Label>
+                    <Input className="h-8 text-sm" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Representative Defined Field 2</Label>
+                    <Input className="h-8 text-sm" defaultValue="3" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Representative Defined Field 3</Label>
+                    <Input className="h-8 text-sm" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Date of Death</Label>
+                    <div className="flex items-center gap-2">
+                      <Input className="h-8 text-sm" />
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">CASL Permission (consents to receive emails)</Label>
+                    <Checkbox id="casl" />
+                  </div>
+                </div>
+                </div>
+
+                {/* Spouse Residential Address */}
+                <div className="bg-white p-4 rounded border border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Spouse Residential Address</h3>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="spouse-residential-same" />
+                      <Label htmlFor="spouse-residential-same" className="text-xs text-gray-700 cursor-pointer">Same as Client Residential Address</Label>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Address Line 1</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Address Line 2</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">City</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Country</Label>
+                      <Select defaultValue="canada">
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="canada">Canada</SelectItem>
+                          <SelectItem value="usa">United States</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Province</Label>
+                      <Select>
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Select province" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="on">Ontario</SelectItem>
+                          <SelectItem value="bc">British Columbia</SelectItem>
+                          <SelectItem value="ab">Alberta</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Postal</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Spouse Mailing Address */}
+                <div className="bg-white p-4 rounded border border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Spouse Mailing Address</h3>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="spouse-mailing-same" />
+                      <Label htmlFor="spouse-mailing-same" className="text-xs text-gray-700 cursor-pointer">Same as residential</Label>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Address Line 1</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Address Line 2</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">City</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Country</Label>
+                      <Select defaultValue="unknown">
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="canada">Canada</SelectItem>
+                          <SelectItem value="usa">United States</SelectItem>
+                          <SelectItem value="unknown">Unknown</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Province</Label>
+                      <Select>
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Select province" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="on">Ontario</SelectItem>
+                          <SelectItem value="bc">British Columbia</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Postal</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Right Column */}
+              <div className="space-y-6">
+            {/* Contact Information */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Contact Information</h3>
+              <div className="mt-4 space-y-4">
+                {/* Returned Mail */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Returned Mail</Label>
+                    <Select defaultValue="no">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Returned Mail Date</Label>
+                    <div className="flex items-center gap-2">
+                      <Input className="h-8 text-sm" />
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                </div>
+                {/* Mobility Exemption */}
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">Mobility Exemption</Label>
+                  <p className="text-xs text-gray-700">No Mobility Exemptions</p>
+                </div>
+                {/* Residential Address */}
+                <div>
+                  <Label className="text-xs font-semibold text-gray-900 mb-2 block">Residential Address</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Address Line 1</Label>
+                      <Input className="h-8 text-sm" defaultValue="3460 Keele Street Apt. 502" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Address Line 2</Label>
+                      <Input className="h-8 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">City</Label>
+                      <Input className="h-8 text-sm" defaultValue="Toronto" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Country</Label>
+                      <Select defaultValue="canada">
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="canada">Canada</SelectItem>
+                          <SelectItem value="usa">United States</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Province</Label>
+                      <Select defaultValue="ontario">
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ontario">ONTARIO</SelectItem>
+                          <SelectItem value="bc">British Columbia</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Postal</Label>
+                      <Input className="h-8 text-sm" defaultValue="HOH OHO" />
+                    </div>
+                  </div>
+                </div>
+                {/* Mailing Address */}
+                <div>
+                  <Label className="text-xs font-semibold text-gray-900 mb-2 block">Mailing Address</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Checkbox id="mailing-same" defaultChecked />
+                    <Label htmlFor="mailing-same" className="text-xs text-gray-700 cursor-pointer">Same as residential</Label>
+                  </div>
+                </div>
+                {/* Phone and Email */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Home Phone</Label>
+                    <Input className="h-8 text-sm" defaultValue="555-555-5555" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Work Phone</Label>
+                    <Input className="h-8 text-sm" defaultValue="555-555-5555" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Cell Phone</Label>
+                    <Input className="h-8 text-sm" defaultValue="555-555-5555" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Fax</Label>
+                    <Input className="h-8 text-sm" defaultValue="000-000-0000" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Email</Label>
+                    <Input className="h-8 text-sm" defaultValue="client@onebosstest.com" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Verify Email</Label>
+                    <Input className="h-8 text-sm" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Email (Secondary)</Label>
+                    <Input className="h-8 text-sm" defaultValue="client30013@onebosstest.com" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Verify Secondary Email</Label>
+                    <Input className="h-8 text-sm" />
+                  </div>
+                </div>
+                {/* Reset Client Web Access Buttons */}
+                <div className="space-y-2 pt-2 border-t border-gray-200">
+                  <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white w-full">
+                    View Client Portal as {client.name.split(" ").reverse().join(", ")}
+                  </Button>
+                  <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white w-full">
+                    Reset Client Web Access
+                  </Button>
+                  <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white w-full">
+                    View Portal Login History
+                  </Button>
+                </div>
+                {/* Permissions */}
+                <div className="pt-2 border-t border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Checkbox id="fund-alerts" />
+                    <Label htmlFor="fund-alerts" className="text-xs text-gray-700 cursor-pointer">
+                      Client may access Fund Alerts
+                    </Label>
+                  </div>
+                  <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Apply Permissions
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+
+            {/* Employment Information */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Employment Information</h3>
+              <div className="mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Occupation</Label>
+                    <Input className="h-8 text-sm" defaultValue="Records Managment" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 mb-1 block">Employer</Label>
+                    <Input className="h-8 text-sm" defaultValue="City of Mississauga" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bank Account Information */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <div className="flex items-center justify-between mb-2 pb-2 border-b-2 border-blue-600">
+                <h3 className="text-sm font-semibold text-gray-900">Bank Account Information</h3>
+                <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Bank Account
+                </Button>
+              </div>
+              <div className="mt-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="text-xs font-semibold text-gray-700">Description</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Transit Number</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Institution Number</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Account Number</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Holder Name</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="text-xs text-gray-900">Demo bank account 62110</TableCell>
+                      <TableCell className="text-xs text-gray-700">001</TableCell>
+                      <TableCell className="text-xs text-gray-700">0167132</TableCell>
+                      <TableCell className="text-xs text-gray-700"></TableCell>
+                      <TableCell className="text-xs text-gray-700">Toney Andrews</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm" className="h-6 text-xs bg-blue-600 hover:bg-blue-700 text-white">
+                          <FileText className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Personal KYC Information */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Personal KYC Information</h3>
+              <div className="mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Liquid Assets</Label>
+                      <Input className="h-8 text-sm" defaultValue="$0.00" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Fixed Assets</Label>
+                      <Input className="h-8 text-sm" defaultValue="$35,000.00" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Liabilities</Label>
+                      <Input className="h-8 text-sm" defaultValue="$0.00" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs text-gray-500">Total</Label>
+                      <Input className="h-8 text-sm flex-1" defaultValue="$35,000.00" readOnly />
+                      <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                        Calculate
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="assets-includes-spouse" />
+                      <Label htmlFor="assets-includes-spouse" className="text-xs text-gray-700 cursor-pointer">
+                        Assets Includes Spouse
+                      </Label>
+                    </div>
+                  </div>
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Personal Income</Label>
+                      <Input className="h-8 text-sm" defaultValue="$0.00" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Personal Income</Label>
+                      <Select defaultValue="25000-49999">
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0-24999">$0 - $24,999</SelectItem>
+                          <SelectItem value="25000-49999">$25,000 - $49,999</SelectItem>
+                          <SelectItem value="50000-99999">$50,000 - $99,999</SelectItem>
+                          <SelectItem value="100000+">$100,000+</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="income-includes-spouse" />
+                      <Label htmlFor="income-includes-spouse" className="text-xs text-gray-700 cursor-pointer">
+                        Income Includes Spouse
+                      </Label>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Investor Knowledge</Label>
+                      <Select defaultValue="fair">
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="novice">Novice</SelectItem>
+                          <SelectItem value="fair">Fair</SelectItem>
+                          <SelectItem value="intermediate">Intermediate</SelectItem>
+                          <SelectItem value="advanced">Advanced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Accredited Investor</Label>
+                      <Select defaultValue="no">
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yes">Yes</SelectItem>
+                          <SelectItem value="no">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Politically Exposed Person Information */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Politically Exposed Person Information</h3>
+              <div className="mt-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-gray-700">Politically exposed person?</Label>
+                    <Select defaultValue="unknown">
+                      <SelectTrigger className="h-8 text-sm w-[120px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                        <SelectItem value="unknown">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <AlertTriangle className="h-4 w-4 text-orange-500" />
+                  </div>
+                  <p className="text-xs text-gray-500 italic">Client or family member</p>
+                </div>
+              </div>
+            </div>
+
+            {/* FATCA/CRS Information */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">FATCA/CRS Information</h3>
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs text-gray-700">Tax resident of a jurisdiction other than Canada*</Label>
+                  <Select defaultValue="yes">
+                    <SelectTrigger className="h-8 text-sm w-[120px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">FATCA Eligible</Label>
+                  <Select defaultValue="reportable">
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reportable">Reportable</SelectItem>
+                      <SelectItem value="non-reportable">Non Reportable</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">SSN</Label>
+                  <Input className="h-8 text-sm" />
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">FATCA No TIN Reason</Label>
+                  <div className="flex items-center gap-2">
+                    <Select defaultValue="none">
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <AlertTriangle className="h-4 w-4 text-orange-500" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="w8ben" />
+                  <Label htmlFor="w8ben" className="text-xs text-gray-700 cursor-pointer">W-8BEN/W9</Label>
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">W-8BEN/W9 Date</Label>
+                  <div className="flex items-center gap-2">
+                    <Input className="h-8 text-sm" />
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">CRS Eligible</Label>
+                  <Select defaultValue="non-reportable">
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reportable">Reportable</SelectItem>
+                      <SelectItem value="non-reportable">Non Reportable</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* ID Documents */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <div className="flex items-center justify-between mb-2 pb-2 border-b-2 border-blue-600">
+                <h3 className="text-sm font-semibold text-gray-900">ID Documents</h3>
+                <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New ID Document
+                </Button>
+              </div>
+              <div className="mt-4">
+                <div className="mb-4">
+                  <Label className="text-xs font-semibold text-gray-900 mb-2 block">Identification Methods</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-in-person" defaultChecked />
+                      <Label htmlFor="id-in-person" className="text-xs text-gray-700 cursor-pointer">In Person</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-video" />
+                      <Label htmlFor="id-video" className="text-xs text-gray-700 cursor-pointer">Video Conference</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-agent" />
+                      <Label htmlFor="id-agent" className="text-xs text-gray-700 cursor-pointer">By Agent</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-affiliate" />
+                      <Label htmlFor="id-affiliate" className="text-xs text-gray-700 cursor-pointer">By Affiliate</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-cccs" />
+                      <Label htmlFor="id-cccs" className="text-xs text-gray-700 cursor-pointer">By CCCSMember</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-independent" />
+                      <Label htmlFor="id-independent" className="text-xs text-gray-700 cursor-pointer">Independent Product</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-credit" />
+                      <Label htmlFor="id-credit" className="text-xs text-gray-700 cursor-pointer">By Credit File</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-attestation" />
+                      <Label htmlFor="id-attestation" className="text-xs text-gray-700 cursor-pointer">Attestation From Commissioner</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-cheque" />
+                      <Label htmlFor="id-cheque" className="text-xs text-gray-700 cursor-pointer">Cleared Cheque</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="id-deposit" />
+                      <Label htmlFor="id-deposit" className="text-xs text-gray-700 cursor-pointer">Deposit Account</Label>
+                    </div>
+                  </div>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="text-xs font-semibold text-gray-700">Type</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">ID/License Number</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Description</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Location</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Issued Date</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Expiry Date</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Owner</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="text-xs text-gray-900">Driver's License</TableCell>
+                      <TableCell className="text-xs text-gray-700">8127274056</TableCell>
+                      <TableCell className="text-xs text-gray-700"></TableCell>
+                      <TableCell className="text-xs text-gray-700">ON CA</TableCell>
+                      <TableCell className="text-xs text-gray-700">01/01/2015</TableCell>
+                      <TableCell className="text-xs text-gray-700">01/01/2025</TableCell>
+                      <TableCell className="text-xs text-gray-700">Client</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm" className="h-6 text-xs bg-blue-600 hover:bg-blue-700 text-white">
+                          <FileText className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Trusted Contact Persons */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Trusted Contact Persons</h3>
+              <div className="mt-4">
+                <Select defaultValue="not-set">
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="not-set">Not Set</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Client Custom Questions */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Client Custom Questions</h3>
+              <div className="mt-4 space-y-4">
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">Test</Label>
+                  <Input className="h-8 text-sm" />
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">Test2</Label>
+                  <Input className="h-8 text-sm" />
+                </div>
+              </div>
+            </div>
+
+            {/* User Defined Flags */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">User Defined Flags</h3>
+              <div className="mt-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="flag-1" defaultChecked />
+                      <Label htmlFor="flag-1" className="text-xs text-gray-700 cursor-pointer">1</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="rebate-primary" />
+                      <Label htmlFor="rebate-primary" className="text-xs text-gray-700 cursor-pointer">Rebate- Primary</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="hdof-1" />
+                      <Label htmlFor="hdof-1" className="text-xs text-gray-700 cursor-pointer">HDOF-1</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="third-party-ipp" />
+                      <Label htmlFor="third-party-ipp" className="text-xs text-gray-700 cursor-pointer">Third Party IPP</Label>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="transfer-fee" />
+                      <Label htmlFor="transfer-fee" className="text-xs text-gray-700 cursor-pointer">Transfer Fee Agreement on file</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="flag-1-2" />
+                      <Label htmlFor="flag-1-2" className="text-xs text-gray-700 cursor-pointer">1</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="something-new" />
+                      <Label htmlFor="something-new" className="text-xs text-gray-700 cursor-pointer">SOMETHING NEW</Label>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="flag-1-3" />
+                      <Label htmlFor="flag-1-3" className="text-xs text-gray-700 cursor-pointer">1</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="rebate-secondary" />
+                      <Label htmlFor="rebate-secondary" className="text-xs text-gray-700 cursor-pointer">Rebate - Secondary</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="testing" />
+                      <Label htmlFor="testing" className="text-xs text-gray-700 cursor-pointer">Testing</Label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+              </div>
+            </div>
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                Save Client Details
+              </Button>
+              <div className="flex-1"></div>
+              <div className="bg-white p-4 rounded border border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b-2 border-blue-600">Pendings</h3>
+                <p className="text-xs text-gray-500 mt-2">No pendings found</p>
+              </div>
+            </div>
+            </div>
+          </ScrollArea>
+        )}
+
+        {clientViewTab === "questionnaires" && (
+          <div className="space-y-4">
+            {/* Investor Questionnaire Section */}
+            <div className="bg-white p-4 rounded border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">Investor Questionnaire</h3>
+              <div className="space-y-4">
+                <p className="text-xs text-gray-500">There are no Investor Questionnaires</p>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 text-xs h-8 w-8 p-0">
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                    New Questionnaire
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {clientViewTab === "client-reports" && (
+          <div className="space-y-4">
+            {/* Client Reports Section */}
+            <div className="bg-blue-600 px-4 py-3 rounded-t border border-blue-600">
+              <div className="flex items-center gap-2">
+                <ChevronDown className="h-4 w-4 text-white" />
+                <h3 className="text-sm font-semibold text-white">Client Reports</h3>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-b border-l border-r border-b border-gray-200">
+              <div className="space-y-2">
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Portfolio Summary Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">CRM2 Performance Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Portfolio Position Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Quick Summary Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Year Over Year Plan Performance Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Plan Performance Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Capital Gain</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Charges And Compensation Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Tax-Free Savings Accounts Calculator</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Systematic Payments Summary Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Retirement Savings Report</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Asset Mix</a>
+                <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800 block">Client Profiler</a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {clientViewTab === "charts" && (
+          <div className="space-y-4">
+            {/* Secondary Navigation Tabs */}
+            <Tabs value={chartsSubTab} onValueChange={(value) => setChartsSubTab(value as "smart-charts" | "allocations")}>
+              <TabsList className="grid w-full grid-cols-2 h-8 mb-4">
+                <TabsTrigger value="smart-charts" className="text-xs">
+                  Smart Charts
+                  <HelpCircle className="h-3 w-3 ml-1" />
+                </TabsTrigger>
+                <TabsTrigger value="allocations" className="text-xs">Allocations</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="smart-charts" className="mt-4">
+                <div className="space-y-4">
+                  {/* Top Controls */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Checkbox id="zoom-pan" />
+                        <Label htmlFor="zoom-pan" className="text-xs text-gray-700 cursor-pointer">Zoom & Pan</Label>
+                      </div>
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                        Print
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Client Name Heading */}
+                  <h2 className="text-lg font-semibold text-gray-900">Armstrong, Amy</h2>
+
+                  {/* Financial Summary and Account Selection */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Financial Summary Table */}
+                    <div className="bg-white p-4 rounded border border-gray-200">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-gray-50">
+                            <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3"></TableHead>
+                            <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Mar 31, 2020</TableHead>
+                            <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Dec 14, 2025</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="text-xs py-2 px-3 font-medium">Market Value</TableCell>
+                            <TableCell className="text-xs py-2 px-3">0.00</TableCell>
+                            <TableCell className="text-xs py-2 px-3">15,214.29</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-2 px-3 font-medium">Net Invested</TableCell>
+                            <TableCell className="text-xs py-2 px-3"></TableCell>
+                            <TableCell className="text-xs py-2 px-3">13,040.00</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="text-xs py-2 px-3 font-medium">Gain</TableCell>
+                            <TableCell className="text-xs py-2 px-3"></TableCell>
+                            <TableCell className="text-xs py-2 px-3">2,174.29</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-2 px-3 font-medium">Rate of Return</TableCell>
+                            <TableCell className="text-xs py-2 px-3"></TableCell>
+                            <TableCell className="text-xs py-2 px-3">4.29</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    {/* Account Selection */}
+                    <div className="bg-white p-4 rounded border border-gray-200">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800">Select All</a>
+                          <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800">Select None</a>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox id="resp-family" defaultChecked />
+                          <Label htmlFor="resp-family" className="text-xs text-gray-700 cursor-pointer">RESP Family 7886147741</Label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Date Range Filters */}
+                  <div className="bg-white p-4 rounded border border-gray-200">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs text-gray-700 mb-1 block">Start Date</Label>
+                        <div className="flex items-center gap-2">
+                          <Select defaultValue="march">
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="march">March</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Select defaultValue="31">
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="31">31</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Select defaultValue="2020">
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="2020">2020</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-gray-700 mb-1 block">End Date</Label>
+                        <div className="flex items-center gap-2">
+                          <Select defaultValue="december">
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="december">December</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Select defaultValue="14">
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="14">14</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Select defaultValue="2025">
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="2025">2025</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Performance Chart */}
+                  <div className="bg-white p-4 rounded border border-gray-200">
+                    <ResponsiveContainer width="100%" height={400}>
+                      <AreaChart
+                        data={[
+                          { date: "2021-01", marketValue: 0, netInvested: 0 },
+                          { date: "2021-06", marketValue: 2000, netInvested: 2000 },
+                          { date: "2022-01", marketValue: 4500, netInvested: 4000 },
+                          { date: "2022-06", marketValue: 6800, netInvested: 6000 },
+                          { date: "2023-01", marketValue: 9200, netInvested: 8000 },
+                          { date: "2023-06", marketValue: 11000, netInvested: 10000 },
+                          { date: "2024-01", marketValue: 12800, netInvested: 11500 },
+                          { date: "2024-06", marketValue: 14200, netInvested: 13000 },
+                          { date: "2025-01", marketValue: 15100, netInvested: 13040 },
+                          { date: "2025-12", marketValue: 15214.29, netInvested: 13040 },
+                        ]}
+                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorMarketValue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8884d8" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="date" 
+                          tick={{ fontSize: 10 }}
+                          tickFormatter={(value) => {
+                            const year = value.split("-")[0];
+                            return year;
+                          }}
+                        />
+                        <YAxis 
+                          domain={[0, 14000]} 
+                          tick={{ fontSize: 10 }}
+                          ticks={[0, 2000, 4000, 6000, 8000, 10000, 12000, 14000]}
+                        />
+                        <Tooltip />
+                        <Area 
+                          type="monotone" 
+                          dataKey="marketValue" 
+                          stroke="#8884d8" 
+                          fillOpacity={1} 
+                          fill="url(#colorMarketValue)" 
+                        />
+                        <Line 
+                          type="step" 
+                          dataKey="netInvested" 
+                          stroke="#ef4444" 
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="allocations" className="mt-4">
+                <div className="space-y-4">
+                  {/* Header with Title and Print Button */}
+                  <div className="flex items-center justify-between border-b border-gray-300 pb-2">
+                    <h3 className="text-sm font-semibold text-gray-900">Asset Allocations</h3>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                      Print
+                    </Button>
+                  </div>
+
+                  {/* Top Row - Three Charts */}
+                  <div className="grid grid-cols-3 gap-4">
+                    {/* Equity Product Allocation */}
+                    <div className="bg-white p-4 rounded border border-gray-200">
+                      <h4 className="text-xs font-semibold text-gray-900 mb-3 text-center">Equity Product Allocation</h4>
+                      <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: "MMF-564", value: 24.63 },
+                              { name: "MMF-4529", value: 75.37 },
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            <Cell fill="#ef4444" />
+                            <Cell fill="#3b82f6" />
+                          </Pie>
+                          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <Table className="mt-3">
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">MMF-564</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">24.63%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$3,747.33</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">MMF-4529</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">75.37%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$11,466.96</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    {/* Geographic Allocation */}
+                    <div className="bg-white p-4 rounded border border-gray-200">
+                      <h4 className="text-xs font-semibold text-gray-900 mb-3 text-center">Geographic Allocation</h4>
+                      <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: "Canada", value: 60.42 },
+                              { name: "United States", value: 34.04 },
+                              { name: "European Union", value: 3.86 },
+                              { name: "Asia/Pacific Rim", value: 0.71 },
+                              { name: "Japan", value: 0.41 },
+                              { name: "Other European", value: 0.23 },
+                              { name: "Other Asian", value: 0.17 },
+                              { name: "All Others", value: 0.15 },
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            <Cell fill="#ef4444" />
+                            <Cell fill="#eab308" />
+                            <Cell fill="#f97316" />
+                            <Cell fill="#84cc16" />
+                            <Cell fill="#3b82f6" />
+                            <Cell fill="#6b7280" />
+                            <Cell fill="#6b7280" />
+                            <Cell fill="#6b7280" />
+                          </Pie>
+                          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <Table className="mt-3">
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">Canada</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">60.42%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$9,192.77</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">Other European</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">0.23%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$34.85</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">European Union</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">3.86%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$587.96</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">United States</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">34.04%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$5,178.35</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">Japan</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">0.41%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$62.58</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">Asia/Pacific Rim</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">0.71%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$108.30</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">Other Asian</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">0.17%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$26.61</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">All Others</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">0.15%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$22.88</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    {/* Asset Allocation */}
+                    <div className="bg-white p-4 rounded border border-gray-200">
+                      <h4 className="text-xs font-semibold text-gray-900 mb-3 text-center">Asset Allocation</h4>
+                      <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: "Canadian Equity", value: 44.97 },
+                              { name: "US Equity", value: 30.75 },
+                              { name: "Domestic Bonds", value: 11.87 },
+                              { name: "International Equity", value: 5.10 },
+                              { name: "Cash and Equivalents", value: 3.72 },
+                              { name: "Foreign Bonds", value: 3.31 },
+                              { name: "Other", value: 0.18 },
+                              { name: "All Others", value: 0.09 },
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            <Cell fill="#3b82f6" />
+                            <Cell fill="#eab308" />
+                            <Cell fill="#9333ea" />
+                            <Cell fill="#f97316" />
+                            <Cell fill="#84cc16" />
+                            <Cell fill="#ef4444" />
+                            <Cell fill="#6b7280" />
+                            <Cell fill="#6b7280" />
+                          </Pie>
+                          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <Table className="mt-3">
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">Foreign Bonds</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">3.31%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$504.23</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">International Equity</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">5.10%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$776.08</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">Domestic Bonds</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">11.87%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$1,806.10</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">US Equity</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">30.75%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$4,678.13</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">Cash and Equivalents</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">3.72%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$566.26</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">Canadian Equity</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">44.97%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$6,841.88</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="text-xs py-1 px-2">All Others</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">0.09%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$13.49</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-gray-50">
+                            <TableCell className="text-xs py-1 px-2">Other</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">0.18%</TableCell>
+                            <TableCell className="text-xs py-1 px-2 text-right">$28.13</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+
+                  {/* Bottom Row - Sector Allocation */}
+                  <div className="bg-white p-4 rounded border border-gray-200">
+                    <h4 className="text-xs font-semibold text-gray-900 mb-3 text-center">Sector Allocation</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: "Financial Services", value: 21.51 },
+                              { name: "All Others", value: 18.70 },
+                              { name: "Fixed Income", value: 15.35 },
+                              { name: "Technology", value: 16.00 },
+                              { name: "Consumer Services", value: 8.39 },
+                              { name: "Industrial Services", value: 7.89 },
+                              { name: "Basic Materials", value: 6.60 },
+                              { name: "Energy", value: 5.56 },
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            <Cell fill="#ef4444" />
+                            <Cell fill="#3b82f6" />
+                            <Cell fill="#ec4899" />
+                            <Cell fill="#22c55e" />
+                            <Cell fill="#1e40af" />
+                            <Cell fill="#9333ea" />
+                            <Cell fill="#eab308" />
+                            <Cell fill="#f97316" />
+                          </Pie>
+                          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div>
+                        <Table>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell className="text-xs py-1 px-2">Financial Services</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">21.51%</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">$3,273.31</TableCell>
+                            </TableRow>
+                            <TableRow className="bg-gray-50">
+                              <TableCell className="text-xs py-1 px-2">Energy</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">5.56%</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">$846.16</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="text-xs py-1 px-2">Basic Materials</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">6.60%</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">$1,004.34</TableCell>
+                            </TableRow>
+                            <TableRow className="bg-gray-50">
+                              <TableCell className="text-xs py-1 px-2">Industrial Services</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">7.89%</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">$1,199.88</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="text-xs py-1 px-2">Technology</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">16.00%</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">$2,433.61</TableCell>
+                            </TableRow>
+                            <TableRow className="bg-gray-50">
+                              <TableCell className="text-xs py-1 px-2">Consumer Services</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">8.39%</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">$1,276.65</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="text-xs py-1 px-2">Fixed Income</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">15.35%</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">$2,335.79</TableCell>
+                            </TableRow>
+                            <TableRow className="bg-gray-50">
+                              <TableCell className="text-xs py-1 px-2">All Others</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">18.70%</TableCell>
+                              <TableCell className="text-xs py-1 px-2 text-right">$2,844.55</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+
+        {clientViewTab === "trading" && (
+          <div className="space-y-4">
+            {/* Plan Selection */}
+            <div className="flex items-center gap-3">
+              <Label className="text-xs text-gray-700">Plan:</Label>
+              <Select>
+                <SelectTrigger className="h-8 text-sm w-64">
+                  <SelectValue placeholder="Select a Plan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7886147741">7886147741 (RESP Family Client Name, Joint)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Plan Header Bar */}
+            <div className="bg-gray-200 px-4 py-3 rounded border border-gray-300">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    7886147741 (RESP Family Client Name, Joint) 9823-2232 <span className="underline cursor-pointer">Marsh, Antoine</span>
+                  </p>
+                  <div className="mt-1">
+                    <p className="text-xs text-gray-700">Joint with <span className="underline cursor-pointer">Armstrong, Oliver</span> (Primary)</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 cursor-pointer text-gray-700" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-gray-700 hover:bg-gray-100"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Investment/Product Table */}
+            <div className="border border-gray-300 rounded">
+              <div className="p-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-100">
+                      <TableHead className="text-xs font-semibold text-gray-700">Supplier</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Account</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Product</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Risk</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Objective</TableHead>
+                      <TableHead className="text-xs font-semibold text-gray-700">Market value</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="text-sm">
+                        <span className="font-bold text-blue-600 underline cursor-pointer">MMF-564</span>
+                      </TableCell>
+                      <TableCell className="text-sm">6237058732</TableCell>
+                      <TableCell className="text-sm">MANULIFE SIMPLICITY MODERATE PORTFOLIO</TableCell>
+                      <TableCell className="text-sm">LM</TableCell>
+                      <TableCell className="text-sm">
+                        <div className="flex flex-col gap-1">
+                          <span>75% In, 25% Gr</span>
+                          <div className="flex items-center gap-1">
+                            <FileText className="h-3 w-3 text-blue-600" />
+                            <Folder className="h-3 w-3 text-red-600" />
+                            <Lightbulb className="h-3 w-3 text-yellow-600" />
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm font-semibold">$3,747.33</TableCell>
+                    </TableRow>
+                    <TableRow className="bg-blue-50">
+                      <TableCell className="text-sm">
+                        <span className="font-bold text-blue-600 underline cursor-pointer">MMF-4529</span>
+                      </TableCell>
+                      <TableCell className="text-sm">0205734337</TableCell>
+                      <TableCell className="text-sm">MANULIFE DIVIDEND INCOME FUND</TableCell>
+                      <TableCell className="text-sm">M</TableCell>
+                      <TableCell className="text-sm">
+                        <div className="flex flex-col gap-1">
+                          <span>100% Ba</span>
+                          <div className="flex items-center gap-1">
+                            <FileText className="h-3 w-3 text-blue-600" />
+                            <Folder className="h-3 w-3 text-red-600" />
+                            <Lightbulb className="h-3 w-3 text-yellow-600" />
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm font-semibold">$11,466.96</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Trust Account Balance Summary */}
+            <div className="bg-blue-50 p-4 rounded border border-blue-200">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-700">Settled Trust Account Balance CAD</span>
+                <span className="text-sm font-semibold">$0.00</span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-700">Settled Trust Account Balance USD</span>
+                <span className="text-sm font-semibold">$0.00</span>
+              </div>
+              <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                <span className="text-sm font-semibold text-gray-900">Total in CAD</span>
+                <span className="text-sm font-bold">$15,214.29</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {clientViewTab === "portfolio" && (
+          <div className="w-full">
+            <div className="flex gap-4">
+              {/* Left Pane - Plan Selection */}
+              <div className="w-1/3 border-r border-gray-200 pr-4">
+                <div className="space-y-4 py-2">
+                  {/* Include Inactive Plans */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="include-inactive-plans" checked={includeInactivePlans} onCheckedChange={(checked) => setIncludeInactivePlans(checked as boolean)} />
+                      <Label htmlFor="include-inactive-plans" className="text-xs text-gray-700 cursor-pointer">Include Inactive Plans</Label>
+                    </div>
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7">
+                      Add New Plan
+                    </Button>
+                  </div>
+
+                {/* Selected Plan */}
+                <div className="border border-gray-300 rounded p-3 bg-blue-50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-gray-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-900">3641343426 (RRSP Client Name, Individual)</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-gray-900">$16,305.20</span>
+                  </div>
+                </div>
+
+                {/* Account Tabs */}
+                <Tabs value={accountViewType} onValueChange={(value) => setAccountViewType(value as "fund-accounts" | "gics")}>
+                  <TabsList className="grid w-full grid-cols-2 h-8">
+                    <TabsTrigger value="fund-accounts" className="text-xs">
+                      Fund Accounts
+                      <HelpCircle className="h-3 w-3 ml-1" />
+                    </TabsTrigger>
+                    <TabsTrigger value="gics" className="text-xs">
+                      GICs
+                      <HelpCircle className="h-3 w-3 ml-1" />
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="fund-accounts" className="mt-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Checkbox id="include-inactive-accounts" checked={includeInactiveAccounts} onCheckedChange={(checked) => setIncludeInactiveAccounts(checked as boolean)} />
+                      <Label htmlFor="include-inactive-accounts" className="text-xs text-gray-700 cursor-pointer">Include Inactive Accounts</Label>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="border border-gray-200 rounded p-2 hover:bg-gray-50 cursor-pointer">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-gray-900 truncate">CIG-7710 5160230205 (LM) CI Portfolio Series Balanced Fund A ISC FEL CAD</p>
+                          </div>
+                          <div className="flex items-center gap-2 ml-2">
+                            <span className="text-xs font-semibold text-gray-900">$2,315.88 CAD</span>
+                            <div className="flex items-center gap-1">
+                              <BarChart3 className="h-3 w-3 text-gray-500" />
+                              <FileText className="h-3 w-3 text-gray-500" />
+                              <HelpCircle className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="border border-gray-200 rounded p-2 hover:bg-gray-50 cursor-pointer">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-gray-900 truncate">CIG-7715 5525887488 (LM) CI Portfolio Series Balanced Fund A DSC DSC CAD</p>
+                          </div>
+                          <div className="flex items-center gap-2 ml-2">
+                            <span className="text-xs font-semibold text-gray-900">$13,989.32 CAD</span>
+                            <div className="flex items-center gap-1">
+                              <BarChart3 className="h-3 w-3 text-gray-500" />
+                              <FileText className="h-3 w-3 text-gray-500" />
+                              <HelpCircle className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="gics" className="mt-4">
+                    <p className="text-xs text-gray-500">No GIC accounts found</p>
+                  </TabsContent>
+                </Tabs>
+
+                {/* Transactions Tab */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex items-center gap-1 mb-2">
+                    <span className="text-xs font-medium text-gray-700">Transactions</span>
+                    <HelpCircle className="h-3 w-3 text-gray-500" />
+                  </div>
+                  <p className="text-xs text-gray-500 italic">Please select a fund account above.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Pane - Plan Details */}
+            <div className="flex-1 pl-4">
+              <div className="space-y-4 py-2">
+                {/* Secondary Navigation Tabs */}
+                <Tabs value={planDetailTab} onValueChange={setPlanDetailTab}>
+                  <TabsList className="grid w-full grid-cols-6 h-8">
+                    <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
+                    <TabsTrigger value="kyc" className="text-xs">KYC</TabsTrigger>
+                    <TabsTrigger value="beneficiaries" className="text-xs">Beneficiaries</TabsTrigger>
+                    <TabsTrigger value="actions" className="text-xs">Actions</TabsTrigger>
+                    <TabsTrigger value="trust-account" className="text-xs">Trust Account</TabsTrigger>
+                    <TabsTrigger value="reviews" className="text-xs">Reviews</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="details" className="mt-4">
+                    {/* Details Sub-tabs */}
+                    <Tabs value={planDetailsSubTab} onValueChange={setPlanDetailsSubTab}>
+                      <TabsList className="grid w-full grid-cols-6 h-8 mb-4">
+                        <TabsTrigger value="details" className="text-xs">
+                          Details
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="notes" className="text-xs">Notes</TabsTrigger>
+                        <TabsTrigger value="plan-attachments" className="text-xs">Plan Attachments</TabsTrigger>
+                        <TabsTrigger value="allocations" className="text-xs">Allocations</TabsTrigger>
+                        <TabsTrigger value="supplier-accounts" className="text-xs">Supplier Accounts</TabsTrigger>
+                        <TabsTrigger value="custom-compensation" className="text-xs">Custom Compensation</TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="details" className="mt-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Left Column */}
+                          <div className="space-y-3">
+                            {/* Plan Information */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Plan Information</h3>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">ID</Label>
+                                  <Input className="h-7 text-[11px]" defaultValue="3641343426" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Type</Label>
+                                  <Select defaultValue="rrsp">
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="rrsp">RRSP</SelectItem>
+                                      <SelectItem value="tfsa">TFSA</SelectItem>
+                                      <SelectItem value="resp">RESP</SelectItem>
+                                      <SelectItem value="rrif">RRIF</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Account Designation</Label>
+                                  <Select defaultValue="client-name">
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="client-name">Client Name</SelectItem>
+                                      <SelectItem value="joint">Joint</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Current Representative</Label>
+                                  <p className="text-[11px] text-blue-600 underline cursor-pointer">9823-2232 Marsh, Antoine</p>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Description</Label>
+                                  <Input className="h-7 text-[11px]" />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Intent Of Use</Label>
+                                  <Input className="h-7 text-[11px]" />
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Checkbox id="frozen" defaultChecked className="h-3 w-3" />
+                                  <Label htmlFor="frozen" className="text-[10px] text-gray-700 cursor-pointer">Frozen</Label>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Checkbox id="full-freeze" className="h-3 w-3" />
+                                  <Label htmlFor="full-freeze" className="text-[10px] text-gray-700 cursor-pointer">Full Freeze</Label>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Checkbox id="group-account" className="h-3 w-3" />
+                                  <Label htmlFor="group-account" className="text-[10px] text-gray-700 cursor-pointer">Group Account</Label>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Group Account ID</Label>
+                                  <Select>
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="none">None</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Checkbox id="leveraged" className="h-3 w-3" />
+                                  <Label htmlFor="leveraged" className="text-[10px] text-gray-700 cursor-pointer">Leveraged</Label>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Loan Number</Label>
+                                  <Input className="h-7 text-[11px]" />
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Checkbox id="locked-in" className="h-3 w-3" />
+                                  <Label htmlFor="locked-in" className="text-[10px] text-gray-700 cursor-pointer">Locked In</Label>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Recipient</Label>
+                                  <Select defaultValue="individual">
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="individual">Individual</SelectItem>
+                                      <SelectItem value="spouse">Spouse</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Intermediary Code</Label>
+                                  <Input className="h-7 text-[11px]" />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Intermediary Account Code</Label>
+                                  <Input className="h-7 text-[11px]" defaultValue="5662474830" readOnly />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Plan Custom Questions */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Plan Custom Questions</h3>
+                              <div className="space-y-2">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">test</Label>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Ensemble Portfolio Details */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Ensemble Portfolio Details</h3>
+                              <div className="space-y-1.5">
+                                <p className="text-[11px] text-gray-700">This plan is not connected to Ensemble Portfolio</p>
+                                <Button variant="outline" size="sm" disabled className="text-[10px] h-6">
+                                  Migrate to Ensemble
+                                  <HelpCircle className="h-2.5 w-2.5 ml-1" />
+                                </Button>
+                                <p className="text-[10px] text-gray-500">User does not have access to Ensemble</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right Column */}
+                          <div className="space-y-3">
+                            {/* Important Dates */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Important Dates</h3>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Start Date</Label>
+                                  <div className="flex items-center gap-1.5">
+                                    <Input className="h-7 text-[11px]" defaultValue="05/21/2008" />
+                                    <Calendar className="h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">End Date</Label>
+                                  <div className="flex items-center gap-1.5">
+                                    <Input className="h-7 text-[11px]" />
+                                    <Calendar className="h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">KYC On File Date</Label>
+                                  <div className="flex items-center gap-1.5">
+                                    <Input className="h-7 text-[11px]" defaultValue="03/13/2007" />
+                                    <Calendar className="h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">KYC Age</Label>
+                                  <Input className="h-7 text-[11px]" defaultValue="6852 days Old" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">KYC Original Received Date</Label>
+                                  <div className="flex items-center gap-1.5">
+                                    <Input className="h-7 text-[11px]" />
+                                    <Calendar className="h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Revenue Model */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Revenue Model</h3>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Revenue Model</Label>
+                                  <Select defaultValue="commissions">
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="commissions">Commissions</SelectItem>
+                                      <SelectItem value="fee-for-service">Fee for Service</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Fee for Service Amount</Label>
+                                  <Input className="h-7 text-[11px]" />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Fee for Service Start Date</Label>
+                                  <div className="flex items-center gap-1.5">
+                                    <Input className="h-7 text-[11px]" />
+                                    <Calendar className="h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1.5 pt-4">
+                                  <Checkbox id="ffs-approved" className="h-3 w-3" />
+                                  <Label htmlFor="ffs-approved" className="text-[10px] text-gray-700 cursor-pointer">Fee for Service Approved</Label>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Plan Fee Settings */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Plan Fee Settings</h3>
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-gray-50">
+                                    <TableHead className="text-[10px] font-semibold text-gray-700 py-1 px-2">Schedule Name</TableHead>
+                                    <TableHead className="text-[10px] font-semibold text-gray-700 py-1 px-2">Setting Option</TableHead>
+                                    <TableHead className="text-[10px] font-semibold text-gray-700 py-1 px-2">Start Date</TableHead>
+                                    <TableHead className="text-[10px] font-semibold text-gray-700 py-1 px-2">Bank Account</TableHead>
+                                    <TableHead className="text-[10px] font-semibold text-gray-700 py-1 px-2">Override Fund</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow>
+                                    <TableCell colSpan={5} className="text-center py-2">
+                                      <p className="text-[10px] text-gray-500 italic">No records found.</p>
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+
+                            {/* Plan FFS Override Fund */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Plan FFS Override Fund</h3>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Plan FFS Override Fund</Label>
+                                <Select defaultValue="none">
+                                  <SelectTrigger className="h-7 text-[11px]">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">None</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+
+                            {/* Additional Financial Interest */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Additional Financial Interest</h3>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Does anyone else have trading authorization?</Label>
+                                  <Select defaultValue="no">
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="yes">Yes</SelectItem>
+                                      <SelectItem value="no">No</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Name</Label>
+                                  <Input className="h-7 text-[11px]" />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Does anyone else have a Financial Interest?</Label>
+                                  <Select defaultValue="no">
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="yes">Yes</SelectItem>
+                                      <SelectItem value="no">No</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Name</Label>
+                                  <Input className="h-7 text-[11px]" />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Average Value */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Average Value</h3>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="flex items-center gap-1.5">
+                                  <Checkbox id="by-month" defaultChecked className="h-3 w-3" />
+                                  <Label htmlFor="by-month" className="text-[10px] text-gray-700 cursor-pointer">By Month</Label>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Month</Label>
+                                  <Select defaultValue="december">
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="january">January</SelectItem>
+                                      <SelectItem value="february">February</SelectItem>
+                                      <SelectItem value="march">March</SelectItem>
+                                      <SelectItem value="april">April</SelectItem>
+                                      <SelectItem value="may">May</SelectItem>
+                                      <SelectItem value="june">June</SelectItem>
+                                      <SelectItem value="july">July</SelectItem>
+                                      <SelectItem value="august">August</SelectItem>
+                                      <SelectItem value="september">September</SelectItem>
+                                      <SelectItem value="october">October</SelectItem>
+                                      <SelectItem value="november">November</SelectItem>
+                                      <SelectItem value="december">December</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Year</Label>
+                                  <Select defaultValue="2025">
+                                    <SelectTrigger className="h-7 text-[11px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="2025">2025</SelectItem>
+                                      <SelectItem value="2024">2024</SelectItem>
+                                      <SelectItem value="2023">2023</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Start Date</Label>
+                                  <div className="flex items-center gap-1.5">
+                                    <Input className="h-7 text-[11px]" />
+                                    <Calendar className="h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">End Date</Label>
+                                  <div className="flex items-center gap-1.5">
+                                    <Input className="h-7 text-[11px]" />
+                                    <Calendar className="h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1.5 pt-4">
+                                  <Checkbox id="ffs-only" className="h-3 w-3" />
+                                  <Label htmlFor="ffs-only" className="text-[10px] text-gray-700 cursor-pointer">Fee For Service Only</Label>
+                                </div>
+                                <div className="pt-4">
+                                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] h-6">
+                                    Calculate
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="notes" className="mt-4">
+                        <div className="space-y-4">
+                          {/* Plan Notes Section */}
+                          <div className="bg-white p-4 rounded border border-gray-200">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-4">Plan Notes</h3>
+                            <div className="space-y-4">
+                              {/* New Plan Note Button */}
+                              <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                                New Plan Note
+                              </Button>
+                              
+                              {/* Notes Display Area */}
+                              <div className="bg-blue-50 border border-blue-200 rounded p-6 min-h-[400px]">
+                                {/* Empty state - notes would be displayed here */}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="plan-attachments" className="mt-4">
+                        <div className="space-y-6">
+                          {/* Pinned Documents */}
+                          <div className="bg-white p-4 rounded border border-gray-200">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">Pinned Documents</h3>
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="bg-gray-50">
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Document Type</TableHead>
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">On File</TableHead>
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">On File Date</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell className="text-xs py-2 px-3">Auto Conversion of Units</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow className="bg-gray-50">
+                                  <TableCell className="text-xs py-2 px-3">Auto Conversion of Units (Express Service / Self Serve)</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell className="text-xs py-2 px-3">Disclosure Document - Loan</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow className="bg-gray-50">
+                                  <TableCell className="text-xs py-2 px-3">Fee for Service Agreement</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell className="text-xs py-2 px-3">Joint LAF</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow className="bg-gray-50">
+                                  <TableCell className="text-xs py-2 px-3">LAF</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell className="text-xs py-2 px-3">Other for Processing (Express Service / Self Serve)</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow className="bg-gray-50">
+                                  <TableCell className="text-xs py-2 px-3">PAC/SWP form (Express Service / Self Serve)</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell className="text-xs py-2 px-3">Power of Attorney</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow className="bg-gray-50">
+                                  <TableCell className="text-xs py-2 px-3">Trading Authorization</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell className="text-xs py-2 px-3">Transfer Documents</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                                <TableRow className="bg-gray-50">
+                                  <TableCell className="text-xs py-2 px-3">Void Cheque</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">No</TableCell>
+                                  <TableCell className="text-xs py-2 px-3"></TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
+
+                          {/* Plan Attachments */}
+                          <div className="bg-white p-4 rounded border border-gray-200">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">Plan Attachments</h3>
+                            <div className="space-y-4">
+                              {/* Action Buttons */}
+                              <div className="flex items-center gap-3">
+                                <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                                  Add New Attachment
+                                </Button>
+                                <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 text-xs h-8">
+                                  Link Existing Attachment
+                                </Button>
+                                <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 text-xs h-8">
+                                  Unlink Attachment
+                                </Button>
+                              </div>
+                              {/* Checkboxes */}
+                              <div className="flex items-center gap-6">
+                                <div className="flex items-center gap-2">
+                                  <Checkbox id="include-inactive-attachments" />
+                                  <Label htmlFor="include-inactive-attachments" className="text-xs text-gray-700 cursor-pointer">Include Inactive</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Checkbox id="include-funds-attachments" />
+                                  <Label htmlFor="include-funds-attachments" className="text-xs text-gray-700 cursor-pointer">Include attachments from Funds, GICs, Transactions, and Trust Transactions</Label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Attachments */}
+                          <div className="bg-white p-4 rounded border border-gray-200">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">Attachments</h3>
+                            <div className="py-8">
+                              <p className="text-xs text-gray-500 text-center">No attachments found.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="allocations" className="mt-4">
+                        <div className="space-y-4">
+                          {/* Allocations Sub-tabs */}
+                          <Tabs value={allocationsView} onValueChange={(value) => setAllocationsView(value as "chart" | "table")}>
+                            <TabsList className="grid w-full grid-cols-2 h-8 mb-4">
+                              <TabsTrigger value="chart" className="text-xs">Allocations (Chart)</TabsTrigger>
+                              <TabsTrigger value="table" className="text-xs">Allocations (Table)</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="chart" className="mt-4">
+                              <div className="grid grid-cols-3 gap-4">
+                                {/* Geographic Allocation */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-sm font-semibold text-gray-900 mb-4 text-center">Geographic Allocation</h4>
+                                  <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                      <Pie
+                                        data={[
+                                          { name: "Canada", value: 48.01 },
+                                          { name: "Multi-National", value: 12.57 },
+                                          { name: "European Union", value: 6.18 },
+                                          { name: "United States", value: 20.16 },
+                                          { name: "Asia/Pacific Rim", value: 4.02 },
+                                          { name: "Japan", value: 4.42 },
+                                          { name: "Latin America", value: 1.58 },
+                                          { name: "All Others", value: 3.06 },
+                                        ]}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                      >
+                                        <Cell fill="#22c55e" />
+                                        <Cell fill="#eab308" />
+                                        <Cell fill="#3b82f6" />
+                                        <Cell fill="#ef4444" />
+                                        <Cell fill="#f97316" />
+                                        <Cell fill="#dc2626" />
+                                        <Cell fill="#1e40af" />
+                                        <Cell fill="#9333ea" />
+                                      </Pie>
+                                      <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                                      <Legend />
+                                    </PieChart>
+                                  </ResponsiveContainer>
+                                </div>
+
+                                {/* Asset Allocation */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-sm font-semibold text-gray-900 mb-4 text-center">Asset Allocation</h4>
+                                  <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                      <Pie
+                                        data={[
+                                          { name: "International Equity", value: 25.10 },
+                                          { name: "Cash and Equivalents", value: 6.92 },
+                                          { name: "Foreign Bonds", value: 8.03 },
+                                          { name: "Canadian Equity", value: 17.96 },
+                                          { name: "Domestic Bonds", value: 23.33 },
+                                          { name: "US Equity", value: 12.86 },
+                                          { name: "Mutual Fund", value: 9.54 },
+                                          { name: "Other", value: 5.18 },
+                                          { name: "All Others", value: 0.62 },
+                                        ]}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                      >
+                                        <Cell fill="#9333ea" />
+                                        <Cell fill="#6b7280" />
+                                        <Cell fill="#ec4899" />
+                                        <Cell fill="#eab308" />
+                                        <Cell fill="#22c55e" />
+                                        <Cell fill="#3b82f6" />
+                                        <Cell fill="#84cc16" />
+                                        <Cell fill="#ef4444" />
+                                        <Cell fill="#f87171" />
+                                      </Pie>
+                                      <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                                      <Legend />
+                                    </PieChart>
+                                  </ResponsiveContainer>
+                                </div>
+
+                                {/* Sector Allocation */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-sm font-semibold text-gray-900 mb-4 text-center">Sector Allocation</h4>
+                                  <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                      <Pie
+                                        data={[
+                                          { name: "Fixed Income", value: 31.26 },
+                                          { name: "All Others", value: 23.47 },
+                                          { name: "Financial Services", value: 11.87 },
+                                          { name: "Technology", value: 7.86 },
+                                          { name: "Mutual Fund", value: 9.54 },
+                                          { name: "Energy", value: 4.62 },
+                                          { name: "Cash and Cash Equivalent", value: 6.94 },
+                                          { name: "Consumer Services", value: 4.44 },
+                                        ]}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                      >
+                                        <Cell fill="#ec4899" />
+                                        <Cell fill="#eab308" />
+                                        <Cell fill="#3b82f6" />
+                                        <Cell fill="#6b7280" />
+                                        <Cell fill="#ef4444" />
+                                        <Cell fill="#22c55e" />
+                                        <Cell fill="#84cc16" />
+                                        <Cell fill="#f97316" />
+                                      </Pie>
+                                      <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                                      <Legend />
+                                    </PieChart>
+                                  </ResponsiveContainer>
+                                </div>
+                              </div>
+                            </TabsContent>
+
+                            <TabsContent value="table" className="mt-4">
+                              <div className="grid grid-cols-3 gap-4">
+                                {/* Geographic Allocation Table */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-sm font-semibold text-gray-900 mb-4 text-center">Geographic Allocation</h4>
+                                  <Table>
+                                    <TableBody>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Canada</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">48.01%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">Multi-National</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">12.57%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">European Union</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">6.18%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">United States</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">20.16%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Japan</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">4.42%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">Asia/Pacific Rim</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">4.02%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Latin America</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">1.58%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">All Others</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">3.06%</TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+
+                                {/* Asset Allocation Table */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-sm font-semibold text-gray-900 mb-4 text-center">Asset Allocation</h4>
+                                  <Table>
+                                    <TableBody>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Foreign Bonds</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">8.03%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">International Equity</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">25.10%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Domestic Bonds</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">23.33%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">US Equity</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">12.86%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Cash and Equivalents</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">6.92%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">Canadian Equity</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">17.96%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">All Others</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">0.62%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">Other</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">5.18%</TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+
+                                {/* Sector Allocation Table */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-sm font-semibold text-gray-900 mb-4 text-center">Sector Allocation</h4>
+                                  <Table>
+                                    <TableBody>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Financial Services</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">11.87%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">Mutual Fund</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">9.54%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Energy</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">4.62%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">Technology</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">7.86%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Consumer Services</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">4.44%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">Cash and Cash Equivalent</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">6.94%</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell className="text-xs py-2 px-3">Fixed Income</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">31.26%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3">All Others</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right font-medium">23.47%</TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            </TabsContent>
+                          </Tabs>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="supplier-accounts" className="mt-4">
+                        <div className="space-y-4">
+                          {/* Include Inactive Checkbox */}
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="include-inactive-supplier-accounts" />
+                            <Label htmlFor="include-inactive-supplier-accounts" className="text-xs text-gray-700 cursor-pointer">Include Inactive</Label>
+                          </div>
+
+                          {/* Supplier Accounts Table */}
+                          <div className="bg-white rounded border border-gray-200">
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="bg-gray-50">
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                                    <div className="flex items-center gap-1">
+                                      Supplier
+                                      <ChevronUp className="h-3 w-3 text-gray-500" />
+                                    </div>
+                                  </TableHead>
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                                    <div className="flex items-center gap-1">
+                                      Account Number
+                                      <ChevronUp className="h-3 w-3 text-gray-500" />
+                                    </div>
+                                  </TableHead>
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                                    <div className="flex items-center gap-1">
+                                      Start Date
+                                      <ChevronUp className="h-3 w-3 text-gray-500" />
+                                    </div>
+                                  </TableHead>
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                                    <div className="flex items-center gap-1">
+                                      End Date
+                                      <ChevronUp className="h-3 w-3 text-gray-500" />
+                                    </div>
+                                  </TableHead>
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                                    <div className="flex items-center gap-1">
+                                      Market Value
+                                      <ChevronUp className="h-3 w-3 text-gray-500" />
+                                    </div>
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell className="text-xs py-2 px-3">CIG</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">59108738</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">07/08/2005</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">-</TableCell>
+                                  <TableCell className="text-xs py-2 px-3">$0.00</TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="custom-compensation" className="mt-4">
+                        <div className="space-y-4">
+                          {/* Custom Compensation Table */}
+                          <div className="bg-white rounded border border-gray-200">
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="bg-gray-50">
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                                    <div className="flex items-center gap-1">
+                                      Date
+                                      <ChevronUp className="h-3 w-3 text-gray-500" />
+                                    </div>
+                                  </TableHead>
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                                    <div className="flex items-center gap-1">
+                                      Type
+                                      <ChevronUp className="h-3 w-3 text-gray-500" />
+                                    </div>
+                                  </TableHead>
+                                  <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                                    <div className="flex items-center gap-1">
+                                      Amount
+                                      <ChevronUp className="h-3 w-3 text-gray-500" />
+                                    </div>
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell colSpan={3} className="text-center py-8">
+                                    <div className="flex flex-col items-center gap-3">
+                                      <p className="text-xs text-gray-500">No custom compensation records found</p>
+                                      <Button variant="outline" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 text-xs h-8">
+                                        <RefreshCw className="h-3 w-3 mr-2" />
+                                        Refresh
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </TabsContent>
+
+                  <TabsContent value="kyc" className="mt-4">
+                    <div className="space-y-6">
+                      {/* KYC Information Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">KYC Information</h3>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-xs text-gray-500 mb-1 block">KYC On File Date</Label>
+                              <Input className="h-8 text-sm" defaultValue="03/13/2007" readOnly />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-gray-500 mb-1 block">KYC Age</Label>
+                              <Input className="h-8 text-sm text-red-600" defaultValue="6852 days old" readOnly />
+                            </div>
+                          </div>
+
+                          {/* Risk and Investment Objective Tables */}
+                          <div className="grid grid-cols-2 gap-4">
+                            {/* Risk Table */}
+                            <div>
+                              <Label className="text-xs font-semibold text-gray-700 mb-2 block">Risk</Label>
+                              <Table>
+                                <TableBody>
+                                  <TableRow>
+                                    <TableCell className="text-xs py-1 px-3">Low</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right">0 %</TableCell>
+                                  </TableRow>
+                                  <TableRow className="bg-gray-50">
+                                    <TableCell className="text-xs py-1 px-3">Low Medium</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right">0 %</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell className="text-xs py-1 px-3">Medium</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right font-medium">100 %</TableCell>
+                                  </TableRow>
+                                  <TableRow className="bg-gray-50">
+                                    <TableCell className="text-xs py-1 px-3">Medium High</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right">0 %</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell className="text-xs py-1 px-3">High</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right">0 %</TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+
+                            {/* Investment Objective Table */}
+                            <div>
+                              <Label className="text-xs font-semibold text-gray-700 mb-2 block">Investment Objective</Label>
+                              <Table>
+                                <TableBody>
+                                  <TableRow>
+                                    <TableCell className="text-xs py-1 px-3">Safety</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right">0 %</TableCell>
+                                  </TableRow>
+                                  <TableRow className="bg-gray-50">
+                                    <TableCell className="text-xs py-1 px-3">Income</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right">0 %</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell className="text-xs py-1 px-3">Growth</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right font-medium">100 %</TableCell>
+                                  </TableRow>
+                                  <TableRow className="bg-gray-50">
+                                    <TableCell className="text-xs py-1 px-3">Speculation</TableCell>
+                                    <TableCell className="text-xs py-1 px-3 text-right">0 %</TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-xs text-gray-500 mb-1 block">Time Horizon</Label>
+                              <Input className="h-8 text-sm" defaultValue="20+ years" readOnly />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-gray-500 mb-1 block">Objective Type Override</Label>
+                              <Input className="h-8 text-sm" defaultValue="Not Set" readOnly />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="kyc-exempt-products" />
+                            <Label htmlFor="kyc-exempt-products" className="text-xs text-gray-700 cursor-pointer">Plan KYC applies to exempt products</Label>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* History Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">History</h3>
+                        <div className="space-y-4">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-gray-50">
+                                <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Date Created</TableHead>
+                                <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Status</TableHead>
+                                <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Date Submitted</TableHead>
+                                <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3"></TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell className="text-xs py-2 px-3">10/16/2025</TableCell>
+                                <TableCell className="text-xs py-2 px-3">Draft</TableCell>
+                                <TableCell className="text-xs py-2 px-3"></TableCell>
+                                <TableCell className="text-xs py-2 px-3">
+                                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white text-xs h-7">
+                                    Edit Draft KYC Update
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                          <div className="flex justify-end">
+                            <Button variant="ghost" size="sm" className="text-xs h-7">
+                              <RefreshCw className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* KYC Graphs Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">KYC Graphs</h3>
+                        <div className="grid grid-cols-3 gap-4">
+                          {/* Risk Bar Chart */}
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-900 mb-1 text-center">Risk</h4>
+                            <p className="text-[10px] text-gray-500 mb-2 text-center">Cash Account: $0.00</p>
+                            <ResponsiveContainer width="100%" height={200}>
+                              <BarChart data={[
+                                { category: "L", actual: 0, kyc: 0 },
+                                { category: "LM", actual: 0, kyc: 100 },
+                                { category: "M", actual: 100, kyc: 100 },
+                                { category: "MH", actual: 0, kyc: 0 },
+                                { category: "H", actual: 0, kyc: 0 },
+                              ]}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="category" tick={{ fontSize: 10 }} />
+                                <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} label={{ value: "Percent", angle: -90, position: "insideLeft", fontSize: 10 }} />
+                                <Tooltip />
+                                <Bar dataKey="actual" fill="#22c55e" />
+                                <Bar dataKey="kyc" fill="#3b82f6" />
+                              </BarChart>
+                            </ResponsiveContainer>
+                            <div className="flex justify-center gap-4 mt-2">
+                              <div className="flex items-center gap-1">
+                                <div className="w-3 h-3 bg-green-500"></div>
+                                <span className="text-[10px] text-gray-700">Actual Risk Distribution</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="w-3 h-3 bg-blue-500"></div>
+                                <span className="text-[10px] text-gray-700">KYC Risk Tolerance</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Current Risk Score Bar Chart */}
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-900 mb-2 text-center">Current Risk Score: 121.00</h4>
+                            <ResponsiveContainer width="100%" height={200}>
+                              <BarChart 
+                                data={[{ name: "", actual: 121, kyc: 256 }]} 
+                                layout="vertical"
+                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                              >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis type="number" domain={[0, 256]} tick={{ fontSize: 10 }} />
+                                <YAxis type="category" dataKey="name" hide />
+                                <Tooltip />
+                                <Bar dataKey="actual" fill="#22c55e" />
+                                <Bar dataKey="kyc" fill="#3b82f6" />
+                              </BarChart>
+                            </ResponsiveContainer>
+                            <div className="flex justify-center gap-4 mt-2">
+                              <div className="flex items-center gap-1">
+                                <div className="w-3 h-3 bg-green-500"></div>
+                                <span className="text-[10px] text-gray-700">Actual Risk Score</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="w-3 h-3 bg-blue-500"></div>
+                                <span className="text-[10px] text-gray-700">KYC Risk Score Tolerance</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Investment Objectives Bar Chart */}
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-900 mb-2 text-center">Investment Objectives</h4>
+                            <ResponsiveContainer width="100%" height={200}>
+                              <BarChart data={[
+                                { category: "Safety", actual: 0, kyc: 0 },
+                                { category: "Income", actual: 50, kyc: 0 },
+                                { category: "Growth", actual: 50, kyc: 100 },
+                                { category: "Speculation", actual: 0, kyc: 0 },
+                              ]}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="category" tick={{ fontSize: 9 }} angle={-45} textAnchor="end" height={60} />
+                                <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} label={{ value: "Percent", angle: -90, position: "insideLeft", fontSize: 10 }} />
+                                <Tooltip />
+                                <Bar dataKey="actual" fill="#22c55e" />
+                                <Bar dataKey="kyc" fill="#3b82f6" />
+                              </BarChart>
+                            </ResponsiveContainer>
+                            <div className="flex justify-center gap-4 mt-2">
+                              <div className="flex items-center gap-1">
+                                <div className="w-3 h-3 bg-green-500"></div>
+                                <span className="text-[10px] text-gray-700">Actual Objective Distribution</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="w-3 h-3 bg-blue-500"></div>
+                                <span className="text-[10px] text-gray-700">KYC Objective Tolerance</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="beneficiaries" className="mt-4">
+                    <div className="space-y-4">
+                      {/* Beneficiary Information Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-blue-600">Beneficiary Information</h3>
+                        
+                        {/* Red Warning Message */}
+                        <div className="mb-4">
+                          <p className="text-xs text-red-600 font-medium">CDIC Unique identifier must be assigned to the Beneficiaries by April 2022</p>
+                        </div>
+
+                        {/* Beneficiaries Sub-section */}
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-semibold text-gray-900">Beneficiaries</h4>
+                          
+                          {/* Beneficiary Entry */}
+                          <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                              <div className="flex items-center gap-4">
+                                <span className="text-xs font-medium text-gray-900">Lynch, Martha</span>
+                                <span className="text-xs text-gray-700">Child</span>
+                                <span className="text-xs text-gray-700">100.0 %</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button size="sm" variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 text-xs h-7">
+                                Select
+                              </Button>
+                              <Button size="sm" variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 text-xs h-7">
+                                Assign CDIC Unique Identifier
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="actions" className="mt-4">
+                    <div className="space-y-6">
+                      {/* Forms Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">Forms</h3>
+                        <div>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 w-full sm:w-auto">
+                            Fast Forms
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Compliance Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">Compliance</h3>
+                        <div className="space-y-3">
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 w-full sm:w-auto">
+                            Portfolio Modeling
+                          </Button>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 w-full sm:w-auto">
+                            Plan Supervision
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Other Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">Other</h3>
+                        <div>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 w-full sm:w-auto">
+                            Start KYP Review
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="trust-account" className="mt-4">
+                    <div className="space-y-4">
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-2">
+                        <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                          New Deposit
+                        </Button>
+                        <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                          New Transfer
+                        </Button>
+                      </div>
+
+                      {/* Search Filter Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-blue-600">Search Filter</h3>
+                        <div className="flex items-end gap-3">
+                          <div className="flex-1">
+                            <Label className="text-xs text-gray-700 mb-1 block">Trust Account</Label>
+                            <Select defaultValue="bm-tr">
+                              <SelectTrigger className="h-8 text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="bm-tr">BM TR</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                            Show
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Results Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-blue-600">Results</h3>
+                        <div className="py-8">
+                          <p className="text-xs text-gray-500 italic text-center">No trust transactions found.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="reviews" className="mt-4">
+                    <div className="space-y-4">
+                      {/* Add New Response Button */}
+                      <div>
+                        <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                          Add New Response
+                        </Button>
+                      </div>
+
+                      {/* Reviews Section */}
+                      <div className="bg-white p-4 rounded border border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">Reviews</h3>
+                        <div className="py-8">
+                          <p className="text-xs text-gray-500 text-center">No reviews found</p>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          </div>
+          </div>
+        )}
+
+        {clientViewTab === "notes" && (
+          <div className="space-y-6">
+            {/* Notes Summary Section */}
+            <div>
+              <h2 className="text-base font-semibold text-blue-600 border-b border-blue-600 pb-2 mb-4">
+                Notes Summary
+              </h2>
+              
+              {/* Action Buttons Row */}
+              <div className="flex items-center gap-4 mb-4 flex-wrap">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Client Note
+                </Button>
+                
+                <div className="flex items-center gap-2 flex-1 min-w-[300px]">
+                  <div className="relative flex-1">
+                    <Input
+                      placeholder="View Additional Notes"
+                      className="pr-8"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 text-blue-600 hover:text-blue-700"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button variant="outline" size="sm" className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100">
+                    All
+                  </Button>
+                  <Button variant="outline" size="sm" className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100">
+                    None
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Print Notes Button */}
+              <div className="mb-6">
+                <Button variant="outline" size="sm" className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Print Notes
+                </Button>
+              </div>
+
+              {/* Notes List - Placeholder for now */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardContent className="p-6">
+                  <p className="text-sm text-gray-500 text-center">No notes available. Click "Add Client Note" to create one.</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {clientViewTab === "approvals" && (
+          <div className="space-y-4">
+            {/* Filters and Actions */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Checkbox id="include-completed" defaultChecked />
+                <Label htmlFor="include-completed" className="text-xs text-gray-700 cursor-pointer">Include Completed</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="include-canceled" defaultChecked />
+                <Label htmlFor="include-canceled" className="text-xs text-gray-700 cursor-pointer">Include Canceled</Label>
+              </div>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                <RefreshCw className="h-3 w-3 mr-2" />
+                Refresh
+              </Button>
+            </div>
+
+            {/* Pagination - Top */}
+            <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                  |&lt;
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                  &lt;&lt;
+                </Button>
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white h-7 w-7 p-0 text-xs">
+                  1
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                  &gt;&gt;
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                  &gt;|
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-gray-700">Items per page:</Label>
+                <Select defaultValue="25">
+                  <SelectTrigger className="h-7 text-xs w-16">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Approvals Table */}
+            <div className="bg-white rounded border border-gray-200">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                      <div className="flex items-center gap-1">
+                        Description
+                        <ChevronUp className="h-3 w-3 text-gray-500" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold text-blue-600 py-2 px-3">
+                      <div className="flex items-center gap-1">
+                        Date Created
+                        <ChevronUp className="h-3 w-3 text-blue-600" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                      <div className="flex items-center gap-1">
+                        Date Completed
+                        <ChevronUp className="h-3 w-3 text-gray-500" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                      <div className="flex items-center gap-1">
+                        Type
+                        <ChevronUp className="h-3 w-3 text-gray-500" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                      <div className="flex items-center gap-1">
+                        Status
+                        <ChevronUp className="h-3 w-3 text-gray-500" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                      <div className="flex items-center gap-1">
+                        Created From
+                        <ChevronUp className="h-3 w-3 text-gray-500" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="text-xs py-2 px-3">Please review</TableCell>
+                    <TableCell className="text-xs py-2 px-3">09/19/2022 11:12</TableCell>
+                    <TableCell className="text-xs py-2 px-3"></TableCell>
+                    <TableCell className="text-xs py-2 px-3">Docusign Envelope</TableCell>
+                    <TableCell className="text-xs py-2 px-3">Cancelled</TableCell>
+                    <TableCell className="text-xs py-2 px-3">Account Opening, Plan</TableCell>
+                    <TableCell className="text-xs py-2 px-3">
+                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7">
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow className="bg-gray-50">
+                    <TableCell className="text-xs py-2 px-3">Please review</TableCell>
+                    <TableCell className="text-xs py-2 px-3">09/19/2022 11:16</TableCell>
+                    <TableCell className="text-xs py-2 px-3"></TableCell>
+                    <TableCell className="text-xs py-2 px-3">Docusign Envelope</TableCell>
+                    <TableCell className="text-xs py-2 px-3">Cancelled</TableCell>
+                    <TableCell className="text-xs py-2 px-3">Account Opening, Plan</TableCell>
+                    <TableCell className="text-xs py-2 px-3">
+                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7">
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="text-xs py-2 px-3"></TableCell>
+                    <TableCell className="text-xs py-2 px-3">08/12/2024 10:35</TableCell>
+                    <TableCell className="text-xs py-2 px-3"></TableCell>
+                    <TableCell className="text-xs py-2 px-3">Docusign Envelope</TableCell>
+                    <TableCell className="text-xs py-2 px-3">Completed</TableCell>
+                    <TableCell className="text-xs py-2 px-3">
+                      <div className="flex items-center gap-1">
+                        Fast Forms
+                        <Bell className="h-3 w-3 text-red-600" />
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs py-2 px-3">
+                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7">
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination - Bottom */}
+            <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                  |&lt;
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                  &lt;&lt;
+                </Button>
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white h-7 w-7 p-0 text-xs">
+                  1
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                  &gt;&gt;
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                  &gt;|
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-gray-700">Items per page:</Label>
+                <Select defaultValue="25">
+                  <SelectTrigger className="h-7 text-xs w-16">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {clientViewTab === "attachments" && (
+          <div className="space-y-4">
+            {/* Secondary Navigation Tabs */}
+            <Tabs value={attachmentsSubTab} onValueChange={(value) => setAttachmentsSubTab(value as "rep-attachments" | "dealer-attachments" | "statement-history" | "trade-confirmations")}>
+              <TabsList className="grid w-full grid-cols-4 h-8 mb-4">
+                <TabsTrigger value="rep-attachments" className="text-xs">
+                  Rep Attachments
+                  <HelpCircle className="h-3 w-3 ml-1" />
+                </TabsTrigger>
+                <TabsTrigger value="dealer-attachments" className="text-xs">Dealer Attachments</TabsTrigger>
+                <TabsTrigger value="statement-history" className="text-xs">Statement History</TabsTrigger>
+                <TabsTrigger value="trade-confirmations" className="text-xs">Trade Confirmations</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="rep-attachments" className="mt-4">
+                <div className="space-y-4">
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                      Add New Attachment
+                    </Button>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                      Download All Attachments
+                    </Button>
+                  </div>
+
+                  {/* Filter Checkboxes */}
+                  <div className="flex items-center gap-6 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="include-inactive-attachments-filter" />
+                      <Label htmlFor="include-inactive-attachments-filter" className="text-xs text-gray-700 cursor-pointer">Include Inactive Attachments</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="include-plans-attachments" defaultChecked />
+                      <Label htmlFor="include-plans-attachments" className="text-xs text-gray-700 cursor-pointer">Include attachments from Plans, Funds, GICs, Transactions, and Trust Transactions</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="tree-view" />
+                      <Label htmlFor="tree-view" className="text-xs text-gray-700 cursor-pointer">Tree View</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="show-pinned-documents" />
+                      <Label htmlFor="show-pinned-documents" className="text-xs text-gray-700 cursor-pointer">Show Pinned Documents</Label>
+                    </div>
+                  </div>
+
+                  {/* Attachments Table */}
+                  <div className="bg-white rounded border border-gray-200">
+                    {/* Pagination - Top */}
+                    <div className="flex items-center justify-between p-3 border-b border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-700">1-3 of 3 records</span>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                          &lt;&lt;
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                          &lt;
+                        </Button>
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white h-7 w-7 p-0 text-xs">
+                          1
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                          &gt;
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                          &gt;&gt;
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Select defaultValue="25">
+                          <SelectTrigger className="h-7 text-xs w-16">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="25">25</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <span className="text-xs text-gray-700">Select * For All</span>
+                      </div>
+                    </div>
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-50">
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1">
+                                Date Submitted
+                                <ChevronUp className="h-3 w-3 text-gray-500" />
+                              </div>
+                              <Input className="h-6 text-xs" placeholder="" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1">
+                                Document Type
+                                <ChevronUp className="h-3 w-3 text-gray-500" />
+                              </div>
+                              <Input className="h-6 text-xs" placeholder="" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1">
+                                Attachment Description
+                                <ChevronUp className="h-3 w-3 text-gray-500" />
+                              </div>
+                              <Input className="h-6 text-xs" placeholder="" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              Visible Status to Client
+                              <Eye className="h-3 w-3 text-gray-500" />
+                              <Star className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              Compliance Reviews
+                              <Bell className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="text-xs py-2 px-3">03/20/2020</TableCell>
+                          <TableCell className="text-xs py-2 px-3">Void Cheque</TableCell>
+                          <TableCell className="text-xs py-2 px-3">attachment</TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              <Eye className="h-4 w-4 text-blue-600" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-6">
+                                Notify
+                              </Button>
+                              <Bell className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7">
+                              View
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className="bg-gray-50">
+                          <TableCell className="text-xs py-2 px-3">03/19/2020</TableCell>
+                          <TableCell className="text-xs py-2 px-3">Client Dual Occupation Disclosure</TableCell>
+                          <TableCell className="text-xs py-2 px-3">attachment</TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              <Eye className="h-4 w-4 text-blue-600" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-6">
+                                Notify
+                              </Button>
+                              <Bell className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7">
+                              View
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="text-xs py-2 px-3">03/19/2020</TableCell>
+                          <TableCell className="text-xs py-2 px-3">Estatement consent</TableCell>
+                          <TableCell className="text-xs py-2 px-3">attachment</TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              <Eye className="h-4 w-4 text-blue-600" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-6">
+                                Notify
+                              </Button>
+                              <Bell className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs py-2 px-3">
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7">
+                              View
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+
+                    {/* Pagination - Bottom */}
+                    <div className="flex items-center justify-between p-3 border-t border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-700">1-3 of 3 records</span>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                          &lt;&lt;
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                          &lt;
+                        </Button>
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white h-7 w-7 p-0 text-xs">
+                          1
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                          &gt;
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                          &gt;&gt;
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Select defaultValue="25">
+                          <SelectTrigger className="h-7 text-xs w-16">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="25">25</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <span className="text-xs text-gray-700">Select * For All</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="dealer-attachments" className="mt-4">
+                <div className="space-y-4">
+                  {/* Section Header */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-black mb-2 pb-2 border-b-2 border-gray-300">Attachments</h3>
+                  </div>
+
+                  {/* Include Rep Attachments Checkbox */}
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="include-rep-attachments" />
+                    <Label htmlFor="include-rep-attachments" className="text-xs text-gray-700 cursor-pointer">Include Rep Attachments</Label>
+                  </div>
+
+                  {/* Pagination - Top */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs text-gray-700">0-0 of 0 records</span>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        |&lt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &lt;&lt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &gt;&gt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &gt;|
+                      </Button>
+                    </div>
+                    <Select defaultValue="25">
+                      <SelectTrigger className="h-7 text-xs w-16">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-xs text-gray-700">Select * For All</span>
+                  </div>
+
+                  {/* Attachments Table */}
+                  <div className="bg-white rounded border border-gray-200">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-50">
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1">
+                                Document Type
+                                <ChevronUp className="h-3 w-3 text-gray-500" />
+                              </div>
+                              <Input className="h-6 text-xs" placeholder="" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1">
+                                Attachment Description
+                                <ChevronUp className="h-3 w-3 text-gray-500" />
+                              </div>
+                              <Input className="h-6 text-xs" placeholder="" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1">
+                                Date Scanned
+                                <ChevronUp className="h-3 w-3 text-gray-500" />
+                              </div>
+                              <Input className="h-6 text-xs" placeholder="" />
+                            </div>
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center py-8">
+                            <p className="text-xs text-gray-500">No attachments found</p>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Pagination - Bottom */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs text-gray-700">0-0 of 0 records</span>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        |&lt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &lt;&lt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &gt;&gt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &gt;|
+                      </Button>
+                    </div>
+                    <Select defaultValue="25">
+                      <SelectTrigger className="h-7 text-xs w-16">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-xs text-gray-700">Select * For All</span>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="statement-history" className="mt-4">
+                <div className="space-y-4">
+                  {/* Section Header */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-black mb-2 pb-2 border-b-2 border-gray-300">Statement History</h3>
+                  </div>
+
+                  {/* Pagination - Top */}
+                  <div className="bg-blue-50 px-4 py-2 rounded border border-blue-200 flex items-center gap-4">
+                    <span className="text-xs text-gray-700">0-0 of 0 records</span>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        |&lt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &lt;&lt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &gt;&gt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &gt;|
+                      </Button>
+                    </div>
+                    <Select defaultValue="25">
+                      <SelectTrigger className="h-7 text-xs w-16">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-xs text-gray-700">Select * For All</span>
+                  </div>
+
+                  {/* Statement History Table */}
+                  <div className="bg-white rounded border border-gray-200">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-50">
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              Period
+                              <ChevronUp className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              Dealership
+                              <ChevronUp className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Representative</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Viewed</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              Viewed Date
+                              <ChevronUp className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Released</TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                            <div className="flex items-center gap-1">
+                              Posted Date
+                              <ChevronUp className="h-3 w-3 text-gray-500" />
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Open</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell colSpan={8} className="text-center py-8">
+                            <p className="text-xs text-gray-500">No records found.</p>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Pagination - Bottom */}
+                  <div className="bg-blue-50 px-4 py-2 rounded border border-blue-200 flex items-center gap-4">
+                    <span className="text-xs text-gray-700">0-0 of 0 records</span>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        |&lt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &lt;&lt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &gt;&gt;
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                        &gt;|
+                      </Button>
+                    </div>
+                    <Select defaultValue="25">
+                      <SelectTrigger className="h-7 text-xs w-16">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-xs text-gray-700">Select * For All</span>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="trade-confirmations" className="mt-4 space-y-4">
+                {/* Trade Confirmations Heading */}
+                <h3 className="text-sm font-semibold text-black mb-2 pb-2 border-b-2 border-gray-300">Trade Confirmations</h3>
+
+                {/* Pagination - Top */}
+                <div className="bg-blue-50 px-4 py-2 rounded border border-blue-200 flex items-center gap-4">
+                  <span className="text-xs text-gray-700">0-0 of 0 records</span>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                      |&lt;
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                      &lt;&lt;
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                      &gt;&gt;
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                      &gt;|
+                    </Button>
+                  </div>
+                  <Select defaultValue="25">
+                    <SelectTrigger className="h-7 text-xs w-16">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Trade Confirmations Table */}
+                <div className="bg-white rounded border border-gray-200">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-blue-50">
+                        <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                          <div className="flex items-center gap-1">
+                            Plan
+                            <ChevronUp className="h-3 w-3 text-gray-500" />
+                          </div>
+                        </TableHead>
+                        <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">
+                          <div className="flex items-center gap-1">
+                            Date
+                            <ChevronUp className="h-3 w-3 text-gray-500" />
+                          </div>
+                        </TableHead>
+                        <TableHead className="text-xs font-semibold text-gray-700 py-2 px-3">Open</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center py-8">
+                          <p className="text-xs text-gray-500">No records found.</p>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Pagination - Bottom */}
+                <div className="bg-blue-50 px-4 py-2 rounded border border-blue-200 flex items-center gap-4">
+                  <span className="text-xs text-gray-700">0-0 of 0 records</span>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                      |&lt;
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                      &lt;&lt;
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                      &gt;&gt;
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-xs">
+                      &gt;|
+                    </Button>
+                  </div>
+                  <Select defaultValue="25">
+                    <SelectTrigger className="h-7 text-xs w-16">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
       </div>
 
       {/* Deposit Dialog */}
@@ -3211,3 +6848,4 @@ const ClientDetails = () => {
 };
 
 export default ClientDetails;
+

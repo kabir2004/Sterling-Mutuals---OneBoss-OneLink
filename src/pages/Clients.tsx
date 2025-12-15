@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { 
+import {
   Search, 
   CheckCircle2, 
   Clock, 
@@ -377,18 +377,18 @@ const Clients = () => {
     const newSelected = new Set(selectedClients);
     if (newSelected.has(clientId)) {
       newSelected.delete(clientId);
-    } else {
+      } else {
       newSelected.add(clientId);
     }
     setSelectedClients(newSelected);
   };
 
   return (
-    <PageLayout title="">
-      <div className="space-y-6">
-        {/* Primary Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
-          <Button
+      <PageLayout title="">
+        <div className="space-y-6">
+        {/* Primary Navigation Tabs - Always Visible */}
+        <div className="flex items-center gap-2 border-b border-gray-200 pb-2 sticky top-0 bg-white z-10 py-2">
+          <Button 
             variant={activeTab === "all-clients" ? "default" : "ghost"}
             className={`${
               activeTab === "all-clients"
@@ -398,23 +398,31 @@ const Clients = () => {
             onClick={() => setActiveTab("all-clients")}
           >
             <User className="h-4 w-4 mr-2" />
-            All Clients
+            Client
           </Button>
           <Button
+            variant="ghost"
+            className="text-gray-700 hover:bg-gray-100"
+            onClick={() => navigate("/advanced-search")}
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Advanced Search
+          </Button>
+          <Button 
             variant="ghost"
             className="text-gray-700 hover:bg-gray-100"
             onClick={() => navigate("/households")}
           >
             Households
           </Button>
-          <Button
+          <Button 
             variant="ghost"
             className="text-gray-700 hover:bg-gray-100"
             onClick={() => navigate("/income-plans")}
           >
             Income Plans
           </Button>
-          <Button
+          <Button 
             variant="ghost"
             className="text-gray-700 hover:bg-gray-100"
             onClick={() => navigate("/approvals")}
@@ -428,159 +436,14 @@ const Clients = () => {
           >
             Reports
           </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/advanced-search")}
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Advanced Search
-          </Button>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search clients by name, email, ID, or location..."
-            className="pl-10 bg-gray-50 border-gray-200 rounded-lg"
-          />
+        {/* Message */}
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">Please select a client from the clients list on the sidebar</p>
         </div>
 
-        {/* Filter Options and View Toggles */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="active-filter"
-                checked={activeFilter === "Active"}
-                onCheckedChange={() => setActiveFilter("Active")}
-                className="h-4 w-4"
-              />
-              <label htmlFor="active-filter" className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Active ({activeCount})
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="inactive-filter"
-                checked={activeFilter === "Inactive"}
-                onCheckedChange={() => setActiveFilter("Inactive")}
-                className="h-4 w-4"
-              />
-              <label htmlFor="inactive-filter" className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
-                <Minus className="h-4 w-4 text-gray-600" />
-                Inactive ({inactiveCount})
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="prospects-filter"
-                checked={activeFilter === "Prospects"}
-                onCheckedChange={() => setActiveFilter("Prospects")}
-                className="h-4 w-4"
-              />
-              <label htmlFor="prospects-filter" className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
-                <Clock className="h-4 w-4 text-gray-600" />
-                Prospects ({prospectsCount})
-              </label>
-            </div>
-          </div>
-
-          {/* View Toggles */}
-          <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-1">
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              className={`h-8 w-8 p-0 ${
-                viewMode === "list" ? "bg-gray-100 text-gray-900" : "text-gray-600"
-              }`}
-              onClick={() => setViewMode("list")}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              className={`h-8 w-8 p-0 ${
-                viewMode === "grid" ? "bg-gray-100 text-gray-900" : "text-gray-600"
-              }`}
-              onClick={() => setViewMode("grid")}
-            >
-              <Grid3x3 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Client List */}
-        <div className="space-y-3">
-          {filteredClients.map((client) => (
-            <Card
-              key={client.id}
-              className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => {
-                // Navigate to client detail view
-                navigate(`/clients/${client.id}`);
-              }}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
-                    {/* Checkbox */}
-                    <Checkbox
-                      checked={selectedClients.has(client.id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          toggleClientSelection(client.id);
-                        } else {
-                          toggleClientSelection(client.id);
-                        }
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="mt-1 h-4 w-4"
-                    />
-
-                    {/* Client Info */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-base font-semibold text-gray-900">{client.name}</h3>
-                        {client.statusIndicator === "active" ? (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                        )}
-                      </div>
-                      <div className="space-y-0.5 text-sm text-gray-600">
-                        <p>
-                          ID: {client.id} • {client.city}, {client.province}
-                        </p>
-                        <p>{client.email}</p>
-                        <p>Portfolio: {client.portfolio}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Status Pill */}
-                  {client.status === "Active" && (
-                    <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-100 font-normal px-3 py-1">
-                      Active
-                    </Badge>
-                  )}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredClients.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            <p>No clients found matching your criteria.</p>
-          </div>
-        )}
-      </div>
     </PageLayout>
   );
 };

@@ -144,7 +144,14 @@ const AdvancedSearch = () => {
             onClick={() => navigate("/clients")}
           >
             <User className="h-4 w-4 mr-2" />
-            All Clients
+            Client
+          </Button>
+          <Button
+            variant="default"
+            className="bg-blue-600 text-white hover:bg-blue-700"
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Advanced Search
           </Button>
           <Button
             variant="ghost"
@@ -173,13 +180,6 @@ const AdvancedSearch = () => {
             onClick={() => navigate("/reports")}
           >
             Reports
-          </Button>
-          <Button
-            variant="default"
-            className="bg-blue-600 text-white hover:bg-blue-700"
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Advanced Search
           </Button>
         </div>
 
@@ -891,3 +891,4 @@ const AdvancedSearch = () => {
 };
 
 export default AdvancedSearch;
+

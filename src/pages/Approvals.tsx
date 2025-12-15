@@ -269,7 +269,15 @@ const Approvals = () => {
             onClick={() => navigate("/clients")}
           >
             <User className="h-4 w-4 mr-2" />
-            All Clients
+            Client
+          </Button>
+          <Button
+            variant="ghost"
+            className="text-gray-700 hover:bg-gray-100"
+            onClick={() => navigate("/advanced-search")}
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Advanced Search
           </Button>
           <Button
             variant="ghost"
@@ -297,14 +305,6 @@ const Approvals = () => {
             onClick={() => navigate("/reports")}
           >
             Reports
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/advanced-search")}
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Advanced Search
           </Button>
         </div>
 
@@ -516,3 +516,4 @@ const Approvals = () => {
 };
 
 export default Approvals;
+
