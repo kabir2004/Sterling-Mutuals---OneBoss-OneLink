@@ -206,52 +206,6 @@ const IncomePlans = () => {
   return (
     <PageLayout title="">
       <div className="space-y-6">
-        {/* Primary Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/clients")}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Client
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/advanced-search")}
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Advanced Search
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/households")}
-          >
-            Households
-          </Button>
-          <Button
-            variant="default"
-            className="bg-blue-600 text-white hover:bg-blue-700"
-          >
-            Income Plans
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/approvals")}
-          >
-            Approvals
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/reports")}
-          >
-            Reports
-          </Button>
-        </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-4 gap-4">

@@ -31,6 +31,9 @@ import {
   DollarSign,
   Bell,
   HelpCircle,
+  HandCoins,
+  CheckCircle2,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -155,9 +158,20 @@ export function SidebarNavigation() {
   const { currentInterface, isIntermediaryInterface } = useInterface();
   const { isMenuHidden } = useMenuVisibility();
 
-  // Auto-expand clients dropdown when on clients page or client details page
+  // Auto-expand clients dropdown when on clients page, client details page, or related pages
   useEffect(() => {
-    if (location.pathname === '/clients' || location.pathname.startsWith('/clients/')) {
+    const relatedPaths = [
+      '/clients',
+      '/advanced-search',
+      '/households',
+      '/income-plans',
+      '/approvals',
+      '/reports'
+    ];
+    
+    if (location.pathname === '/clients' || 
+        location.pathname.startsWith('/clients/') ||
+        relatedPaths.includes(location.pathname)) {
       setIsClientsExpanded(true);
     }
   }, [location.pathname]);
@@ -274,9 +288,46 @@ export function SidebarNavigation() {
                               size="sm"
                               variant="outline"
                               className="w-full h-7 text-xs"
+                              onClick={() => navigate('/advanced-search')}
                             >
                               <Search className="h-3 w-3 mr-1.5" />
                               Advanced Search
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full h-7 text-xs"
+                              onClick={() => navigate('/households')}
+                            >
+                              <Building2 className="h-3 w-3 mr-1.5" />
+                              Households
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full h-7 text-xs"
+                              onClick={() => navigate('/income-plans')}
+                            >
+                              <HandCoins className="h-3 w-3 mr-1.5" />
+                              Income Plans
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full h-7 text-xs"
+                              onClick={() => navigate('/approvals')}
+                            >
+                              <CheckCircle2 className="h-3 w-3 mr-1.5" />
+                              Approvals
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full h-7 text-xs"
+                              onClick={() => navigate('/reports')}
+                            >
+                              <BarChart3 className="h-3 w-3 mr-1.5" />
+                              Reports
                             </Button>
                           </div>
                           <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-sm transition-all duration-300 ease-in-out overflow-hidden">

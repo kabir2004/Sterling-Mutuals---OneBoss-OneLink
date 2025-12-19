@@ -14,7 +14,6 @@ import {
   List,
   Grid3x3,
   CheckCircle,
-  User
 } from "lucide-react";
 
 type ClientStatus = "Active" | "Inactive" | "Prospect";
@@ -335,7 +334,6 @@ export const CLIENTS: Client[] = [
 const Clients = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("all-clients");
   const [activeFilter, setActiveFilter] = useState("Active");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set());
@@ -386,64 +384,11 @@ const Clients = () => {
   return (
       <PageLayout title="">
         <div className="space-y-6">
-        {/* Primary Navigation Tabs - Always Visible */}
-        <div className="flex items-center gap-2 border-b border-gray-200 pb-2 sticky top-0 bg-white z-10 py-2">
-          <Button 
-            variant={activeTab === "all-clients" ? "default" : "ghost"}
-            className={`${
-              activeTab === "all-clients"
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("all-clients")}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Client
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/advanced-search")}
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Advanced Search
-          </Button>
-          <Button 
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/households")}
-          >
-            Households
-          </Button>
-          <Button 
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/income-plans")}
-          >
-            Income Plans
-          </Button>
-          <Button 
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/approvals")}
-          >
-            Approvals
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/reports")}
-          >
-            Reports
-          </Button>
-        </div>
-
         {/* Message */}
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">Please select a client from the clients list on the sidebar</p>
         </div>
-
-                </div>
+        </div>
     </PageLayout>
   );
 };

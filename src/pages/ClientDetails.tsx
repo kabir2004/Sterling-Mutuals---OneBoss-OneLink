@@ -203,6 +203,29 @@ const ClientDetails = () => {
   const [includeInactiveAccounts, setIncludeInactiveAccounts] = useState(false);
   const [accountViewType, setAccountViewType] = useState<"fund-accounts" | "gics">("fund-accounts");
   const [selectedPlanForDetails, setSelectedPlanForDetails] = useState<string | null>("3641343426");
+  
+  // Plans data for the Plans tab
+  const plansList = [
+    {
+      id: "3641343426",
+      type: "RRSP",
+      accountNumber: "3641343426",
+      name: "Client Name",
+      category: "Individual",
+      marketValue: "$16,305.20",
+    },
+    {
+      id: "1234567890",
+      type: "RESP",
+      accountNumber: "1234567890",
+      name: "Client Name",
+      category: "Individual",
+      marketValue: "$12,500.00",
+    },
+  ];
+  
+  // Get selected plan data for details
+  const selectedPlanData = plansList.find(p => p.id === selectedPlanForDetails) || plansList[0];
   const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState("0.00");
   const [isBuyUnitsDialogOpen, setIsBuyUnitsDialogOpen] = useState(false);
@@ -443,55 +466,7 @@ const ClientDetails = () => {
   return (
     <PageLayout title="">
       <div className="space-y-6">
-        {/* Primary Navigation Tabs - Always Visible */}
-        <div className="flex items-center gap-2 border-b border-gray-200 pb-2 sticky top-0 bg-white z-10 py-2">
-          <Button 
-            variant="default"
-            className="bg-blue-600 text-white hover:bg-blue-700"
-            onClick={() => navigate("/clients")}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Client
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/advanced-search")}
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Advanced Search
-          </Button>
-          <Button 
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/households")}
-          >
-            Households
-          </Button>
-          <Button 
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/income-plans")}
-          >
-            Income Plans
-          </Button>
-          <Button 
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/approvals")}
-          >
-            Approvals
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/reports")}
-          >
-            Reports
-          </Button>
-        </div>
-
-        {/* Client Name and Account - Above Navigation Tabs */}
+        {/* Client Name and Account */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Client: {client.name.split(" ").reverse().join(", ")}</h1>
@@ -2883,16 +2858,45 @@ const ClientDetails = () => {
                     </Button>
                   </div>
 
+                {/* Plans List */}
+                <div className="space-y-2">
+                  {plansList.map((plan) => (
+                    <div
+                      key={plan.id}
+                      onClick={() => setSelectedPlanForDetails(plan.id)}
+                      className={`border rounded p-2 cursor-pointer transition-colors ${
+                        selectedPlanForDetails === plan.id
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-gray-600" />
+                          <div>
+                            <p className="text-xs font-medium text-gray-900">
+                              {plan.accountNumber} ({plan.type} {plan.name}, {plan.category})
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-semibold text-gray-900">{plan.marketValue}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Selected Plan */}
                 <div className="border border-gray-300 rounded p-3 bg-blue-50">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-gray-600" />
                       <div>
-                        <p className="text-xs font-medium text-gray-900">3641343426 (RRSP Client Name, Individual)</p>
+                        <p className="text-xs font-medium text-gray-900">
+                          {selectedPlanData.accountNumber} ({selectedPlanData.type} {selectedPlanData.name}, {selectedPlanData.category})
+                        </p>
                       </div>
                     </div>
-                    <span className="text-xs font-semibold text-gray-900">$16,305.20</span>
+                    <span className="text-xs font-semibold text-gray-900">{selectedPlanData.marketValue}</span>
                   </div>
                 </div>
 
@@ -3003,11 +3007,11 @@ const ClientDetails = () => {
                               <div className="grid grid-cols-2 gap-2">
                                 <div>
                                   <Label className="text-[10px] text-gray-500 mb-0.5 block">ID</Label>
-                                  <Input className="h-7 text-[11px]" defaultValue="3641343426" readOnly />
+                                  <Input className="h-7 text-[11px]" value={selectedPlanData.accountNumber} readOnly />
                                 </div>
                                 <div>
                                   <Label className="text-[10px] text-gray-500 mb-0.5 block">Type</Label>
-                                  <Select defaultValue="rrsp">
+                                  <Select defaultValue={selectedPlanData.type.toLowerCase()}>
                                     <SelectTrigger className="h-7 text-[11px]">
                                       <SelectValue />
                                     </SelectTrigger>
