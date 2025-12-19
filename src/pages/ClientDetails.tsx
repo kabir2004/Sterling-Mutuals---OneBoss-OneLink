@@ -205,6 +205,10 @@ const ClientDetails = () => {
   const [selectedPlanForDetails, setSelectedPlanForDetails] = useState<string | null>("3641343426");
   const [selectedFundAccount, setSelectedFundAccount] = useState<string | null>(null);
   const [fundAccountAllocationsView, setFundAccountAllocationsView] = useState<"chart" | "table">("chart");
+  const [transactionsDisplayOption, setTransactionsDisplayOption] = useState("Valid and Pending");
+  const [transactionsSortBy, setTransactionsSortBy] = useState("Trade Date");
+  const [selectedTransaction, setSelectedTransaction] = useState<string | null>(null);
+  const [transactionDetailTab, setTransactionDetailTab] = useState("details");
   
   // Plans data for the Plans tab
   const plansList = [
@@ -289,6 +293,22 @@ const ClientDetails = () => {
   
   // Get selected fund account data
   const selectedFundAccountData = fundAccounts.find(f => f.id === selectedFundAccount) || null;
+  
+  // Transaction data for selected fund account
+  const transactions = selectedFundAccount ? [
+    { id: "1", date: "04/25/2025", grossAmount: "$0.82", netAmount: "$0.82", price: "$12.5499", status: "Valid", type: "Reinvested Distribution", shareBalance: "11.8280" },
+    { id: "2", date: "02/21/2025", grossAmount: "$25.00", netAmount: "$25.00", price: "$12.5499", status: "Valid", type: "Purchase PAC", shareBalance: "10.8280" },
+    { id: "3", date: "01/21/2025", grossAmount: "$25.00", netAmount: "$25.00", price: "$12.5499", status: "Valid", type: "Purchase PAC", shareBalance: "8.8280" },
+    { id: "4", date: "12/20/2024", grossAmount: "$0.69", netAmount: "$0.69", price: "$12.5499", status: "Valid", type: "Reinvested Distribution", shareBalance: "6.8280" },
+    { id: "5", date: "11/20/2024", grossAmount: "$25.00", netAmount: "$25.00", price: "$12.5499", status: "Valid", type: "Purchase PAC", shareBalance: "4.8280" },
+    { id: "6", date: "10/20/2024", grossAmount: "$0.56", netAmount: "$0.56", price: "$12.5499", status: "Valid", type: "Reinvested Distribution", shareBalance: "2.8280" },
+    { id: "7", date: "09/20/2024", grossAmount: "$0.42", netAmount: "$0.42", price: "$12.5499", status: "Valid", type: "Reinvested Distribution", shareBalance: "0.8280" },
+    { id: "8", date: "08/20/2024", grossAmount: "$0.27", netAmount: "$0.27", price: "$12.5499", status: "Valid", type: "Reinvested Distribution", shareBalance: "0.0000" },
+  ] : [];
+  
+  // Get selected transaction data
+  const selectedTransactionData = transactions.find(t => t.id === selectedTransaction) || null;
+  
   const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState("0.00");
   const [isBuyUnitsDialogOpen, setIsBuyUnitsDialogOpen] = useState(false);
@@ -2929,6 +2949,7 @@ const ClientDetails = () => {
                       onClick={() => {
                         setSelectedPlanForDetails(plan.id);
                         setSelectedFundAccount(null);
+                        setSelectedTransaction(null);
                       }}
                       className={`border rounded p-2 cursor-pointer transition-colors ${
                         selectedPlanForDetails === plan.id
@@ -3020,19 +3041,611 @@ const ClientDetails = () => {
 
                 {/* Transactions Tab */}
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex items-center gap-1 mb-2">
-                    <span className="text-xs font-medium text-gray-700">Transactions</span>
+                  <div className="flex items-center gap-1 mb-3">
+                    <span className="text-xs font-semibold text-gray-900">Transactions</span>
                     <HelpCircle className="h-3 w-3 text-gray-500" />
                   </div>
-                  <p className="text-xs text-gray-500 italic">Please select a fund account above.</p>
+                  
+                  {selectedFundAccount ? (
+                    <div className="space-y-3">
+                      {/* Filter Dropdowns */}
+                      <div className="space-y-2">
+                        <div>
+                          <Label className="text-[10px] text-gray-500 mb-0.5 block">Display Option:</Label>
+                          <Select value={transactionsDisplayOption} onValueChange={setTransactionsDisplayOption}>
+                            <SelectTrigger className="h-7 text-[11px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Valid and Pending">Valid and Pending</SelectItem>
+                              <SelectItem value="Valid Only">Valid Only</SelectItem>
+                              <SelectItem value="Pending Only">Pending Only</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-[10px] text-gray-500 mb-0.5 block">Sort by Trade Date</Label>
+                          <Select value={transactionsSortBy} onValueChange={setTransactionsSortBy}>
+                            <SelectTrigger className="h-7 text-[11px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Trade Date">Trade Date</SelectItem>
+                              <SelectItem value="Amount">Amount</SelectItem>
+                              <SelectItem value="Type">Type</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-[10px] text-gray-500 mb-0.5 block">Selected Account</Label>
+                          <Select defaultValue={selectedFundAccount}>
+                            <SelectTrigger className="h-7 text-[11px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {fundAccounts.map((account) => (
+                                <SelectItem key={account.id} value={account.id}>
+                                  {account.id}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      {/* Transactions Table */}
+                      <div className="border border-gray-200 rounded overflow-hidden">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-gray-100">
+                              <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2 w-8"></TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Date</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Gross Amount</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Net Amount</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Price</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Status</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Type</TableHead>
+                              <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Calculated Share Balance</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {transactions.map((transaction) => (
+                              <TableRow
+                                key={transaction.id}
+                                onClick={() => setSelectedTransaction(transaction.id)}
+                                className={`cursor-pointer ${
+                                  selectedTransaction === transaction.id
+                                    ? "bg-blue-100"
+                                    : "hover:bg-gray-50"
+                                }`}
+                              >
+                                <TableCell className="py-1.5 px-2" onClick={(e) => e.stopPropagation()}>
+                                  {selectedTransaction === transaction.id ? (
+                                    <div className="w-3 h-3 bg-white border border-gray-300"></div>
+                                  ) : (
+                                    <Checkbox
+                                      checked={false}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setSelectedTransaction(transaction.id);
+                                        }
+                                      }}
+                                    />
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">{transaction.date}</TableCell>
+                                <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">{transaction.grossAmount}</TableCell>
+                                <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">{transaction.netAmount}</TableCell>
+                                <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">{transaction.price}</TableCell>
+                                <TableCell className="text-[10px] py-1.5 px-2">
+                                  <span className="underline text-blue-600 cursor-pointer">{transaction.status}</span>
+                                </TableCell>
+                                <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">{transaction.type}</TableCell>
+                                <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">{transaction.shareBalance}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500 italic">Please select a fund account above.</p>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Right Pane - Plan Details or Fund Account Details */}
+            {/* Right Pane - Plan Details, Fund Account Details, or Transaction Details */}
             <div className="flex-1 pl-4">
               <div className="space-y-4 py-2">
-                {selectedFundAccountData ? (
+                {selectedTransactionData ? (
+                  /* Transaction Details */
+                  <div className="space-y-4">
+                    <Tabs value={transactionDetailTab} onValueChange={setTransactionDetailTab}>
+                      <TabsList className="grid w-full grid-cols-7 h-8 mb-4">
+                        <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
+                        <TabsTrigger value="fundserv" className="text-xs">
+                          Fundserv
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="payment-instructions" className="text-xs">
+                          Payment Instructions
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="notes" className="text-xs">
+                          Notes
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="attachments" className="text-xs">
+                          Attachments
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="reviews" className="text-xs">
+                          Reviews
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="related-transactions" className="text-xs">Related Transactions</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="details" className="mt-4">
+                        <div className="space-y-4">
+                          <h3 className="text-xs font-semibold text-gray-900">Details</h3>
+                          
+                          {/* Transaction Information Section */}
+                          <div className="bg-white p-3 rounded border border-gray-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Transaction Information</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                              {/* Left Column */}
+                              <div className="space-y-3">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Status</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.status} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Transaction Type</Label>
+                                  <Input className="h-7 text-[11px] font-semibold" value={selectedTransactionData.type} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Source Identifier</Label>
+                                  <Input className="h-7 text-[11px]" value="470704410" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">ID</Label>
+                                  <Input className="h-7 text-[11px]" value="43453037" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Sequence</Label>
+                                  <Input className="h-7 text-[11px]" value="185" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Product Indicator</Label>
+                                  <Input className="h-7 text-[11px]" value="-" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Contribution Type</Label>
+                                  <Input className="h-7 text-[11px]" value="N/A" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">EPA Status</Label>
+                                  <Input className="h-7 text-[11px]" value="Unknown" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Conversion</Label>
+                                  <Input className="h-7 text-[11px]" value="No" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Trade Context</Label>
+                                  <Input className="h-7 text-[11px]" value="Not Set" readOnly />
+                                </div>
+                              </div>
+                              
+                              {/* Right Column */}
+                              <div className="space-y-3">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Trade Date</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.date} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Processing Date</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.date} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Order Date</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.date} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Settlement Date</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.date} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Use Trust Accounting</Label>
+                                  <Input className="h-7 text-[11px]" value="No" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Trust Bank Account</Label>
+                                  <Input className="h-7 text-[11px]" value="" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Wire Order</Label>
+                                  <Input className="h-7 text-[11px]" value="" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Taxable Event Indicator</Label>
+                                  <Input className="h-7 text-[11px]" value="" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">First 60 days</Label>
+                                  <Input className="h-7 text-[11px]" value="No" readOnly />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Sub-Sections */}
+                          <div className="grid grid-cols-3 gap-4">
+                            {/* Quantities */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Quantities</h4>
+                              <div className="space-y-2">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Amount</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.grossAmount} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Unit Type</Label>
+                                  <Input className="h-7 text-[11px]" value="dollars" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Shares</Label>
+                                  <Input className="h-7 text-[11px]" value="0.0650" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Share Balance</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.shareBalance} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Unit Price</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.price} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Average Cost</Label>
+                                  <Input className="h-7 text-[11px]" value="$12.9084" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Gross Amount</Label>
+                                  <Input className="h-7 text-[11px]" value={selectedTransactionData.grossAmount} readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Reversal</Label>
+                                  <Input className="h-7 text-[11px]" value="No" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Settlement Amount</Label>
+                                  <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Earnings */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Earnings</h4>
+                              <div className="space-y-2">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">FEL Max Rate (%)</Label>
+                                  <Input className="h-7 text-[11px]" value="0" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">DSC Rate (%)</Label>
+                                  <Input className="h-7 text-[11px]" value="0" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Dealer Commission</Label>
+                                  <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Dealer At Time Of Trade</Label>
+                                  <Input className="h-7 text-[11px]" value="9823" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Rep At Time Of Trade</Label>
+                                  <Input className="h-7 text-[11px]" value="2232 Marsh, Antoine" readOnly />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Fees And Charges */}
+                            <div className="bg-white p-3 rounded border border-gray-200">
+                              <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Fees And Charges</h4>
+                              <div className="space-y-2">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Withholding Tax</Label>
+                                  <Input className="h-7 text-[11px]" value="0.0000" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">DSC</Label>
+                                  <Input className="h-7 text-[11px]" value="0.0000" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">HST</Label>
+                                  <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Fees</Label>
+                                  <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">LSIF Federal Clawback</Label>
+                                  <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">LSIF Provincial Clawback</Label>
+                                  <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="fundserv" className="mt-4">
+                        <div className="space-y-4">
+                          {/* Fundserv Processing Section */}
+                          <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Fundserv Processing</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Net Commission Settlement</Label>
+                                <Input className="h-7 text-[11px]" value="N/A" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Response Status</Label>
+                                <Input className="h-7 text-[11px]" value="Unknown" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Response Source</Label>
+                                <Input className="h-7 text-[11px]" value="" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Settlement Source</Label>
+                                <Input className="h-7 text-[11px]" value="N/A" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Order Source</Label>
+                                <Input className="h-7 text-[11px]" value="Fund Company" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Interactive Order Status</Label>
+                                <Input className="h-7 text-[11px]" value="Unreleased" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Settlement Method</Label>
+                                <Input className="h-7 text-[11px]" value="N/A" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Revision Number</Label>
+                                <Input className="h-7 text-[11px]" value="0" readOnly />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Trading Files Section */}
+                          <div className="bg-white p-3 rounded border border-gray-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Trading Files</h4>
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="bg-gray-100">
+                                  <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Created</TableHead>
+                                  <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Type</TableHead>
+                                  <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">File Name</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">04-28-2025 07:13:58</TableCell>
+                                  <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">Transaction Reconciliation</TableCell>
+                                  <TableCell className="text-[10px] py-1.5 px-2 text-gray-900">TSP0009823.042525CIG9.Z01</TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
+
+                          {/* Errors Section */}
+                          <div className="bg-white p-3 rounded border border-gray-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Errors</h4>
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="bg-gray-100">
+                                  <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Error Message</TableHead>
+                                  <TableHead className="text-[10px] font-semibold text-gray-900 py-1.5 px-2">Return Code</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell colSpan={2} className="text-center py-4">
+                                    <p className="text-xs text-gray-500">No errors found</p>
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="payment-instructions" className="mt-4">
+                        <div className="space-y-4">
+                          {/* Misc Payment Settings Section */}
+                          <div className="bg-white rounded border border-gray-200 overflow-hidden">
+                            <div className="bg-blue-600 text-white px-3 py-2">
+                              <h4 className="text-xs font-semibold">Misc Payment Settings</h4>
+                            </div>
+                            <div className="p-3">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Nominee Payment Option</Label>
+                                  <Input className="h-7 text-[11px] font-semibold" value="N/A" readOnly />
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Cash Distribution Payment Option</Label>
+                                  <Input className="h-7 text-[11px] font-semibold" value="Default (N$M if eligible)" readOnly />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Cheque Information Section */}
+                          <div className="bg-white rounded border border-gray-200 overflow-hidden">
+                            <div className="bg-blue-600 text-white px-3 py-2">
+                              <h4 className="text-xs font-semibold">Cheque Information</h4>
+                            </div>
+                            <div className="p-3">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Cheque Paid To Client</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">City</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Country</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                </div>
+                                <div className="space-y-3">
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">No</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Address</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Province</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Postal</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* EFT Information Section */}
+                          <div className="bg-white rounded border border-gray-200 overflow-hidden">
+                            <div className="bg-blue-600 text-white px-3 py-2">
+                              <h4 className="text-xs font-semibold">EFT Information</h4>
+                            </div>
+                            <div className="p-3">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Account Holder</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Institution Number</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                </div>
+                                <div className="space-y-3">
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Transit Number</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[10px] text-gray-500 mb-0.5 block">Account Number</Label>
+                                    <Input className="h-7 text-[11px]" value="" readOnly />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="notes" className="mt-4">
+                        <div className="space-y-4">
+                          <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                            New Transaction Note
+                          </Button>
+                          <div className="bg-gray-100 border border-gray-200 rounded p-8 min-h-[300px]">
+                            {/* Empty notes area - notes will be displayed here */}
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="attachments" className="mt-4">
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Fund Transaction Attachments</h3>
+                            <div className="flex items-center gap-2 mb-4">
+                              <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                                Add New Attachment
+                              </Button>
+                              <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                                Link Existing Attachment
+                              </Button>
+                              <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                                Unlink Attachment
+                              </Button>
+                            </div>
+                            <div className="space-y-2 mb-4">
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="include-inactive-transaction-attachments" />
+                                <Label htmlFor="include-inactive-transaction-attachments" className="text-[10px] text-gray-700 cursor-pointer">Include Inactive</Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="include-trust-transaction-attachments" />
+                                <Label htmlFor="include-trust-transaction-attachments" className="text-[10px] text-gray-700 cursor-pointer">Include attachments from Trust Transactions</Label>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Attachments</h4>
+                            <div className="py-8">
+                              <p className="text-xs text-gray-500 text-center">No attachments found</p>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="reviews" className="mt-4">
+                        <div className="space-y-4">
+                          <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                            Add New Response
+                          </Button>
+                          <div>
+                            <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Reviews</h3>
+                            <div className="py-8">
+                              <p className="text-xs text-gray-500 italic text-center">No reviews found</p>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="related-transactions" className="mt-4">
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Related Transactions</h3>
+                            <div className="bg-blue-50 p-4 rounded border border-blue-200">
+                              <div className="flex items-center gap-2 mb-4">
+                                <Checkbox id="conversion" />
+                                <Label htmlFor="conversion" className="text-[10px] text-gray-700 cursor-pointer">Conversion</Label>
+                              </div>
+                              <p className="text-xs text-gray-500 italic">No Related Transactions</p>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                ) : selectedFundAccountData ? (
                   /* Fund Account Details */
                   <div className="space-y-4">
                     <Tabs defaultValue="details">
