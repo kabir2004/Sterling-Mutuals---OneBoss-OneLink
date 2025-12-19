@@ -203,6 +203,8 @@ const ClientDetails = () => {
   const [includeInactiveAccounts, setIncludeInactiveAccounts] = useState(false);
   const [accountViewType, setAccountViewType] = useState<"fund-accounts" | "gics">("fund-accounts");
   const [selectedPlanForDetails, setSelectedPlanForDetails] = useState<string | null>("3641343426");
+  const [selectedFundAccount, setSelectedFundAccount] = useState<string | null>(null);
+  const [fundAccountAllocationsView, setFundAccountAllocationsView] = useState<"chart" | "table">("chart");
   
   // Plans data for the Plans tab
   const plansList = [
@@ -226,6 +228,67 @@ const ClientDetails = () => {
   
   // Get selected plan data for details
   const selectedPlanData = plansList.find(p => p.id === selectedPlanForDetails) || plansList[0];
+  
+  // Fund account data
+  const fundAccounts = [
+    {
+      id: "CIG-7710",
+      productCode: "CIG-11112",
+      accountNumber: "5160230205",
+      fullName: "CIG-7710 5160230205 (LM) CI Portfolio Series Balanced Fund A ISC FEL CAD",
+      productName: "11112 CI Canadian Dividend Fund A ISC",
+      supplier: "CIG",
+      risk: "M",
+      investmentObjective: "25% In, 75% Gr",
+      rateType: "FEL",
+      dscRate: "0.0%",
+      felMaxRate: "5.0%",
+      currentPrice: "$31.7434",
+      priceDate: "04/29/2025",
+      category: "Canadian Dividend & Income Equity",
+      distributionOption: "Reinvest",
+      startDate: "11/01/2024",
+      endDate: "",
+      totalSharesIssued: "0.0000",
+      totalSharesUnissued: "4.6920",
+      certificate: "No Certificate",
+      active: true,
+      lastSequence: "3784",
+      effectiveDate: "04/25/2025",
+      excludeFromDuplicate: false,
+      marketValue: "$2,315.88 CAD",
+    },
+    {
+      id: "CIG-7715",
+      productCode: "CIG-11112",
+      accountNumber: "5525887488",
+      fullName: "CIG-7715 5525887488 (LM) CI Portfolio Series Balanced Fund A DSC DSC CAD",
+      productName: "11112 CI Canadian Dividend Fund A ISC",
+      supplier: "CIG",
+      risk: "M",
+      investmentObjective: "25% In, 75% Gr",
+      rateType: "DSC",
+      dscRate: "5.0%",
+      felMaxRate: "0.0%",
+      currentPrice: "$31.7434",
+      priceDate: "04/29/2025",
+      category: "Canadian Dividend & Income Equity",
+      distributionOption: "Reinvest",
+      startDate: "11/01/2024",
+      endDate: "",
+      totalSharesIssued: "0.0000",
+      totalSharesUnissued: "4.6920",
+      certificate: "No Certificate",
+      active: true,
+      lastSequence: "3784",
+      effectiveDate: "04/25/2025",
+      excludeFromDuplicate: false,
+      marketValue: "$13,989.32 CAD",
+    },
+  ];
+  
+  // Get selected fund account data
+  const selectedFundAccountData = fundAccounts.find(f => f.id === selectedFundAccount) || null;
   const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState("0.00");
   const [isBuyUnitsDialogOpen, setIsBuyUnitsDialogOpen] = useState(false);
@@ -2863,7 +2926,10 @@ const ClientDetails = () => {
                   {plansList.map((plan) => (
                     <div
                       key={plan.id}
-                      onClick={() => setSelectedPlanForDetails(plan.id)}
+                      onClick={() => {
+                        setSelectedPlanForDetails(plan.id);
+                        setSelectedFundAccount(null);
+                      }}
                       className={`border rounded p-2 cursor-pointer transition-colors ${
                         selectedPlanForDetails === plan.id
                           ? "border-blue-500 bg-blue-50"
@@ -2919,36 +2985,31 @@ const ClientDetails = () => {
                       <Label htmlFor="include-inactive-accounts" className="text-xs text-gray-700 cursor-pointer">Include Inactive Accounts</Label>
                     </div>
                     <div className="space-y-2">
-                      <div className="border border-gray-200 rounded p-2 hover:bg-gray-50 cursor-pointer">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-gray-900 truncate">CIG-7710 5160230205 (LM) CI Portfolio Series Balanced Fund A ISC FEL CAD</p>
-                          </div>
-                          <div className="flex items-center gap-2 ml-2">
-                            <span className="text-xs font-semibold text-gray-900">$2,315.88 CAD</span>
-                            <div className="flex items-center gap-1">
-                              <BarChart3 className="h-3 w-3 text-gray-500" />
-                              <FileText className="h-3 w-3 text-gray-500" />
-                              <HelpCircle className="h-3 w-3 text-gray-500" />
+                      {fundAccounts.map((account) => (
+                        <div
+                          key={account.id}
+                          onClick={() => setSelectedFundAccount(account.id)}
+                          className={`border rounded p-2 cursor-pointer transition-colors ${
+                            selectedFundAccount === account.id
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 hover:bg-gray-50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-900 truncate">{account.fullName}</p>
+                            </div>
+                            <div className="flex items-center gap-2 ml-2">
+                              <span className="text-xs font-semibold text-gray-900">{account.marketValue}</span>
+                              <div className="flex items-center gap-1">
+                                <BarChart3 className="h-3 w-3 text-gray-500" />
+                                <FileText className="h-3 w-3 text-gray-500" />
+                                <HelpCircle className="h-3 w-3 text-gray-500" />
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:bg-gray-50 cursor-pointer">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-gray-900 truncate">CIG-7715 5525887488 (LM) CI Portfolio Series Balanced Fund A DSC DSC CAD</p>
-                          </div>
-                          <div className="flex items-center gap-2 ml-2">
-                            <span className="text-xs font-semibold text-gray-900">$13,989.32 CAD</span>
-                            <div className="flex items-center gap-1">
-                              <BarChart3 className="h-3 w-3 text-gray-500" />
-                              <FileText className="h-3 w-3 text-gray-500" />
-                              <HelpCircle className="h-3 w-3 text-gray-500" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </TabsContent>
 
@@ -2968,11 +3029,911 @@ const ClientDetails = () => {
               </div>
             </div>
 
-            {/* Right Pane - Plan Details */}
+            {/* Right Pane - Plan Details or Fund Account Details */}
             <div className="flex-1 pl-4">
               <div className="space-y-4 py-2">
-                {/* Secondary Navigation Tabs */}
-                <Tabs value={planDetailTab} onValueChange={setPlanDetailTab}>
+                {selectedFundAccountData ? (
+                  /* Fund Account Details */
+                  <div className="space-y-4">
+                    <Tabs defaultValue="details">
+                      <TabsList className="grid w-full grid-cols-7 h-8 mb-4">
+                        <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
+                        <TabsTrigger value="tools" className="text-xs">Tools</TabsTrigger>
+                        <TabsTrigger value="notes" className="text-xs">
+                          Notes
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="attachments" className="text-xs">
+                          Attachments
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="allocations" className="text-xs">
+                          Allocations
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="product-documents-delivery" className="text-xs">
+                          Product Documents Delivery
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                        <TabsTrigger value="price-history" className="text-xs">
+                          Price History
+                          <HelpCircle className="h-3 w-3 ml-1" />
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="details" className="mt-4">
+                        <div className="space-y-4">
+                          <h3 className="text-xs font-semibold text-gray-900">Details</h3>
+                          
+                          {/* Product Information Section */}
+                          <div className="bg-white p-3 rounded border border-gray-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Product Information</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Product Code</Label>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">{selectedFundAccountData.productCode}</span>
+                                  <Button size="sm" className="h-6 text-[10px] bg-blue-600 hover:bg-blue-700 text-white">
+                                    View Fund Info
+                                  </Button>
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Product Name</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.productName} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Supplier</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.supplier} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Category</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.category} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Risk</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.risk} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Investment Objective</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.investmentObjective} readOnly />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Account & Rate Information Section */}
+                          <div className="bg-white p-3 rounded border border-gray-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Account & Rate Information</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Account Number</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.accountNumber} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Rate Type</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.rateType} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">DSC Rate</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.dscRate} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">FEL Max Rate</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.felMaxRate} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Distribution Option</Label>
+                                <Select defaultValue={selectedFundAccountData.distributionOption.toLowerCase().replace(/\s+/g, '-')}>
+                                  <SelectTrigger className="h-7 text-[11px]">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="reinvest">Reinvest</SelectItem>
+                                    <SelectItem value="cash">Cash</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Certificate</Label>
+                                <Select defaultValue={selectedFundAccountData.certificate.toLowerCase().replace(/\s+/g, '-')}>
+                                  <SelectTrigger className="h-7 text-[11px]">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="no-certificate">No Certificate</SelectItem>
+                                    <SelectItem value="certificate">Certificate</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Price & Share Information Section */}
+                          <div className="bg-white p-3 rounded border border-gray-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Price & Share Information</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Current Price</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.currentPrice} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Price Date</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.priceDate} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Total Shares Issued</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.totalSharesIssued} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Total Shares Unissued</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.totalSharesUnissued} readOnly />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Date & Status Information Section */}
+                          <div className="bg-white p-3 rounded border border-gray-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-3 pb-1 border-b-2 border-blue-600">Date & Status Information</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Start Date</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.startDate} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">End Date</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.endDate || ""} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Effective Date</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.effectiveDate} readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Last Sequence</Label>
+                                <Input className="h-7 text-[11px]" value={selectedFundAccountData.lastSequence} readOnly />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="active" checked={selectedFundAccountData.active} />
+                                <Label htmlFor="active" className="text-[10px] text-gray-500 cursor-pointer">Active</Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="exclude-duplicate" checked={selectedFundAccountData.excludeFromDuplicate} />
+                                <Label htmlFor="exclude-duplicate" className="text-[10px] text-gray-500 cursor-pointer">Exclude from Duplicate exception reports</Label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="tools" className="mt-4">
+                        <div className="space-y-4">
+                          {/* Market Value Calculator */}
+                          <div className="bg-blue-50 rounded border border-blue-200">
+                            <div className="bg-blue-600 text-white px-3 py-2 rounded-t">
+                              <h3 className="text-xs font-semibold">Market Value Calculator</h3>
+                            </div>
+                            <div className="p-3 space-y-3">
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Current Market Value</Label>
+                                <Input className="h-7 text-[11px]" value="$148.94" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Historical Market Value Target Date</Label>
+                                <div className="flex items-center gap-2">
+                                  <Input className="h-7 text-[11px]" value="12/19/2025" />
+                                  <Calendar className="h-4 w-4 text-gray-500" />
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button size="sm" className="h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white">
+                                  Historical Market Value
+                                </Button>
+                                <div className="flex-1">
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">CAD</Label>
+                                  <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Share Balance Calculator */}
+                          <div className="bg-blue-50 rounded border border-blue-200">
+                            <div className="bg-blue-600 text-white px-3 py-2 rounded-t">
+                              <h3 className="text-xs font-semibold">Share Balance Calculator</h3>
+                            </div>
+                            <div className="p-3 space-y-3">
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Current Share Balance</Label>
+                                <Input className="h-7 text-[11px]" value="4.6920" readOnly />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Historical Share Balance Target Date</Label>
+                                <div className="flex items-center gap-2">
+                                  <Input className="h-7 text-[11px]" value="12/19/2025" />
+                                  <Calendar className="h-4 w-4 text-gray-500" />
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button size="sm" className="h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white">
+                                  Calculate Historical Share Balance
+                                </Button>
+                                <div className="flex-1">
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Historical Share Balance</Label>
+                                  <Input className="h-7 text-[11px]" value="0.0000" readOnly />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Adjusted Cost Base Calculator */}
+                          <div className="bg-blue-50 rounded border border-blue-200">
+                            <div className="bg-blue-600 text-white px-3 py-2 rounded-t">
+                              <h3 className="text-xs font-semibold">Adjusted Cost Base (Book Value) Calculator</h3>
+                            </div>
+                            <div className="p-3">
+                              <div className="flex items-center gap-2">
+                                <Button size="sm" className="h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white">
+                                  Adjusted Cost Base
+                                </Button>
+                                <div className="flex-1">
+                                  <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Rate Of Return Calculator */}
+                          <div className="bg-blue-50 rounded border border-blue-200">
+                            <div className="bg-blue-600 text-white px-3 py-2 rounded-t">
+                              <h3 className="text-xs font-semibold">Rate Of Return Calculator</h3>
+                            </div>
+                            <div className="p-3 space-y-3">
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="since-inception" />
+                                <Label htmlFor="since-inception" className="text-[10px] text-gray-500 cursor-pointer">Since Inception</Label>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Rate of Return Start Date</Label>
+                                <div className="flex items-center gap-2">
+                                  <Input className="h-7 text-[11px]" value="12/19/2025" />
+                                  <Calendar className="h-4 w-4 text-gray-500" />
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Rate of Return End Date</Label>
+                                <div className="flex items-center gap-2">
+                                  <Input className="h-7 text-[11px]" value="12/19/2025" />
+                                  <Calendar className="h-4 w-4 text-gray-500" />
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button size="sm" className="h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white">
+                                  Rate of Return
+                                </Button>
+                                <div className="flex-1">
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">XIRR Rate of Return</Label>
+                                  <Input className="h-7 text-[11px]" value="0.00000 %" readOnly />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Other Section */}
+                          <div className="bg-blue-50 rounded border border-blue-200">
+                            <div className="bg-blue-600 text-white px-3 py-2 rounded-t">
+                              <h3 className="text-xs font-semibold">Other</h3>
+                            </div>
+                            <div className="p-3 flex gap-2">
+                              <Button size="sm" className="h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white">
+                                Fund Alerts
+                              </Button>
+                              <Button size="sm" className="h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white">
+                                Start KYP Review
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Redemption Calculator */}
+                          <div className="bg-blue-50 rounded border border-blue-200">
+                            <div className="bg-blue-600 text-white px-3 py-2 rounded-t">
+                              <h3 className="text-xs font-semibold">Redemption Calculator</h3>
+                            </div>
+                            <div className="p-3 space-y-3">
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Gross Amount</Label>
+                                <Input className="h-7 text-[11px]" value="$0.00" />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Withholding Tax Rate</Label>
+                                <p className="text-[10px] text-gray-700">Auto calculated.</p>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Fee</Label>
+                                <Select defaultValue="partial-redemption">
+                                  <SelectTrigger className="h-7 text-[11px]">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="partial-redemption">Partial Redemption: $50.00 + Tax</SelectItem>
+                                    <SelectItem value="full-redemption">Full Redemption: $0.00</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Provincial Tax</Label>
+                                <Select defaultValue="ontario">
+                                  <SelectTrigger className="h-7 text-[11px]">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="ontario">ONTARIO 13.0%</SelectItem>
+                                    <SelectItem value="quebec">QUEBEC 14.975%</SelectItem>
+                                    <SelectItem value="bc">BRITISH COLUMBIA 12.0%</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-gray-500 mb-0.5 block">Net Amount</Label>
+                                <Input className="h-7 text-[11px]" value="$0.00" readOnly />
+                              </div>
+                              <div className="flex gap-2">
+                                <Button size="sm" className="h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white flex-1">
+                                  Calculate Net Amount
+                                </Button>
+                                <Button size="sm" className="h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white flex-1">
+                                  Calculate Gross Amount
+                                </Button>
+                              </div>
+                              <p className="text-[9px] text-gray-500 italic mt-2">
+                                *Calculator only valid for clients residing in provinces your dealership is registered to service.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="notes" className="mt-4">
+                        <div className="space-y-4">
+                          <h3 className="text-xs font-semibold text-gray-900">Notes</h3>
+                          <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                            New Fund Account Note
+                          </Button>
+                          <div className="bg-gray-100 border border-gray-200 rounded p-8 min-h-[200px]">
+                            {/* Empty notes area - notes will be displayed here */}
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="attachments" className="mt-4">
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Fund Account Attachments</h3>
+                            <div className="flex items-center gap-2 mb-4">
+                              <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                                Add New Attachment
+                              </Button>
+                              <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                                Link Existing Attachment
+                              </Button>
+                              <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                                Unlink Attachment
+                              </Button>
+                            </div>
+                            <div className="space-y-2 mb-4">
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="include-inactive-attachments" />
+                                <Label htmlFor="include-inactive-attachments" className="text-[10px] text-gray-700 cursor-pointer">Include Inactive</Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox id="include-transaction-attachments" />
+                                <Label htmlFor="include-transaction-attachments" className="text-[10px] text-gray-700 cursor-pointer">Include attachments from Transactions and Trust Transactions</Label>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-900 mb-2 pb-1 border-b-2 border-blue-600">Attachments</h4>
+                            <div className="py-8">
+                              <p className="text-xs text-gray-500 text-center">No attachments found</p>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="allocations" className="mt-4">
+                        <div className="space-y-4">
+                          <Tabs value={fundAccountAllocationsView} onValueChange={(value) => setFundAccountAllocationsView(value as "chart" | "table")}>
+                            <TabsList className="grid w-full grid-cols-2 h-8 mb-4">
+                              <TabsTrigger value="chart" className="text-xs">Allocations (Chart)</TabsTrigger>
+                              <TabsTrigger value="table" className="text-xs">Allocations (Table)</TabsTrigger>
+                            </TabsList>
+                            
+                            <TabsContent value="chart" className="mt-4">
+                              <div className="grid grid-cols-3 gap-4">
+                                {/* Geographic Allocation */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-xs font-semibold text-gray-900 mb-4 text-center">Geographic Allocation</h4>
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <PieChart>
+                                      <Pie
+                                        data={[
+                                          { name: "United States", value: 53.38, color: "#FFC107" },
+                                          { name: "Canada", value: 35.58, color: "#F44336" },
+                                          { name: "European Union", value: 3.93, color: "#4CAF50" },
+                                          { name: "Multi-National", value: 3.38, color: "#2196F3" },
+                                          { name: "Asia/Pacific Rim", value: 2.57, color: "#E91E63" },
+                                          { name: "All others", value: 1.16, color: "#9E9E9E" },
+                                        ]}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={70}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                        label={false}
+                                      >
+                                        <Cell fill="#FFC107" />
+                                        <Cell fill="#F44336" />
+                                        <Cell fill="#4CAF50" />
+                                        <Cell fill="#2196F3" />
+                                        <Cell fill="#E91E63" />
+                                        <Cell fill="#9E9E9E" />
+                                      </Pie>
+                                      <Tooltip />
+                                    </PieChart>
+                                  </ResponsiveContainer>
+                                  <div className="mt-4 space-y-1">
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#FFC107" }}></div>
+                                      <span className="text-gray-700">United States</span>
+                                      <span className="ml-auto text-gray-500">53.38%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#F44336" }}></div>
+                                      <span className="text-gray-700">Canada</span>
+                                      <span className="ml-auto text-gray-500">35.58%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#4CAF50" }}></div>
+                                      <span className="text-gray-700">European Union</span>
+                                      <span className="ml-auto text-gray-500">3.93%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#2196F3" }}></div>
+                                      <span className="text-gray-700">Multi-National</span>
+                                      <span className="ml-auto text-gray-500">3.38%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#E91E63" }}></div>
+                                      <span className="text-gray-700">Asia/Pacific Rim</span>
+                                      <span className="ml-auto text-gray-500">2.57%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#9E9E9E" }}></div>
+                                      <span className="text-gray-700">All others</span>
+                                      <span className="ml-auto text-gray-500">1.16%</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Asset Allocation */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-xs font-semibold text-gray-900 mb-4 text-center">Asset Allocation</h4>
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <PieChart>
+                                      <Pie
+                                        data={[
+                                          { name: "US Equity", value: 27.34, color: "#03A9F4" },
+                                          { name: "Foreign Bonds", value: 25.86, color: "#3F51B5" },
+                                          { name: "Canadian Equity", value: 14.88, color: "#E91E63" },
+                                          { name: "Domestic Bonds", value: 9.90, color: "#4CAF50" },
+                                          { name: "Income Trust Units", value: 9.41, color: "#FFC107" },
+                                          { name: "International Equity", value: 4.77, color: "#F44336" },
+                                          { name: "Cash and Equivalents", value: 4.54, color: "#FF9800" },
+                                          { name: "Other", value: 3.30, color: "#9E9E9E" },
+                                        ]}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={70}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                        label={false}
+                                      >
+                                        <Cell fill="#03A9F4" />
+                                        <Cell fill="#3F51B5" />
+                                        <Cell fill="#E91E63" />
+                                        <Cell fill="#4CAF50" />
+                                        <Cell fill="#FFC107" />
+                                        <Cell fill="#F44336" />
+                                        <Cell fill="#FF9800" />
+                                        <Cell fill="#9E9E9E" />
+                                      </Pie>
+                                      <Tooltip />
+                                    </PieChart>
+                                  </ResponsiveContainer>
+                                  <div className="mt-4 space-y-1">
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#03A9F4" }}></div>
+                                      <span className="text-gray-700">US Equity</span>
+                                      <span className="ml-auto text-gray-500">27.34%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#3F51B5" }}></div>
+                                      <span className="text-gray-700">Foreign Bonds</span>
+                                      <span className="ml-auto text-gray-500">25.86%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#E91E63" }}></div>
+                                      <span className="text-gray-700">Canadian Equity</span>
+                                      <span className="ml-auto text-gray-500">14.88%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#4CAF50" }}></div>
+                                      <span className="text-gray-700">Domestic Bonds</span>
+                                      <span className="ml-auto text-gray-500">9.90%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#FFC107" }}></div>
+                                      <span className="text-gray-700">Income Trust Units</span>
+                                      <span className="ml-auto text-gray-500">9.41%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#F44336" }}></div>
+                                      <span className="text-gray-700">International Equity</span>
+                                      <span className="ml-auto text-gray-500">4.77%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#FF9800" }}></div>
+                                      <span className="text-gray-700">Cash and Equivalents</span>
+                                      <span className="ml-auto text-gray-500">4.54%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#9E9E9E" }}></div>
+                                      <span className="text-gray-700">Other</span>
+                                      <span className="ml-auto text-gray-500">3.30%</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Sector Allocation */}
+                                <div className="bg-white p-4 rounded border border-gray-200">
+                                  <h4 className="text-xs font-semibold text-gray-900 mb-4 text-center">Sector Allocation</h4>
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <PieChart>
+                                      <Pie
+                                        data={[
+                                          { name: "Fixed Income", value: 35.61, color: "#E91E63" },
+                                          { name: "Real Estate", value: 22.78, color: "#F44336" },
+                                          { name: "Energy", value: 13.14, color: "#E91E63" },
+                                          { name: "Financial Services", value: 7.67, color: "#3F51B5" },
+                                          { name: "Utilities", value: 6.18, color: "#4CAF50" },
+                                          { name: "Cash and Cash Equivalent", value: 4.54, color: "#FFC107" },
+                                          { name: "Mutual Fund", value: 3.43, color: "#4CAF50" },
+                                          { name: "Industrial Services", value: 2.41, color: "#FF9800" },
+                                          { name: "Telecommunications", value: 2.29, color: "#E91E63" },
+                                          { name: "All others", value: 1.95, color: "#9E9E9E" },
+                                        ]}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={70}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                        label={false}
+                                      >
+                                        <Cell fill="#E91E63" />
+                                        <Cell fill="#F44336" />
+                                        <Cell fill="#E91E63" />
+                                        <Cell fill="#3F51B5" />
+                                        <Cell fill="#4CAF50" />
+                                        <Cell fill="#FFC107" />
+                                        <Cell fill="#4CAF50" />
+                                        <Cell fill="#FF9800" />
+                                        <Cell fill="#E91E63" />
+                                        <Cell fill="#9E9E9E" />
+                                      </Pie>
+                                      <Tooltip />
+                                    </PieChart>
+                                  </ResponsiveContainer>
+                                  <div className="mt-4 space-y-1">
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#E91E63" }}></div>
+                                      <span className="text-gray-700">Fixed Income</span>
+                                      <span className="ml-auto text-gray-500">35.61%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#F44336" }}></div>
+                                      <span className="text-gray-700">Real Estate</span>
+                                      <span className="ml-auto text-gray-500">22.78%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#E91E63" }}></div>
+                                      <span className="text-gray-700">Energy</span>
+                                      <span className="ml-auto text-gray-500">13.14%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#3F51B5" }}></div>
+                                      <span className="text-gray-700">Financial Services</span>
+                                      <span className="ml-auto text-gray-500">7.67%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#4CAF50" }}></div>
+                                      <span className="text-gray-700">Utilities</span>
+                                      <span className="ml-auto text-gray-500">6.18%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#FFC107" }}></div>
+                                      <span className="text-gray-700">Cash and Cash Equivalent</span>
+                                      <span className="ml-auto text-gray-500">4.54%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#4CAF50" }}></div>
+                                      <span className="text-gray-700">Mutual Fund</span>
+                                      <span className="ml-auto text-gray-500">3.43%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#FF9800" }}></div>
+                                      <span className="text-gray-700">Industrial Services</span>
+                                      <span className="ml-auto text-gray-500">2.41%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#E91E63" }}></div>
+                                      <span className="text-gray-700">Telecommunications</span>
+                                      <span className="ml-auto text-gray-500">2.29%</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#9E9E9E" }}></div>
+                                      <span className="text-gray-700">All others</span>
+                                      <span className="ml-auto text-gray-500">1.95%</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </TabsContent>
+                            
+                            <TabsContent value="table" className="mt-4">
+                              <div className="space-y-4">
+                                {/* Geographic Allocation */}
+                                <div className="bg-white rounded border border-gray-200 overflow-hidden">
+                                  <div className="bg-gray-100 px-3 py-2 border-b border-gray-200">
+                                    <h4 className="text-xs font-semibold text-gray-900 border-b-2 border-blue-600 pb-1 inline-block">Geographic Allocation</h4>
+                                  </div>
+                                  <Table>
+                                    <TableBody>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">United States</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">53.38%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Canada</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">35.58%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">European Union</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">3.93%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Multi-National</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">3.38%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Asia/Pacific Rim</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">2.57%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Japan</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">0.47%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Other</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">-0.10%</TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+
+                                {/* Asset Allocation */}
+                                <div className="bg-white rounded border border-gray-200 overflow-hidden">
+                                  <div className="bg-gray-100 px-3 py-2 border-b border-gray-200">
+                                    <h4 className="text-xs font-semibold text-gray-900 border-b-2 border-blue-600 pb-1 inline-block">Asset Allocation</h4>
+                                  </div>
+                                  <Table>
+                                    <TableBody>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">US Equity</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">27.34%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Foreign Bonds</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">25.86%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Canadian Equity</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">14.88%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Domestic Bonds</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">9.90%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Income Trust Units</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">9.41%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">International Equity</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">4.77%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Cash and Equivalents</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">4.54%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Other</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">3.30%</TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+
+                                {/* Sector Allocation */}
+                                <div className="bg-white rounded border border-gray-200 overflow-hidden">
+                                  <div className="bg-gray-100 px-3 py-2 border-b border-gray-200">
+                                    <h4 className="text-xs font-semibold text-gray-900 border-b-2 border-blue-600 pb-1 inline-block">Sector Allocation</h4>
+                                  </div>
+                                  <Table>
+                                    <TableBody>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Fixed Income</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">35.61%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Real Estate</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">22.78%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Energy</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">13.14%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Financial Services</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">7.67%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Utilities</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">6.18%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Cash and Cash Equivalent</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">4.54%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Mutual Fund</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">3.43%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Industrial Services</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">2.41%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-white">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Telecommunications</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">2.29%</TableCell>
+                                      </TableRow>
+                                      <TableRow className="bg-gray-50">
+                                        <TableCell className="text-xs py-2 px-3 text-gray-900">Other</TableCell>
+                                        <TableCell className="text-xs py-2 px-3 text-right text-gray-900">-0.05%</TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            </TabsContent>
+                          </Tabs>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="product-documents-delivery" className="mt-4">
+                        <div className="bg-white rounded border border-gray-200 overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-gray-100">
+                                <TableHead className="text-xs font-semibold text-gray-900 py-2 px-3">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-blue-600">Delivery Date</span>
+                                    <ChevronUp className="h-3 w-3 text-blue-600" />
+                                  </div>
+                                </TableHead>
+                                <TableHead className="text-xs font-semibold text-gray-900 py-2 px-3">Delivery Type</TableHead>
+                                <TableHead className="text-xs font-semibold text-gray-900 py-2 px-3">Document Type</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell colSpan={3} className="text-center py-8">
+                                  <p className="text-xs text-gray-500">No product document delivery history</p>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="price-history" className="mt-4">
+                        <div className="space-y-4">
+                          {/* Price History Chart */}
+                          <div className="bg-white p-4 rounded border border-gray-200">
+                            <ResponsiveContainer width="100%" height={300}>
+                              <LineChart
+                                data={[
+                                  { date: "1996-01-01", price: 8.00 },
+                                  { date: "2001-01-01", price: 5.00 },
+                                  { date: "2006-01-01", price: 2.00 },
+                                  { date: "2011-01-01", price: 0.00 },
+                                  { date: "2016-01-01", price: -2.00 },
+                                  { date: "2021-01-01", price: -5.00 },
+                                  { date: "2026-01-01", price: -8.00 },
+                                ]}
+                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                              >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis 
+                                  dataKey="date" 
+                                  tick={{ fontSize: 10 }}
+                                  tickFormatter={(value) => {
+                                    const date = new Date(value);
+                                    return `Jan 1 ${date.getFullYear().toString().slice(-2)}`;
+                                  }}
+                                />
+                                <YAxis 
+                                  tick={{ fontSize: 10 }}
+                                  tickFormatter={(value) => `$${value.toFixed(2)}`}
+                                />
+                                <Tooltip />
+                                <Line 
+                                  type="monotone" 
+                                  dataKey="price" 
+                                  stroke="#3B82F6" 
+                                  strokeWidth={2}
+                                  dot={false}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                            <p className="text-[9px] text-gray-500 italic mt-2">
+                              * This chart shows price history only, and does not include any gains due to dividend/interest distributions.
+                            </p>
+                          </div>
+
+                          {/* Price List Section */}
+                          <div className="bg-white p-4 rounded border border-gray-200">
+                            <h4 className="text-xs font-semibold text-gray-900 mb-4">Price List</h4>
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">Start Date</Label>
+                                  <div className="relative">
+                                    <Input className="h-7 text-[11px] pr-8" value="12/19/2025" />
+                                    <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-[10px] text-gray-500 mb-0.5 block">End Date</Label>
+                                  <div className="relative">
+                                    <Input className="h-7 text-[11px] pr-8" value="12/19/2025" />
+                                    <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-500" />
+                                  </div>
+                                </div>
+                              </div>
+                              <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7">
+                                List Prices
+                              </Button>
+                              <div className="py-4">
+                                <p className="text-xs text-gray-500 text-center">No prices found within the given date range.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                ) : (
+                  /* Plan Details */
+                  <Tabs value={planDetailTab} onValueChange={setPlanDetailTab}>
                   <TabsList className="grid w-full grid-cols-6 h-8">
                     <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
                     <TabsTrigger value="kyc" className="text-xs">KYC</TabsTrigger>
@@ -4217,6 +5178,7 @@ const ClientDetails = () => {
                     </div>
                   </TabsContent>
                 </Tabs>
+                )}
               </div>
             </div>
           </div>
