@@ -3009,7 +3009,10 @@ const ClientDetails = () => {
                       {fundAccounts.map((account) => (
                         <div
                           key={account.id}
-                          onClick={() => setSelectedFundAccount(account.id)}
+                          onClick={() => {
+                            setSelectedFundAccount(account.id);
+                            setSelectedTransaction(null); // Clear transaction selection to show fund account details
+                          }}
                           className={`border rounded p-2 cursor-pointer transition-colors ${
                             selectedFundAccount === account.id
                               ? "border-blue-500 bg-blue-50"
