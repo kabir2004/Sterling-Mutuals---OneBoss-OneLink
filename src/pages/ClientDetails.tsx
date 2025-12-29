@@ -720,6 +720,19 @@ const ClientDetails = () => {
                 <div className="text-sm font-semibold text-gray-900 mb-1">N/A</div>
                 <div className="h-1 rounded-full bg-gray-200"></div>
               </div>
+
+              {/* Estimated Share of Wallet */}
+              <div className="pt-1.5 border-t border-gray-100">
+                <div className="flex items-center justify-center gap-0.5 mb-1">
+                  <span className="text-[9px] font-semibold text-blue-600">Estimated Share of Wallet</span>
+                  <Info className="h-2 w-2 text-blue-400" />
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-bold text-blue-600 mb-0.5">100%</div>
+                  <div className="text-[9px] text-gray-900 mb-0.5">Investable Assets</div>
+                  <div className="text-[9px] text-gray-600">Average E1 has 56.164% with us</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
