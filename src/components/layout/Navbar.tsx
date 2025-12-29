@@ -8,8 +8,6 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Attestations } from '@/components/Attestations';
 import { InterfaceSwitcher } from '@/components/InterfaceSwitcher';
 import { ShoppingCart } from '@/components/ShoppingCart';
-import { useInterface } from '@/context/InterfaceContext';
-import { getInterfaceDisplayName } from '@/components/InterfaceSwitcher';
 import { useMenuVisibility } from '@/context/MenuVisibilityContext';
 
 interface NavbarProps {
@@ -18,7 +16,6 @@ interface NavbarProps {
 }
 
 export function Navbar({ className, onMenuClick }: NavbarProps) {
-  const { currentInterface } = useInterface();
   const { isMenuHidden, toggleMenuVisibility } = useMenuVisibility();
   
   return (
@@ -26,12 +23,7 @@ export function Navbar({ className, onMenuClick }: NavbarProps) {
       <div className="w-full flex items-center justify-between h-16 px-4 lg:px-6">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
-          <div className="flex items-center gap-2">
-            <InterfaceSwitcher />
-            <span className="text-sm text-gray-600 font-medium">
-              {getInterfaceDisplayName(currentInterface)}
-            </span>
-          </div>
+          <InterfaceSwitcher />
         </div>
         
         <div className="flex items-center gap-4">

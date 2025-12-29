@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Check, LayoutGrid, Monitor } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, ChevronDown, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -76,17 +76,19 @@ export function InterfaceSwitcher() {
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-gray-600 hover:text-gray-900"
+          variant="outline"
+          className="h-9 px-3 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-300"
         >
-          <Monitor className="h-5 w-5" />
+          <span className="flex items-center gap-2">
+            <Monitor className="h-4 w-4" />
+            <span>Current: {currentDisplayName}</span>
+            <ChevronDown className="h-4 w-4 ml-1" />
+          </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[320px] p-0" align="start" side="bottom">
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-3 border-b border-gray-200">
           <h3 className="text-sm font-semibold text-gray-900">Switch Interface</h3>
-          <p className="text-xs text-gray-600 mt-1">Current: {currentDisplayName}</p>
         </div>
         <div className="p-2">
           <div className="space-y-1">
@@ -105,7 +107,7 @@ export function InterfaceSwitcher() {
                   option.available
                     ? "hover:bg-gray-100 text-gray-900 cursor-pointer"
                     : "text-gray-400 cursor-not-allowed opacity-50",
-                  currentInterface === option.id && "bg-gray-100"
+                  currentInterface === option.id && "bg-blue-50"
                 )}
               >
                 <span>{option.label}</span>

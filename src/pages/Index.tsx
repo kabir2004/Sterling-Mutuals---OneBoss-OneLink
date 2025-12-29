@@ -121,7 +121,7 @@ const Index = () => {
     { id: 'assetsByPlanType', name: 'Assets By Plan Type' },
     { id: 'assetsBySupplier', name: 'Assets By Supplier' },
     { id: 'eStatementSignup', name: 'eStatement Signup' },
-    { id: 'topFiveClients', name: 'Top Five Clients' },
+    { id: 'topFiveClients', name: 'Analyze My Book' },
     { id: 'topFiveProducts', name: 'Top Five Products' },
     { id: 'topFiveProductsPerformance', name: 'Top Five Products Performance' },
   ];
@@ -1244,33 +1244,39 @@ const Index = () => {
             </Card>
             )}
 
-            {/* Top Five Clients */}
+            {/* Analyze My Book */}
             {activeWidgets.has('topFiveClients') && (
             <Card className="border border-gray-200 shadow-sm bg-white">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-gray-900">Top Five Clients</CardTitle>
+                <CardTitle className="text-sm font-semibold text-gray-900">Analyze My Book</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {topClients.map((client, index) => {
-                    const maxValue = Math.max(...topClients.map(c => c.value));
-                    const percentage = (client.value / maxValue) * 100;
-                    return (
-                      <div key={index} className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-900">{client.name}</span>
-                          <span className="text-sm font-semibold text-gray-900">~${client.value}M</span>
-                      </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2">
-                          <div
-                            className="h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${percentage}%`, backgroundColor: client.color }}
-                          />
-                      </div>
-                    </div>
-                    );
-                  })}
-                      </div>
+              <CardContent className="pt-0 space-y-3">
+                {/* Retention Score */}
+                <div>
+                  <div className="text-xs text-gray-600 mb-1">Retention Score</div>
+                  <div className="text-sm font-semibold text-green-600 mb-1">36.37</div>
+                  <div className="h-1 rounded-full bg-gray-100">
+                    <div className="h-full rounded-full bg-green-500" style={{ width: '86.37%' }}></div>
+                  </div>
+                  <div className="flex justify-between mt-1 text-[10px] text-gray-500">
+                    <span>High risk</span>
+                    <span>Low risk</span>
+                  </div>
+                </div>
+
+                {/* Engagement Score */}
+                <div>
+                  <div className="text-xs text-gray-600 mb-1">Engagement Score</div>
+                  <div className="text-sm font-semibold text-gray-900 mb-1">N/A</div>
+                  <div className="h-1 rounded-full bg-gray-200"></div>
+                  <div className="flex justify-between mt-1 text-[10px] text-gray-500">
+                    <span>Disengaged</span>
+                    <span>Engaged</span>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 pt-3 border-t border-gray-100 text-right">
+                  Last update: 2025-10-06
+                </div>
               </CardContent>
             </Card>
             )}

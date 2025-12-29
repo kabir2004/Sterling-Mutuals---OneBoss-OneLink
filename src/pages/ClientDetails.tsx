@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -63,6 +64,9 @@ import {
   Folder,
   ArrowUpRight,
   Star,
+  ThumbsUp,
+  ThumbsDown,
+  Info,
   Building2,
   Eye,
 } from "lucide-react";
@@ -209,6 +213,55 @@ const ClientDetails = () => {
   const [transactionsSortBy, setTransactionsSortBy] = useState("Trade Date");
   const [selectedTransaction, setSelectedTransaction] = useState<string | null>(null);
   const [transactionDetailTab, setTransactionDetailTab] = useState("details");
+  const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
+  const [depositAmount, setDepositAmount] = useState("0.00");
+  const [isBuyUnitsDialogOpen, setIsBuyUnitsDialogOpen] = useState(false);
+  const [isOrderConfirmedDialogOpen, setIsOrderConfirmedDialogOpen] = useState(false);
+  const [isSellUnitsDialogOpen, setIsSellUnitsDialogOpen] = useState(false);
+  const [isSellOrderConfirmedDialogOpen, setIsSellOrderConfirmedDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [investmentAmount, setInvestmentAmount] = useState("200");
+  const [numberOfUnits, setNumberOfUnits] = useState("");
+  const [sellUnits, setSellUnits] = useState("200");
+  const [sellDollarAmount, setSellDollarAmount] = useState("");
+  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [sellOrderDetails, setSellOrderDetails] = useState<any>(null);
+  const [isSwitchDialogOpen, setIsSwitchDialogOpen] = useState(false);
+  const [isConvertDialogOpen, setIsConvertDialogOpen] = useState(false);
+  const [isSwitchOrderConfirmedDialogOpen, setIsSwitchOrderConfirmedDialogOpen] = useState(false);
+  const [isConvertOrderConfirmedDialogOpen, setIsConvertOrderConfirmedDialogOpen] = useState(false);
+  const [selectedFundCompany, setSelectedFundCompany] = useState("");
+  const [selectedFundToSwitch, setSelectedFundToSwitch] = useState("");
+  const [unitsToSwitch, setUnitsToSwitch] = useState("");
+  const [switchOrderDetails, setSwitchOrderDetails] = useState<any>(null);
+  const [convertOrderDetails, setConvertOrderDetails] = useState<any>(null);
+  const [isSelectPlanTypeOpen, setIsSelectPlanTypeOpen] = useState(false);
+  const [selectedPlanType, setSelectedPlanType] = useState("");
+  const [planSetupStep, setPlanSetupStep] = useState(0);
+  const [ownerName, setOwnerName] = useState("John Smith");
+  const [beneficiaryName, setBeneficiaryName] = useState("");
+  const [intermediaryCode, setIntermediaryCode] = useState("");
+  const [intermediaryAccountCode, setIntermediaryAccountCode] = useState("");
+  const [planNotes, setPlanNotes] = useState("");
+  const [planObjectives, setPlanObjectives] = useState("");
+  const [riskTolerance, setRiskTolerance] = useState("");
+  const [timeHorizon, setTimeHorizon] = useState("");
+  const [createdPlanDetails, setCreatedPlanDetails] = useState<any>(null);
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [addProductFundCompany, setAddProductFundCompany] = useState("");
+  const [addProductFundSearch, setAddProductFundSearch] = useState("");
+  const [addProductSelectedFund, setAddProductSelectedFund] = useState("");
+  const [addProductAmount, setAddProductAmount] = useState("");
+  const [isInvestmentOrderConfirmedOpen, setIsInvestmentOrderConfirmedOpen] = useState(false);
+  const [investmentOrderDetails, setInvestmentOrderDetails] = useState<any>(null);
+  const [isStandaloneAddProductOpen, setIsStandaloneAddProductOpen] = useState(false);
+  const [standaloneFundCompany, setStandaloneFundCompany] = useState("");
+  const [standaloneFundSearch, setStandaloneFundSearch] = useState("");
+  const [standaloneSelectedFund, setStandaloneSelectedFund] = useState("");
+  const [standaloneAmount, setStandaloneAmount] = useState("");
+  const [portfolioSubTab, setPortfolioSubTab] = useState<"investments" | "cash" | "recent-trading" | "product-documents">("investments");
+  const [collapsedAccounts, setCollapsedAccounts] = useState<Set<string>>(new Set());
   
   // Plans data for the Plans tab
   const plansList = [
@@ -308,58 +361,6 @@ const ClientDetails = () => {
   
   // Get selected transaction data
   const selectedTransactionData = transactions.find(t => t.id === selectedTransaction) || null;
-  
-  const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
-  const [depositAmount, setDepositAmount] = useState("0.00");
-  const [isBuyUnitsDialogOpen, setIsBuyUnitsDialogOpen] = useState(false);
-  const [isOrderConfirmedDialogOpen, setIsOrderConfirmedDialogOpen] = useState(false);
-  const [isSellUnitsDialogOpen, setIsSellUnitsDialogOpen] = useState(false);
-  const [isSellOrderConfirmedDialogOpen, setIsSellOrderConfirmedDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const [investmentAmount, setInvestmentAmount] = useState("200");
-  const [numberOfUnits, setNumberOfUnits] = useState("");
-  const [sellUnits, setSellUnits] = useState("200");
-  const [sellDollarAmount, setSellDollarAmount] = useState("");
-  const [orderDetails, setOrderDetails] = useState<any>(null);
-  const [sellOrderDetails, setSellOrderDetails] = useState<any>(null);
-  const [isSwitchDialogOpen, setIsSwitchDialogOpen] = useState(false);
-  const [isConvertDialogOpen, setIsConvertDialogOpen] = useState(false);
-  const [isSwitchOrderConfirmedDialogOpen, setIsSwitchOrderConfirmedDialogOpen] = useState(false);
-  const [isConvertOrderConfirmedDialogOpen, setIsConvertOrderConfirmedDialogOpen] = useState(false);
-  const [selectedFundCompany, setSelectedFundCompany] = useState("");
-  const [selectedFundToSwitch, setSelectedFundToSwitch] = useState("");
-  const [unitsToSwitch, setUnitsToSwitch] = useState("");
-  const [switchOrderDetails, setSwitchOrderDetails] = useState<any>(null);
-  const [convertOrderDetails, setConvertOrderDetails] = useState<any>(null);
-  
-  // Add Plan workflow states
-  const [isSelectPlanTypeOpen, setIsSelectPlanTypeOpen] = useState(false);
-  const [selectedPlanType, setSelectedPlanType] = useState("");
-  const [planSetupStep, setPlanSetupStep] = useState(0);
-  const [ownerName, setOwnerName] = useState("John Smith");
-  const [beneficiaryName, setBeneficiaryName] = useState("");
-  const [intermediaryCode, setIntermediaryCode] = useState("");
-  const [intermediaryAccountCode, setIntermediaryAccountCode] = useState("");
-  const [planNotes, setPlanNotes] = useState("");
-  const [planObjectives, setPlanObjectives] = useState("");
-  const [riskTolerance, setRiskTolerance] = useState("");
-  const [timeHorizon, setTimeHorizon] = useState("");
-  const [createdPlanDetails, setCreatedPlanDetails] = useState<any>(null);
-  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
-  const [addProductFundCompany, setAddProductFundCompany] = useState("");
-  const [addProductFundSearch, setAddProductFundSearch] = useState("");
-  const [addProductSelectedFund, setAddProductSelectedFund] = useState("");
-  const [addProductAmount, setAddProductAmount] = useState("");
-  const [isInvestmentOrderConfirmedOpen, setIsInvestmentOrderConfirmedOpen] = useState(false);
-  const [investmentOrderDetails, setInvestmentOrderDetails] = useState<any>(null);
-  const [isStandaloneAddProductOpen, setIsStandaloneAddProductOpen] = useState(false);
-  const [standaloneFundCompany, setStandaloneFundCompany] = useState("");
-  const [standaloneFundSearch, setStandaloneFundSearch] = useState("");
-  const [standaloneSelectedFund, setStandaloneSelectedFund] = useState("");
-  const [standaloneAmount, setStandaloneAmount] = useState("");
-  const [portfolioSubTab, setPortfolioSubTab] = useState<"investments" | "cash" | "recent-trading" | "product-documents">("investments");
-  const [collapsedAccounts, setCollapsedAccounts] = useState<Set<string>>(new Set());
 
   // Find the client by ID
   const client = CLIENTS.find((c) => c.id === id);
@@ -383,8 +384,9 @@ const ClientDetails = () => {
     totalTrades: 45,
     joinDate: "2024-01-15",
     mailingAddress: {
-      line1: "230 Meadowbrook Dr. Unit 4",
-      line2: "ANCASTER ON L9K 1J3",
+      line1: "123 Main Street",
+      line2: "Suite 200",
+      line3: "TORONTO ON M5H 2N2",
     },
     contact: {
       home: "555-555-5555",
@@ -649,27 +651,31 @@ const ClientDetails = () => {
           <>
             {/* Information Cards */}
         <div className="grid grid-cols-6 gap-4">
-          {/* Mailing Address Card */}
-          <Card className="border border-gray-200 shadow-sm bg-white">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-900">Mailing Address</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm text-gray-700">{clientDetails.mailingAddress.line1}</p>
-              <p className="text-sm text-gray-700">{clientDetails.mailingAddress.line2}</p>
-              <p className="text-sm text-gray-700 mt-1">Home: {clientDetails.contact.home}</p>
-              <p className="text-sm text-gray-700">Cell: {clientDetails.contact.cell}</p>
-            </CardContent>
-          </Card>
-
           {/* Residential Address Card */}
-          <Card className="border border-gray-200 shadow-sm bg-white">
-            <CardHeader className="pb-3">
+          <Card className="border border-gray-200 shadow-sm bg-white group">
+            <CardHeader className="pb-3 relative">
               <CardTitle className="text-sm font-semibold text-gray-900">Residential Address</CardTitle>
+              {clientDetails.mailingAddress && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="absolute top-3 right-3 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-help text-xs font-semibold">*</span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="space-y-1">
+                      <p className="font-semibold">Mailing Address:</p>
+                      <p>{clientDetails.mailingAddress.line1}</p>
+                      {clientDetails.mailingAddress.line2 && <p>{clientDetails.mailingAddress.line2}</p>}
+                      {clientDetails.mailingAddress.line3 && <p>{clientDetails.mailingAddress.line3}</p>}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              )}
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-sm text-gray-700">{clientDetails.mailingAddress.line1}</p>
               <p className="text-sm text-gray-700">{clientDetails.mailingAddress.line2}</p>
+              <p className="text-sm text-gray-700 mt-2">Home: {clientDetails.contact.home}</p>
+              <p className="text-sm text-gray-700">Cell: {clientDetails.contact.cell}</p>
             </CardContent>
           </Card>
 
@@ -683,13 +689,37 @@ const ClientDetails = () => {
             </CardContent>
           </Card>
 
-          {/* Preferred Language Card */}
+          {/* Client and Plan Exceptions Card */}
           <Card className="border border-gray-200 shadow-sm bg-white">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-900">Preferred Language</CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900">Client and Plan Exceptions</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <p className="text-sm text-gray-700">{clientDetails.representative.language}</p>
+              <p className="text-sm text-gray-500">No exceptions</p>
+            </CardContent>
+          </Card>
+
+          {/* Client Profiler Card */}
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-gray-900">Client Profiler</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              {/* Retention Score */}
+              <div>
+                <div className="text-xs text-gray-600 mb-1">Retention Score</div>
+                <div className="text-sm font-semibold text-green-600 mb-1">36.37</div>
+                <div className="h-1 rounded-full bg-gray-100">
+                  <div className="h-full rounded-full bg-green-500" style={{ width: '86.37%' }}></div>
+                </div>
+              </div>
+
+              {/* Engagement Score */}
+              <div>
+                <div className="text-xs text-gray-600 mb-1">Engagement Score</div>
+                <div className="text-sm font-semibold text-gray-900 mb-1">N/A</div>
+                <div className="h-1 rounded-full bg-gray-200"></div>
+              </div>
             </CardContent>
           </Card>
 
@@ -700,6 +730,8 @@ const ClientDetails = () => {
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-sm text-gray-700">{clientDetails.representative.name}</p>
+              <p className="text-sm font-semibold text-gray-900 mt-2 mb-1">Client Preferred Language</p>
+              <p className="text-sm text-gray-700">{clientDetails.representative.language}</p>
             </CardContent>
           </Card>
 
@@ -710,26 +742,6 @@ const ClientDetails = () => {
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-sm font-bold text-green-600">{clientDetails.totalAssets}</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Map and Client and Plan Exceptions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="border border-gray-200 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-900">Map</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm text-gray-500">Map view coming soon...</p>
-            </CardContent>
-          </Card>
-          <Card className="border border-gray-200 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-900">Client and Plan Exceptions</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm text-gray-500">No exceptions</p>
             </CardContent>
           </Card>
         </div>
@@ -807,7 +819,10 @@ const ClientDetails = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          <TableRow>
+                          <TableRow 
+                            className="cursor-pointer hover:bg-gray-50"
+                            onClick={() => setClientViewTab("portfolio")}
+                          >
                             <TableCell className="text-xs py-1.5 px-2">
                               <span className="font-bold text-blue-600 underline cursor-pointer">AGF-185</span>
                             </TableCell>
@@ -894,7 +909,10 @@ const ClientDetails = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          <TableRow className="bg-blue-50">
+                          <TableRow 
+                            className="bg-blue-50 cursor-pointer hover:bg-blue-100"
+                            onClick={() => setClientViewTab("portfolio")}
+                          >
                             <TableCell className="text-xs py-1.5 px-2">
                               <span className="font-bold text-blue-600 underline cursor-pointer">MFC-724</span>
                             </TableCell>
@@ -918,7 +936,10 @@ const ClientDetails = () => {
                               </div>
                             </TableCell>
                           </TableRow>
-                          <TableRow>
+                          <TableRow 
+                            className="cursor-pointer hover:bg-gray-50"
+                            onClick={() => setClientViewTab("portfolio")}
+                          >
                             <TableCell className="text-xs py-1.5 px-2">
                               <span className="font-bold text-blue-600 underline cursor-pointer">MFC-2238</span>
                             </TableCell>
@@ -1749,6 +1770,14 @@ const ClientDetails = () => {
                       <Label className="text-xs text-gray-500 mb-1 block">Postal</Label>
                       <Input className="h-8 text-sm" defaultValue="HOH OHO" />
                     </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Home</Label>
+                      <Input className="h-8 text-sm" defaultValue="555-555-5555" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500 mb-1 block">Cell</Label>
+                      <Input className="h-8 text-sm" defaultValue="555-555-5555" />
+                    </div>
                   </div>
                 </div>
                 {/* Mailing Address */}
@@ -2488,7 +2517,7 @@ const ClientDetails = () => {
                           tick={{ fontSize: 10 }}
                           ticks={[0, 2000, 4000, 6000, 8000, 10000, 12000, 14000]}
                         />
-                        <Tooltip />
+                        <RechartsTooltip />
                         <Area 
                           type="monotone" 
                           dataKey="marketValue" 
@@ -2540,7 +2569,7 @@ const ClientDetails = () => {
                             <Cell fill="#ef4444" />
                             <Cell fill="#3b82f6" />
                           </Pie>
-                          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                          <RechartsTooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
                         </PieChart>
                       </ResponsiveContainer>
                       <Table className="mt-3">
@@ -2590,7 +2619,7 @@ const ClientDetails = () => {
                             <Cell fill="#6b7280" />
                             <Cell fill="#6b7280" />
                           </Pie>
-                          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                          <RechartsTooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
                         </PieChart>
                       </ResponsiveContainer>
                       <Table className="mt-3">
@@ -2670,7 +2699,7 @@ const ClientDetails = () => {
                             <Cell fill="#6b7280" />
                             <Cell fill="#6b7280" />
                           </Pie>
-                          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                          <RechartsTooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
                         </PieChart>
                       </ResponsiveContainer>
                       <Table className="mt-3">
@@ -2752,7 +2781,7 @@ const ClientDetails = () => {
                             <Cell fill="#eab308" />
                             <Cell fill="#f97316" />
                           </Pie>
-                          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                          <RechartsTooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
                         </PieChart>
                       </ResponsiveContainer>
                       <div>
@@ -4093,7 +4122,7 @@ const ClientDetails = () => {
                                         <Cell fill="#E91E63" />
                                         <Cell fill="#9E9E9E" />
                                       </Pie>
-                                      <Tooltip />
+                                      <RechartsTooltip />
                                     </PieChart>
                                   </ResponsiveContainer>
                                   <div className="mt-4 space-y-1">
@@ -4162,7 +4191,7 @@ const ClientDetails = () => {
                                         <Cell fill="#FF9800" />
                                         <Cell fill="#9E9E9E" />
                                       </Pie>
-                                      <Tooltip />
+                                      <RechartsTooltip />
                                     </PieChart>
                                   </ResponsiveContainer>
                                   <div className="mt-4 space-y-1">
@@ -4245,7 +4274,7 @@ const ClientDetails = () => {
                                         <Cell fill="#E91E63" />
                                         <Cell fill="#9E9E9E" />
                                       </Pie>
-                                      <Tooltip />
+                                      <RechartsTooltip />
                                     </PieChart>
                                   </ResponsiveContainer>
                                   <div className="mt-4 space-y-1">
@@ -4500,7 +4529,7 @@ const ClientDetails = () => {
                                   tick={{ fontSize: 10 }}
                                   tickFormatter={(value) => `$${value.toFixed(2)}`}
                                 />
-                                <Tooltip />
+                                <RechartsTooltip />
                                 <Line 
                                   type="monotone" 
                                   dataKey="price" 
@@ -5111,7 +5140,7 @@ const ClientDetails = () => {
                                         <Cell fill="#1e40af" />
                                         <Cell fill="#9333ea" />
                                       </Pie>
-                                      <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                                      <RechartsTooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
                                       <Legend />
                                     </PieChart>
                                   </ResponsiveContainer>
@@ -5150,7 +5179,7 @@ const ClientDetails = () => {
                                         <Cell fill="#ef4444" />
                                         <Cell fill="#f87171" />
                                       </Pie>
-                                      <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                                      <RechartsTooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
                                       <Legend />
                                     </PieChart>
                                   </ResponsiveContainer>
@@ -5187,7 +5216,7 @@ const ClientDetails = () => {
                                         <Cell fill="#84cc16" />
                                         <Cell fill="#f97316" />
                                       </Pie>
-                                      <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                                      <RechartsTooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
                                       <Legend />
                                     </PieChart>
                                   </ResponsiveContainer>
@@ -5576,7 +5605,7 @@ const ClientDetails = () => {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="category" tick={{ fontSize: 10 }} />
                                 <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} label={{ value: "Percent", angle: -90, position: "insideLeft", fontSize: 10 }} />
-                                <Tooltip />
+                                <RechartsTooltip />
                                 <Bar dataKey="actual" fill="#22c55e" />
                                 <Bar dataKey="kyc" fill="#3b82f6" />
                               </BarChart>
@@ -5605,7 +5634,7 @@ const ClientDetails = () => {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis type="number" domain={[0, 256]} tick={{ fontSize: 10 }} />
                                 <YAxis type="category" dataKey="name" hide />
-                                <Tooltip />
+                                <RechartsTooltip />
                                 <Bar dataKey="actual" fill="#22c55e" />
                                 <Bar dataKey="kyc" fill="#3b82f6" />
                               </BarChart>
@@ -5635,7 +5664,7 @@ const ClientDetails = () => {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="category" tick={{ fontSize: 9 }} angle={-45} textAnchor="end" height={60} />
                                 <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} label={{ value: "Percent", angle: -90, position: "insideLeft", fontSize: 10 }} />
-                                <Tooltip />
+                                <RechartsTooltip />
                                 <Bar dataKey="actual" fill="#22c55e" />
                                 <Bar dataKey="kyc" fill="#3b82f6" />
                               </BarChart>
