@@ -279,7 +279,11 @@ export function SidebarNavigation() {
                             <Button
                               size="sm"
                               onClick={() => navigate('/clients')}
-                              className="w-full h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                              className={`w-full h-7 text-xs ${
+                                location.pathname === '/clients'
+                                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                  : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300'
+                              }`}
                             >
                               <Plus className="h-3 w-3 mr-1.5" />
                               Add Clients

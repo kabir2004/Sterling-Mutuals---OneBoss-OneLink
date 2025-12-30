@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -206,7 +206,7 @@ const ClientDetails = () => {
   const [includeInactivePlans, setIncludeInactivePlans] = useState(false);
   const [includeInactiveAccounts, setIncludeInactiveAccounts] = useState(false);
   const [accountViewType, setAccountViewType] = useState<"fund-accounts" | "gics">("fund-accounts");
-  const [selectedPlanForDetails, setSelectedPlanForDetails] = useState<string | null>("3641343426");
+  const [selectedPlanForDetails, setSelectedPlanForDetails] = useState<string | null>(null);
   const [selectedFundAccount, setSelectedFundAccount] = useState<string | null>(null);
   const [fundAccountAllocationsView, setFundAccountAllocationsView] = useState<"chart" | "table">("chart");
   const [transactionsDisplayOption, setTransactionsDisplayOption] = useState("Valid and Pending");
@@ -263,89 +263,395 @@ const ClientDetails = () => {
   const [portfolioSubTab, setPortfolioSubTab] = useState<"investments" | "cash" | "recent-trading" | "product-documents">("investments");
   const [collapsedAccounts, setCollapsedAccounts] = useState<Set<string>>(new Set());
   
-  // Plans data for the Plans tab
-  const plansList = [
-    {
-      id: "3641343426",
-      type: "RRSP",
-      accountNumber: "3641343426",
-      name: "Client Name",
-      category: "Individual",
-      marketValue: "$16,305.20",
-    },
-    {
-      id: "1234567890",
-      type: "RESP",
-      accountNumber: "1234567890",
-      name: "Client Name",
-      category: "Individual",
-      marketValue: "$12,500.00",
-    },
-  ];
+  // Client-specific data mapping
+  const getClientData = (clientId: string | undefined) => {
+    if (!clientId) {
+      // Default data for CL001
+      return {
+        plans: [
+          { id: "340009", type: "OPEN", accountNumber: "340009", name: "Client Name", category: "Joint", marketValue: "$0.00" },
+          { id: "0137617685", type: "RRIF", accountNumber: "0137617685", name: "Client Name", category: "Individual", marketValue: "$23,510.16" },
+        ],
+        fundAccounts: [
+          { id: "AGF-185", productCode: "AGF-185", accountNumber: "", fullName: "AGF-185 AGF CANADIAN DIVIDEND INCOME FUND SERIES F", productName: "AGF CANADIAN DIVIDEND INCOME FUND SERIES F", supplier: "AGF", risk: "M", investmentObjective: "100% Gr", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$0.00", priceDate: "", category: "", distributionOption: "Reinvest", startDate: "", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "0.0000", certificate: "No Certificate", active: true, lastSequence: "0", effectiveDate: "", excludeFromDuplicate: false, marketValue: "$0.00 CAD" },
+          { id: "MFC-724", productCode: "MFC-724", accountNumber: "4132056511", fullName: "MFC-724 4132056511 (LM) MACKENZIE BLUEWATER CANADIAN GROWTH BALANCED FUND A FE", productName: "MACKENZIE BLUEWATER CANADIAN GROWTH BALANCED FUND A FE", supplier: "MFC", risk: "LM", investmentObjective: "25% In, 75% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$12.5499", priceDate: "04/29/2025", category: "", distributionOption: "Reinvest", startDate: "", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "0.0000", certificate: "No Certificate", active: true, lastSequence: "0", effectiveDate: "", excludeFromDuplicate: false, marketValue: "$13,792.63 CAD" },
+          { id: "MFC-2238", productCode: "MFC-2238", accountNumber: "1134475341", fullName: "MFC-2238 1134475341 (LM) MACKENZIE STRATEGIC INCOME FUND A FE", productName: "MACKENZIE STRATEGIC INCOME FUND A FE", supplier: "MFC", risk: "LM", investmentObjective: "50% In, 50% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$12.5499", priceDate: "04/29/2025", category: "", distributionOption: "Reinvest", startDate: "", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "0.0000", certificate: "No Certificate", active: true, lastSequence: "0", effectiveDate: "", excludeFromDuplicate: false, marketValue: "$9,718.53 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "340009", type: "OPEN", investments: ["AGF-185"] },
+          plan2: { id: "0137617685", type: "RRIF", investments: ["MFC-724", "MFC-2238"] },
+        },
+      };
+    }
+
+    const clientDataMap: Record<string, any> = {
+      "CL001": {
+        plans: [
+          { id: "340009", type: "OPEN", accountNumber: "340009", name: "John Smith", category: "Joint", marketValue: "$0.00" },
+          { id: "0137617685", type: "RRIF", accountNumber: "0137617685", name: "John Smith", category: "Individual", marketValue: "$23,510.16" },
+        ],
+        fundAccounts: [
+          { id: "AGF-185", productCode: "AGF-185", accountNumber: "", fullName: "AGF-185 AGF CANADIAN DIVIDEND INCOME FUND SERIES F", productName: "AGF CANADIAN DIVIDEND INCOME FUND SERIES F", supplier: "AGF", risk: "M", investmentObjective: "100% Gr", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$0.00", priceDate: "", category: "", distributionOption: "Reinvest", startDate: "", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "0.0000", certificate: "No Certificate", active: true, lastSequence: "0", effectiveDate: "", excludeFromDuplicate: false, marketValue: "$0.00 CAD" },
+          { id: "MFC-724", productCode: "MFC-724", accountNumber: "4132056511", fullName: "MFC-724 4132056511 (LM) MACKENZIE BLUEWATER CANADIAN GROWTH BALANCED FUND A FE", productName: "MACKENZIE BLUEWATER CANADIAN GROWTH BALANCED FUND A FE", supplier: "MFC", risk: "LM", investmentObjective: "25% In, 75% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$12.5499", priceDate: "04/29/2025", category: "", distributionOption: "Reinvest", startDate: "", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "0.0000", certificate: "No Certificate", active: true, lastSequence: "0", effectiveDate: "", excludeFromDuplicate: false, marketValue: "$13,792.63 CAD" },
+          { id: "MFC-2238", productCode: "MFC-2238", accountNumber: "1134475341", fullName: "MFC-2238 1134475341 (LM) MACKENZIE STRATEGIC INCOME FUND A FE", productName: "MACKENZIE STRATEGIC INCOME FUND A FE", supplier: "MFC", risk: "LM", investmentObjective: "50% In, 50% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$12.5499", priceDate: "04/29/2025", category: "", distributionOption: "Reinvest", startDate: "", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "0.0000", certificate: "No Certificate", active: true, lastSequence: "0", effectiveDate: "", excludeFromDuplicate: false, marketValue: "$9,718.53 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "340009", type: "OPEN", investments: ["AGF-185"] },
+          plan2: { id: "0137617685", type: "RRIF", investments: ["MFC-724", "MFC-2238"] },
+        },
+      },
+      "CL002": {
+        plans: [
+          { id: "RRSP-4521", type: "RRSP", accountNumber: "RRSP-4521", name: "Sarah Johnson", category: "Individual", marketValue: "$125,450.00" },
+          { id: "TFSA-7892", type: "TFSA", accountNumber: "TFSA-7892", name: "Sarah Johnson", category: "Individual", marketValue: "$45,230.00" },
+        ],
+        fundAccounts: [
+          { id: "TD-1234", productCode: "TD-1234", accountNumber: "5521887488", fullName: "TD-1234 5521887488 (M) TD CANADIAN EQUITY FUND SERIES A", productName: "TD CANADIAN EQUITY FUND SERIES A", supplier: "TD", risk: "M", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$28.5432", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "01/15/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "3.2450", certificate: "No Certificate", active: true, lastSequence: "2456", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$92,650.00 CAD" },
+          { id: "RBC-5678", productCode: "RBC-5678", accountNumber: "6234567890", fullName: "RBC-5678 6234567890 (H) RBC GLOBAL BOND FUND SERIES A", productName: "RBC GLOBAL BOND FUND SERIES A", supplier: "RBC", risk: "H", investmentObjective: "100% In", rateType: "FEL", dscRate: "0.0%", felMaxRate: "1.5%", currentPrice: "$15.2345", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "03/20/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.9876", certificate: "No Certificate", active: true, lastSequence: "1892", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$45,500.00 CAD" },
+          { id: "BMO-9012", productCode: "BMO-9012", accountNumber: "7123456789", fullName: "BMO-9012 7123456789 (LM) BMO BALANCED FUND SERIES A", productName: "BMO BALANCED FUND SERIES A", supplier: "BMO", risk: "LM", investmentObjective: "50% In, 50% Gr", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$22.6789", priceDate: "04/29/2025", category: "Balanced", distributionOption: "Reinvest", startDate: "06/10/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "1.5432", certificate: "No Certificate", active: true, lastSequence: "987", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$32,530.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-4521", type: "RRSP", investments: ["TD-1234", "RBC-5678"] },
+          plan2: { id: "TFSA-7892", type: "TFSA", investments: ["BMO-9012"] },
+        },
+      },
+      "CL005": {
+        plans: [
+          { id: "RESP-3456", type: "RESP", accountNumber: "RESP-3456", name: "Robert Wilson", category: "Family Plan", marketValue: "$67,890.00" },
+        ],
+        fundAccounts: [
+          { id: "CIBC-2468", productCode: "CIBC-2468", accountNumber: "4455667788", fullName: "CIBC-2468 4455667788 (M) CIBC DIVIDEND FUND SERIES A", productName: "CIBC DIVIDEND FUND SERIES A", supplier: "CIBC", risk: "M", investmentObjective: "75% In, 25% Gr", rateType: "DSC", dscRate: "5.5%", felMaxRate: "0.0%", currentPrice: "$19.8765", priceDate: "04/29/2025", category: "Canadian Dividend", distributionOption: "Reinvest", startDate: "09/05/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "3.4123", certificate: "No Certificate", active: true, lastSequence: "1567", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$67,890.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RESP-3456", type: "RESP", investments: ["CIBC-2468"] },
+        },
+      },
+      "CL006": {
+        plans: [
+          { id: "NR-7890", type: "Non-Registered", accountNumber: "NR-7890", name: "Elton Andrews", category: "Individual", marketValue: "$45,120.00" },
+          { id: "TFSA-1234", type: "TFSA", accountNumber: "TFSA-1234", name: "Elton Andrews", category: "Individual", marketValue: "$18,450.00" },
+        ],
+        fundAccounts: [
+          { id: "FID-1357", productCode: "FID-1357", accountNumber: "3344556677", fullName: "FID-1357 3344556677 (H) FIDELITY NORTHSTAR FUND SERIES B", productName: "FIDELITY NORTHSTAR FUND SERIES B", supplier: "FID", risk: "H", investmentObjective: "100% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "2.0%", currentPrice: "$24.5678", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "11/12/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "1.8345", certificate: "No Certificate", active: true, lastSequence: "2234", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$45,120.00 CAD" },
+          { id: "SCOTIA-9876", productCode: "SCOTIA-9876", accountNumber: "2233445566", fullName: "SCOTIA-9876 2233445566 (LM) SCOTIA CONSERVATIVE INCOME FUND SERIES A", productName: "SCOTIA CONSERVATIVE INCOME FUND SERIES A", supplier: "SCOTIA", risk: "LM", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$11.2345", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "02/28/2024", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "1.6423", certificate: "No Certificate", active: true, lastSequence: "1123", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$18,450.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "NR-7890", type: "Non-Registered", investments: ["FID-1357"] },
+          plan2: { id: "TFSA-1234", type: "TFSA", investments: ["SCOTIA-9876"] },
+        },
+      },
+      "CL007": {
+        plans: [
+          { id: "RRSP-5678", type: "RRSP", accountNumber: "RRSP-5678", name: "Francoise Andrews", category: "Individual", marketValue: "$89,340.00" },
+          { id: "LIF-2345", type: "LIF", accountNumber: "LIF-2345", name: "Francoise Andrews", category: "Individual", marketValue: "$156,780.00" },
+        ],
+        fundAccounts: [
+          { id: "MANULIFE-1111", productCode: "MANULIFE-1111", accountNumber: "8899001122", fullName: "MANULIFE-1111 8899001122 (M) MANULIFE CANADIAN EQUITY FUND SERIES A", productName: "MANULIFE CANADIAN EQUITY FUND SERIES A", supplier: "MANULIFE", risk: "M", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$18.7654", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "04/10/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.7621", certificate: "No Certificate", active: true, lastSequence: "3456", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$89,340.00 CAD" },
+          { id: "SUNLIFE-2222", productCode: "SUNLIFE-2222", accountNumber: "7788990011", fullName: "SUNLIFE-2222 7788990011 (LM) SUN LIFE BALANCED INCOME FUND SERIES A", productName: "SUN LIFE BALANCED INCOME FUND SERIES A", supplier: "SUNLIFE", risk: "LM", investmentObjective: "60% In, 40% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "1.2%", currentPrice: "$16.4321", priceDate: "04/29/2025", category: "Balanced", distributionOption: "Reinvest", startDate: "07/22/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "9.5432", certificate: "No Certificate", active: true, lastSequence: "4567", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$156,780.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-5678", type: "RRSP", investments: ["MANULIFE-1111"] },
+          plan2: { id: "LIF-2345", type: "LIF", investments: ["SUNLIFE-2222"] },
+        },
+      },
+      "CL008": {
+        plans: [
+          { id: "TFSA-4567", type: "TFSA", accountNumber: "TFSA-4567", name: "Amy Armstrong", category: "Individual", marketValue: "$52,890.00" },
+          { id: "RRSP-8901", type: "RRSP", accountNumber: "RRSP-8901", name: "Amy Armstrong", category: "Individual", marketValue: "$78,230.00" },
+          { id: "NR-3456", type: "Non-Registered", accountNumber: "NR-3456", name: "Amy Armstrong", category: "Individual", marketValue: "$34,560.00" },
+        ],
+        fundAccounts: [
+          { id: "IG-3333", productCode: "IG-3333", accountNumber: "6677889900", fullName: "IG-3333 6677889900 (H) IG WEALTH GLOBAL EQUITY FUND SERIES A", productName: "IG WEALTH GLOBAL EQUITY FUND SERIES A", supplier: "IG", risk: "H", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.5%", felMaxRate: "0.0%", currentPrice: "$21.9876", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "03/15/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.4056", certificate: "No Certificate", active: true, lastSequence: "5678", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$52,890.00 CAD" },
+          { id: "MACKENZIE-4444", productCode: "MACKENZIE-4444", accountNumber: "5566778899", fullName: "MACKENZIE-4444 5566778899 (M) MACKENZIE CANADIAN GROWTH FUND SERIES A", productName: "MACKENZIE CANADIAN GROWTH FUND SERIES A", supplier: "MACKENZIE", risk: "M", investmentObjective: "100% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$19.5432", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "05/20/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.0012", certificate: "No Certificate", active: true, lastSequence: "6789", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$78,230.00 CAD" },
+          { id: "AGF-5555", productCode: "AGF-5555", accountNumber: "4455667788", fullName: "AGF-5555 4455667788 (LM) AGF GLOBAL BOND FUND SERIES F", productName: "AGF GLOBAL BOND FUND SERIES F", supplier: "AGF", risk: "LM", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$12.3456", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "08/30/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.8012", certificate: "No Certificate", active: true, lastSequence: "7890", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$34,560.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "TFSA-4567", type: "TFSA", investments: ["IG-3333"] },
+          plan2: { id: "RRSP-8901", type: "RRSP", investments: ["MACKENZIE-4444"] },
+          plan3: { id: "NR-3456", type: "Non-Registered", investments: ["AGF-5555"] },
+        },
+      },
+      "CL009": {
+        plans: [
+          { id: "DCPP-6789", type: "DCPP", accountNumber: "DCPP-6789", name: "David Thompson", category: "Individual", marketValue: "$234,560.00" },
+        ],
+        fundAccounts: [
+          { id: "TD-6666", productCode: "TD-6666", accountNumber: "3344556677", fullName: "TD-6666 3344556677 (H) TD GLOBAL TECHNOLOGY FUND SERIES A", productName: "TD GLOBAL TECHNOLOGY FUND SERIES A", supplier: "TD", risk: "H", investmentObjective: "100% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "2.5%", currentPrice: "$35.6789", priceDate: "04/29/2025", category: "Technology", distributionOption: "Reinvest", startDate: "01/05/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "6.5789", certificate: "No Certificate", active: true, lastSequence: "8901", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$234,560.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "DCPP-6789", type: "DCPP", investments: ["TD-6666"] },
+        },
+      },
+      "CL011": {
+        plans: [
+          { id: "RRIF-9012", type: "RRIF", accountNumber: "RRIF-9012", name: "James Brown", category: "Individual", marketValue: "$145,670.00" },
+          { id: "LIF-5678", type: "LIF", accountNumber: "LIF-5678", name: "James Brown", category: "Individual", marketValue: "$98,340.00" },
+        ],
+        fundAccounts: [
+          { id: "RBC-7777", productCode: "RBC-7777", accountNumber: "2233445566", fullName: "RBC-7777 2233445566 (M) RBC CANADIAN DIVIDEND FUND SERIES A", productName: "RBC CANADIAN DIVIDEND FUND SERIES A", supplier: "RBC", risk: "M", investmentObjective: "75% In, 25% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$17.8901", priceDate: "04/29/2025", category: "Canadian Dividend", distributionOption: "Reinvest", startDate: "11/18/2020", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "8.1456", certificate: "No Certificate", active: true, lastSequence: "9012", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$145,670.00 CAD" },
+          { id: "BMO-8888", productCode: "BMO-8888", accountNumber: "1122334455", fullName: "BMO-8888 1122334455 (LM) BMO CONSERVATIVE INCOME FUND SERIES A", productName: "BMO CONSERVATIVE INCOME FUND SERIES A", supplier: "BMO", risk: "LM", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$13.4567", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "09/12/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "7.3123", certificate: "No Certificate", active: true, lastSequence: "0123", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$98,340.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRIF-9012", type: "RRIF", investments: ["RBC-7777"] },
+          plan2: { id: "LIF-5678", type: "LIF", investments: ["BMO-8888"] },
+        },
+      },
+      "CL012": {
+        plans: [
+          { id: "RRSP-1234", type: "RRSP", accountNumber: "RRSP-1234", name: "William Anderson", category: "Individual", marketValue: "$167,890.00" },
+          { id: "TFSA-5678", type: "TFSA", accountNumber: "TFSA-5678", name: "William Anderson", category: "Individual", marketValue: "$43,210.00" },
+        ],
+        fundAccounts: [
+          { id: "CIBC-9999", productCode: "CIBC-9999", accountNumber: "9988776655", fullName: "CIBC-9999 9988776655 (H) CIBC GLOBAL EQUITY FUND SERIES A", productName: "CIBC GLOBAL EQUITY FUND SERIES A", supplier: "CIBC", risk: "H", investmentObjective: "100% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "1.8%", currentPrice: "$27.1234", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "02/14/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "6.1890", certificate: "No Certificate", active: true, lastSequence: "1234", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$167,890.00 CAD" },
+          { id: "FID-0000", productCode: "FID-0000", accountNumber: "8877665544", fullName: "FID-0000 8877665544 (M) FIDELITY MONTHLY INCOME FUND SERIES B", productName: "FIDELITY MONTHLY INCOME FUND SERIES B", supplier: "FID", risk: "M", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$10.8765", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "06/25/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "3.9765", certificate: "No Certificate", active: true, lastSequence: "2345", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$43,210.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-1234", type: "RRSP", investments: ["CIBC-9999"] },
+          plan2: { id: "TFSA-5678", type: "TFSA", investments: ["FID-0000"] },
+        },
+      },
+      "CL013": {
+        plans: [
+          { id: "RESP-2345", type: "RESP", accountNumber: "RESP-2345", name: "Maria Garcia", category: "Family Plan", marketValue: "$89,450.00" },
+          { id: "TFSA-8901", type: "TFSA", accountNumber: "TFSA-8901", name: "Maria Garcia", category: "Individual", marketValue: "$28,340.00" },
+        ],
+        fundAccounts: [
+          { id: "SCOTIA-1111", productCode: "SCOTIA-1111", accountNumber: "7766554433", fullName: "SCOTIA-1111 7766554433 (M) SCOTIA CANADIAN EQUITY FUND SERIES A", productName: "SCOTIA CANADIAN EQUITY FUND SERIES A", supplier: "SCOTIA", risk: "M", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$20.5432", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "04/08/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.3543", certificate: "No Certificate", active: true, lastSequence: "3456", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$89,450.00 CAD" },
+          { id: "MANULIFE-2222", productCode: "MANULIFE-2222", accountNumber: "6655443322", fullName: "MANULIFE-2222 6655443322 (LM) MANULIFE BALANCED FUND SERIES A", productName: "MANULIFE BALANCED FUND SERIES A", supplier: "MANULIFE", risk: "LM", investmentObjective: "50% In, 50% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$14.3210", priceDate: "04/29/2025", category: "Balanced", distributionOption: "Reinvest", startDate: "10/15/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "1.9789", certificate: "No Certificate", active: true, lastSequence: "4567", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$28,340.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RESP-2345", type: "RESP", investments: ["SCOTIA-1111"] },
+          plan2: { id: "TFSA-8901", type: "TFSA", investments: ["MANULIFE-2222"] },
+        },
+      },
+      "CL014": {
+        plans: [
+          { id: "RRSP-3456", type: "RRSP", accountNumber: "RRSP-3456", name: "Michael Chen", category: "Individual", marketValue: "$198,760.00" },
+          { id: "NR-6789", type: "Non-Registered", accountNumber: "NR-6789", name: "Michael Chen", category: "Individual", marketValue: "$67,890.00" },
+        ],
+        fundAccounts: [
+          { id: "SUNLIFE-3333", productCode: "SUNLIFE-3333", accountNumber: "5544332211", fullName: "SUNLIFE-3333 5544332211 (H) SUN LIFE GLOBAL GROWTH FUND SERIES A", productName: "SUN LIFE GLOBAL GROWTH FUND SERIES A", supplier: "SUNLIFE", risk: "H", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.5%", felMaxRate: "0.0%", currentPrice: "$32.1098", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "03/22/2020", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "6.1987", certificate: "No Certificate", active: true, lastSequence: "5678", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$198,760.00 CAD" },
+          { id: "IG-4444", productCode: "IG-4444", accountNumber: "4433221100", fullName: "IG-4444 4433221100 (M) IG WEALTH CANADIAN DIVIDEND FUND SERIES A", productName: "IG WEALTH CANADIAN DIVIDEND FUND SERIES A", supplier: "IG", risk: "M", investmentObjective: "80% In, 20% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "1.0%", currentPrice: "$18.7654", priceDate: "04/29/2025", category: "Canadian Dividend", distributionOption: "Reinvest", startDate: "07/08/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "3.6210", certificate: "No Certificate", active: true, lastSequence: "6789", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$67,890.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-3456", type: "RRSP", investments: ["SUNLIFE-3333"] },
+          plan2: { id: "NR-6789", type: "Non-Registered", investments: ["IG-4444"] },
+        },
+      },
+      "CL015": {
+        plans: [
+          { id: "TFSA-4567", type: "TFSA", accountNumber: "TFSA-4567", name: "Emily Davis", category: "Individual", marketValue: "$34,560.00" },
+        ],
+        fundAccounts: [
+          { id: "MACKENZIE-5555", productCode: "MACKENZIE-5555", accountNumber: "3322110099", fullName: "MACKENZIE-5555 3322110099 (LM) MACKENZIE INCOME FUND SERIES A", productName: "MACKENZIE INCOME FUND SERIES A", supplier: "MACKENZIE", risk: "LM", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$11.5432", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "12/05/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.9921", certificate: "No Certificate", active: true, lastSequence: "7890", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$34,560.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "TFSA-4567", type: "TFSA", investments: ["MACKENZIE-5555"] },
+        },
+      },
+      "CL016": {
+        plans: [
+          { id: "RRSP-5678", type: "RRSP", accountNumber: "RRSP-5678", name: "Christopher Martinez", category: "Individual", marketValue: "$123,450.00" },
+          { id: "RRIF-0123", type: "RRIF", accountNumber: "RRIF-0123", name: "Christopher Martinez", category: "Individual", marketValue: "$87,230.00" },
+        ],
+        fundAccounts: [
+          { id: "TD-6666", productCode: "TD-6666", accountNumber: "2211009988", fullName: "TD-6666 2211009988 (M) TD BALANCED GROWTH FUND SERIES A", productName: "TD BALANCED GROWTH FUND SERIES A", supplier: "TD", risk: "M", investmentObjective: "40% In, 60% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$22.4321", priceDate: "04/29/2025", category: "Balanced", distributionOption: "Reinvest", startDate: "05/12/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "5.5012", certificate: "No Certificate", active: true, lastSequence: "8901", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$123,450.00 CAD" },
+          { id: "RBC-7777", productCode: "RBC-7777", accountNumber: "1100998877", fullName: "RBC-7777 1100998877 (LM) RBC CONSERVATIVE FUND SERIES A", productName: "RBC CONSERVATIVE FUND SERIES A", supplier: "RBC", risk: "LM", investmentObjective: "100% In", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$12.8901", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "08/20/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "6.7689", certificate: "No Certificate", active: true, lastSequence: "9012", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$87,230.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-5678", type: "RRSP", investments: ["TD-6666"] },
+          plan2: { id: "RRIF-0123", type: "RRIF", investments: ["RBC-7777"] },
+        },
+      },
+      "CL017": {
+        plans: [
+          { id: "OPEN-6789", type: "OPEN", accountNumber: "OPEN-6789", name: "Jessica Taylor", category: "Joint", marketValue: "$56,780.00" },
+          { id: "TFSA-2345", type: "TFSA", accountNumber: "TFSA-2345", name: "Jessica Taylor", category: "Individual", marketValue: "$29,450.00" },
+        ],
+        fundAccounts: [
+          { id: "BMO-8888", productCode: "BMO-8888", accountNumber: "0099887766", fullName: "BMO-8888 0099887766 (M) BMO CANADIAN EQUITY FUND SERIES A", productName: "BMO CANADIAN EQUITY FUND SERIES A", supplier: "BMO", risk: "M", investmentObjective: "100% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "1.5%", currentPrice: "$19.6543", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "09/30/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.8901", certificate: "No Certificate", active: true, lastSequence: "0123", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$56,780.00 CAD" },
+          { id: "CIBC-9999", productCode: "CIBC-9999", accountNumber: "9988776655", fullName: "CIBC-9999 9988776655 (LM) CIBC INCOME FUND SERIES A", productName: "CIBC INCOME FUND SERIES A", supplier: "CIBC", risk: "LM", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$13.2109", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "11/25/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.2289", certificate: "No Certificate", active: true, lastSequence: "1234", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$29,450.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "OPEN-6789", type: "OPEN", investments: ["BMO-8888"] },
+          plan2: { id: "TFSA-2345", type: "TFSA", investments: ["CIBC-9999"] },
+        },
+      },
+      "CL018": {
+        plans: [
+          { id: "RRSP-7890", type: "RRSP", accountNumber: "RRSP-7890", name: "Daniel Rodriguez", category: "Individual", marketValue: "$178,340.00" },
+          { id: "LIF-3456", type: "LIF", accountNumber: "LIF-3456", name: "Daniel Rodriguez", category: "Individual", marketValue: "$112,560.00" },
+        ],
+        fundAccounts: [
+          { id: "FID-0000", productCode: "FID-0000", accountNumber: "8877665544", fullName: "FID-0000 8877665544 (H) FIDELITY GLOBAL TECHNOLOGY FUND SERIES B", productName: "FIDELITY GLOBAL TECHNOLOGY FUND SERIES B", supplier: "FID", risk: "H", investmentObjective: "100% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "2.2%", currentPrice: "$38.7654", priceDate: "04/29/2025", category: "Technology", distributionOption: "Reinvest", startDate: "01/18/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.6012", certificate: "No Certificate", active: true, lastSequence: "2345", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$178,340.00 CAD" },
+          { id: "SCOTIA-1111", productCode: "SCOTIA-1111", accountNumber: "7766554433", fullName: "SCOTIA-1111 7766554433 (M) SCOTIA BALANCED FUND SERIES A", productName: "SCOTIA BALANCED FUND SERIES A", supplier: "SCOTIA", risk: "M", investmentObjective: "50% In, 50% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$17.4321", priceDate: "04/29/2025", category: "Balanced", distributionOption: "Reinvest", startDate: "04/05/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "6.4567", certificate: "No Certificate", active: true, lastSequence: "3456", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$112,560.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-7890", type: "RRSP", investments: ["FID-0000"] },
+          plan2: { id: "LIF-3456", type: "LIF", investments: ["SCOTIA-1111"] },
+        },
+      },
+      "CL019": {
+        plans: [
+          { id: "TFSA-8901", type: "TFSA", accountNumber: "TFSA-8901", name: "Olivia White", category: "Individual", marketValue: "$41,230.00" },
+          { id: "NR-4567", type: "Non-Registered", accountNumber: "NR-4567", name: "Olivia White", category: "Individual", marketValue: "$67,890.00" },
+        ],
+        fundAccounts: [
+          { id: "MANULIFE-2222", productCode: "MANULIFE-2222", accountNumber: "6655443322", fullName: "MANULIFE-2222 6655443322 (M) MANULIFE GLOBAL EQUITY FUND SERIES A", productName: "MANULIFE GLOBAL EQUITY FUND SERIES A", supplier: "MANULIFE", risk: "M", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$24.3210", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "06/12/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "1.6945", certificate: "No Certificate", active: true, lastSequence: "4567", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$41,230.00 CAD" },
+          { id: "SUNLIFE-3333", productCode: "SUNLIFE-3333", accountNumber: "5544332211", fullName: "SUNLIFE-3333 5544332211 (LM) SUN LIFE CANADIAN INCOME FUND SERIES A", productName: "SUN LIFE CANADIAN INCOME FUND SERIES A", supplier: "SUNLIFE", risk: "LM", investmentObjective: "100% In", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$15.6789", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "03/28/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.3289", certificate: "No Certificate", active: true, lastSequence: "5678", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$67,890.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "TFSA-8901", type: "TFSA", investments: ["MANULIFE-2222"] },
+          plan2: { id: "NR-4567", type: "Non-Registered", investments: ["SUNLIFE-3333"] },
+        },
+      },
+      "CL020": {
+        plans: [
+          { id: "RRSP-9012", type: "RRSP", accountNumber: "RRSP-9012", name: "Matthew Harris", category: "Individual", marketValue: "$156,780.00" },
+          { id: "RESP-5678", type: "RESP", accountNumber: "RESP-5678", name: "Matthew Harris", category: "Family Plan", marketValue: "$45,670.00" },
+        ],
+        fundAccounts: [
+          { id: "IG-4444", productCode: "IG-4444", accountNumber: "4433221100", fullName: "IG-4444 4433221100 (H) IG WEALTH GLOBAL GROWTH FUND SERIES A", productName: "IG WEALTH GLOBAL GROWTH FUND SERIES A", supplier: "IG", risk: "H", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.5%", felMaxRate: "0.0%", currentPrice: "$29.8765", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "02/20/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "5.2456", certificate: "No Certificate", active: true, lastSequence: "6789", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$156,780.00 CAD" },
+          { id: "MACKENZIE-5555", productCode: "MACKENZIE-5555", accountNumber: "3322110099", fullName: "MACKENZIE-5555 3322110099 (M) MACKENZIE CANADIAN EQUITY FUND SERIES A", productName: "MACKENZIE CANADIAN EQUITY FUND SERIES A", supplier: "MACKENZIE", risk: "M", investmentObjective: "100% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$20.5432", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "08/15/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.2234", certificate: "No Certificate", active: true, lastSequence: "7890", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$45,670.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-9012", type: "RRSP", investments: ["IG-4444"] },
+          plan2: { id: "RESP-5678", type: "RESP", investments: ["MACKENZIE-5555"] },
+        },
+      },
+      "CL021": {
+        plans: [
+          { id: "RRIF-0123", type: "RRIF", accountNumber: "RRIF-0123", name: "Sophia Lee", category: "Individual", marketValue: "$134,560.00" },
+          { id: "TFSA-3456", type: "TFSA", accountNumber: "TFSA-3456", name: "Sophia Lee", category: "Individual", marketValue: "$38,920.00" },
+          { id: "NR-7890", type: "Non-Registered", accountNumber: "NR-7890", name: "Sophia Lee", category: "Individual", marketValue: "$52,340.00" },
+        ],
+        fundAccounts: [
+          { id: "AGF-5555", productCode: "AGF-5555", accountNumber: "4455667788", fullName: "AGF-5555 4455667788 (M) AGF CANADIAN EQUITY FUND SERIES F", productName: "AGF CANADIAN EQUITY FUND SERIES F", supplier: "AGF", risk: "M", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$21.9876", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "07/22/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "6.1189", certificate: "No Certificate", active: true, lastSequence: "8901", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$134,560.00 CAD" },
+          { id: "TD-6666", productCode: "TD-6666", accountNumber: "2211009988", fullName: "TD-6666 2211009988 (LM) TD INCOME FUND SERIES A", productName: "TD INCOME FUND SERIES A", supplier: "TD", risk: "LM", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$14.3210", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "09/10/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.7145", certificate: "No Certificate", active: true, lastSequence: "9012", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$38,920.00 CAD" },
+          { id: "RBC-7777", productCode: "RBC-7777", accountNumber: "1100998877", fullName: "RBC-7777 1100998877 (M) RBC BALANCED GROWTH FUND SERIES A", productName: "RBC BALANCED GROWTH FUND SERIES A", supplier: "RBC", risk: "M", investmentObjective: "30% In, 70% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "1.2%", currentPrice: "$19.5432", priceDate: "04/29/2025", category: "Balanced", distributionOption: "Reinvest", startDate: "11/05/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.6789", certificate: "No Certificate", active: true, lastSequence: "0123", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$52,340.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRIF-0123", type: "RRIF", investments: ["AGF-5555"] },
+          plan2: { id: "TFSA-3456", type: "TFSA", investments: ["TD-6666"] },
+          plan3: { id: "NR-7890", type: "Non-Registered", investments: ["RBC-7777"] },
+        },
+      },
+      "CL022": {
+        plans: [
+          { id: "RRSP-2345", type: "RRSP", accountNumber: "RRSP-2345", name: "Andrew Clark", category: "Individual", marketValue: "$145,670.00" },
+          { id: "TFSA-6789", type: "TFSA", accountNumber: "TFSA-6789", name: "Andrew Clark", category: "Individual", marketValue: "$52,340.00" },
+        ],
+        fundAccounts: [
+          { id: "BMO-1111", productCode: "BMO-1111", accountNumber: "9988776655", fullName: "BMO-1111 9988776655 (H) BMO GLOBAL EQUITY FUND SERIES A", productName: "BMO GLOBAL EQUITY FUND SERIES A", supplier: "BMO", risk: "H", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.5%", felMaxRate: "0.0%", currentPrice: "$31.2345", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "03/10/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.6623", certificate: "No Certificate", active: true, lastSequence: "2345", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$145,670.00 CAD" },
+          { id: "CIBC-2222", productCode: "CIBC-2222", accountNumber: "8877665544", fullName: "CIBC-2222 8877665544 (M) CIBC CANADIAN EQUITY FUND SERIES A", productName: "CIBC CANADIAN EQUITY FUND SERIES A", supplier: "CIBC", risk: "M", investmentObjective: "100% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "1.5%", currentPrice: "$23.4567", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "08/20/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.2312", certificate: "No Certificate", active: true, lastSequence: "3456", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$52,340.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-2345", type: "RRSP", investments: ["BMO-1111"] },
+          plan2: { id: "TFSA-6789", type: "TFSA", investments: ["CIBC-2222"] },
+        },
+      },
+      "CL023": {
+        plans: [
+          { id: "RESP-3456", type: "RESP", accountNumber: "RESP-3456", name: "Isabella Lewis", category: "Family Plan", marketValue: "$78,920.00" },
+          { id: "TFSA-7890", type: "TFSA", accountNumber: "TFSA-7890", name: "Isabella Lewis", category: "Individual", marketValue: "$34,560.00" },
+        ],
+        fundAccounts: [
+          { id: "FID-3333", productCode: "FID-3333", accountNumber: "7766554433", fullName: "FID-3333 7766554433 (M) FIDELITY CANADIAN DIVIDEND FUND SERIES B", productName: "FIDELITY CANADIAN DIVIDEND FUND SERIES B", supplier: "FID", risk: "M", investmentObjective: "70% In, 30% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$18.7654", priceDate: "04/29/2025", category: "Canadian Dividend", distributionOption: "Reinvest", startDate: "05/15/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.2056", certificate: "No Certificate", active: true, lastSequence: "4567", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$78,920.00 CAD" },
+          { id: "SCOTIA-4444", productCode: "SCOTIA-4444", accountNumber: "6655443322", fullName: "SCOTIA-4444 6655443322 (LM) SCOTIA INCOME FUND SERIES A", productName: "SCOTIA INCOME FUND SERIES A", supplier: "SCOTIA", risk: "LM", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$12.5432", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "10/30/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.7543", certificate: "No Certificate", active: true, lastSequence: "5678", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$34,560.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RESP-3456", type: "RESP", investments: ["FID-3333"] },
+          plan2: { id: "TFSA-7890", type: "TFSA", investments: ["SCOTIA-4444"] },
+        },
+      },
+      "CL024": {
+        plans: [
+          { id: "RRSP-4567", type: "RRSP", accountNumber: "RRSP-4567", name: "Ryan Walker", category: "Individual", marketValue: "$167,890.00" },
+          { id: "RRIF-8901", type: "RRIF", accountNumber: "RRIF-8901", name: "Ryan Walker", category: "Individual", marketValue: "$98,340.00" },
+          { id: "NR-1234", type: "Non-Registered", accountNumber: "NR-1234", name: "Ryan Walker", category: "Individual", marketValue: "$45,670.00" },
+        ],
+        fundAccounts: [
+          { id: "MANULIFE-5555", productCode: "MANULIFE-5555", accountNumber: "5544332211", fullName: "MANULIFE-5555 5544332211 (H) MANULIFE GLOBAL TECHNOLOGY FUND SERIES A", productName: "MANULIFE GLOBAL TECHNOLOGY FUND SERIES A", supplier: "MANULIFE", risk: "H", investmentObjective: "100% Gr", rateType: "FEL", dscRate: "0.0%", felMaxRate: "2.5%", currentPrice: "$36.7890", priceDate: "04/29/2025", category: "Technology", distributionOption: "Reinvest", startDate: "01/25/2020", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.5623", certificate: "No Certificate", active: true, lastSequence: "6789", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$167,890.00 CAD" },
+          { id: "SUNLIFE-6666", productCode: "SUNLIFE-6666", accountNumber: "4433221100", fullName: "SUNLIFE-6666 4433221100 (M) SUN LIFE CANADIAN EQUITY FUND SERIES A", productName: "SUN LIFE CANADIAN EQUITY FUND SERIES A", supplier: "SUNLIFE", risk: "M", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$20.1234", priceDate: "04/29/2025", category: "Canadian Equity", distributionOption: "Reinvest", startDate: "06/18/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "4.8901", certificate: "No Certificate", active: true, lastSequence: "7890", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$98,340.00 CAD" },
+          { id: "IG-7777", productCode: "IG-7777", accountNumber: "3322110099", fullName: "IG-7777 3322110099 (LM) IG WEALTH BALANCED FUND SERIES A", productName: "IG WEALTH BALANCED FUND SERIES A", supplier: "IG", risk: "LM", investmentObjective: "50% In, 50% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$16.8901", priceDate: "04/29/2025", category: "Balanced", distributionOption: "Reinvest", startDate: "09/12/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "2.7012", certificate: "No Certificate", active: true, lastSequence: "8901", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$45,670.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "RRSP-4567", type: "RRSP", investments: ["MANULIFE-5555"] },
+          plan2: { id: "RRIF-8901", type: "RRIF", investments: ["SUNLIFE-6666"] },
+          plan3: { id: "NR-1234", type: "Non-Registered", investments: ["IG-7777"] },
+        },
+      },
+      "CL025": {
+        plans: [
+          { id: "TFSA-5678", type: "TFSA", accountNumber: "TFSA-5678", name: "Ava Hall", category: "Individual", marketValue: "$43,210.00" },
+          { id: "RRSP-9012", type: "RRSP", accountNumber: "RRSP-9012", name: "Ava Hall", category: "Individual", marketValue: "$112,560.00" },
+        ],
+        fundAccounts: [
+          { id: "MACKENZIE-8888", productCode: "MACKENZIE-8888", accountNumber: "2211009988", fullName: "MACKENZIE-8888 2211009988 (M) MACKENZIE GLOBAL EQUITY FUND SERIES A", productName: "MACKENZIE GLOBAL EQUITY FUND SERIES A", supplier: "MACKENZIE", risk: "M", investmentObjective: "100% Gr", rateType: "FE", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$25.4321", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "04/05/2022", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "1.7001", certificate: "No Certificate", active: true, lastSequence: "9012", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$43,210.00 CAD" },
+          { id: "AGF-9999", productCode: "AGF-9999", accountNumber: "1100998877", fullName: "AGF-9999 1100998877 (H) AGF GLOBAL GROWTH FUND SERIES F", productName: "AGF GLOBAL GROWTH FUND SERIES F", supplier: "AGF", risk: "H", investmentObjective: "100% Gr", rateType: "DSC", dscRate: "5.5%", felMaxRate: "0.0%", currentPrice: "$33.1098", priceDate: "04/29/2025", category: "Global Equity", distributionOption: "Reinvest", startDate: "02/14/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "3.4012", certificate: "No Certificate", active: true, lastSequence: "0123", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$112,560.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "TFSA-5678", type: "TFSA", investments: ["MACKENZIE-8888"] },
+          plan2: { id: "RRSP-9012", type: "RRSP", investments: ["AGF-9999"] },
+        },
+      },
+      "CL026": {
+        plans: [
+          { id: "LIF-6789", type: "LIF", accountNumber: "LIF-6789", name: "Nathan Young", category: "Individual", marketValue: "$134,560.00" },
+          { id: "OPEN-0123", type: "OPEN", accountNumber: "OPEN-0123", name: "Nathan Young", category: "Joint", marketValue: "$67,890.00" },
+        ],
+        fundAccounts: [
+          { id: "TD-0000", productCode: "TD-0000", accountNumber: "0099887766", fullName: "TD-0000 0099887766 (M) TD CANADIAN DIVIDEND FUND SERIES A", productName: "TD CANADIAN DIVIDEND FUND SERIES A", supplier: "TD", risk: "M", investmentObjective: "80% In, 20% Gr", rateType: "DSC", dscRate: "5.0%", felMaxRate: "0.0%", currentPrice: "$19.8765", priceDate: "04/29/2025", category: "Canadian Dividend", distributionOption: "Reinvest", startDate: "07/28/2021", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "6.7689", certificate: "No Certificate", active: true, lastSequence: "1234", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$134,560.00 CAD" },
+          { id: "RBC-1111", productCode: "RBC-1111", accountNumber: "9988776655", fullName: "RBC-1111 9988776655 (LM) RBC CONSERVATIVE INCOME FUND SERIES A", productName: "RBC CONSERVATIVE INCOME FUND SERIES A", supplier: "RBC", risk: "LM", investmentObjective: "100% In", rateType: "ISC", dscRate: "0.0%", felMaxRate: "0.0%", currentPrice: "$13.5432", priceDate: "04/29/2025", category: "Fixed Income", distributionOption: "Reinvest", startDate: "12/10/2023", endDate: "", totalSharesIssued: "0.0000", totalSharesUnissued: "5.0056", certificate: "No Certificate", active: true, lastSequence: "2345", effectiveDate: "04/25/2025", excludeFromDuplicate: false, marketValue: "$67,890.00 CAD" },
+        ],
+        summaryData: {
+          plan1: { id: "LIF-6789", type: "LIF", investments: ["TD-0000"] },
+          plan2: { id: "OPEN-0123", type: "OPEN", investments: ["RBC-1111"] },
+        },
+      },
+    };
+
+    // Return client-specific data or default
+    return clientDataMap[clientId] || getClientData(undefined);
+  };
+
+  const clientData = getClientData(id);
+  const plansList = clientData.plans;
+  const fundAccounts = clientData.fundAccounts;
+  
+  // Set default selected plan on mount or when client changes
+  useEffect(() => {
+    if (plansList.length > 0) {
+      // Reset selected plan when client changes
+      const firstPlanId = plansList[0].id;
+      if (selectedPlanForDetails !== firstPlanId) {
+        setSelectedPlanForDetails(firstPlanId);
+      }
+    }
+  }, [id]);
   
   // Get selected plan data for details
-  const selectedPlanData = plansList.find(p => p.id === selectedPlanForDetails) || plansList[0];
-  
-  // Fund account data
-  const fundAccounts = [
-    {
-      id: "CIG-7710",
-      productCode: "CIG-11112",
-      accountNumber: "5160230205",
-      fullName: "CIG-7710 5160230205 (LM) CI Portfolio Series Balanced Fund A ISC FEL CAD",
-      productName: "11112 CI Canadian Dividend Fund A ISC",
-      supplier: "CIG",
-      risk: "M",
-      investmentObjective: "25% In, 75% Gr",
-      rateType: "FEL",
-      dscRate: "0.0%",
-      felMaxRate: "5.0%",
-      currentPrice: "$31.7434",
-      priceDate: "04/29/2025",
-      category: "Canadian Dividend & Income Equity",
-      distributionOption: "Reinvest",
-      startDate: "11/01/2024",
-      endDate: "",
-      totalSharesIssued: "0.0000",
-      totalSharesUnissued: "4.6920",
-      certificate: "No Certificate",
-      active: true,
-      lastSequence: "3784",
-      effectiveDate: "04/25/2025",
-      excludeFromDuplicate: false,
-      marketValue: "$2,315.88 CAD",
-    },
-    {
-      id: "CIG-7715",
-      productCode: "CIG-11112",
-      accountNumber: "5525887488",
-      fullName: "CIG-7715 5525887488 (LM) CI Portfolio Series Balanced Fund A DSC DSC CAD",
-      productName: "11112 CI Canadian Dividend Fund A ISC",
-      supplier: "CIG",
-      risk: "M",
-      investmentObjective: "25% In, 75% Gr",
-      rateType: "DSC",
-      dscRate: "5.0%",
-      felMaxRate: "0.0%",
-      currentPrice: "$31.7434",
-      priceDate: "04/29/2025",
-      category: "Canadian Dividend & Income Equity",
-      distributionOption: "Reinvest",
-      startDate: "11/01/2024",
-      endDate: "",
-      totalSharesIssued: "0.0000",
-      totalSharesUnissued: "4.6920",
-      certificate: "No Certificate",
-      active: true,
-      lastSequence: "3784",
-      effectiveDate: "04/25/2025",
-      excludeFromDuplicate: false,
-      marketValue: "$13,989.32 CAD",
-    },
-  ];
+  const selectedPlanData = plansList.find(p => p.id === selectedPlanForDetails) || (plansList.length > 0 ? plansList[0] : null);
   
   // Get selected fund account data
   const selectedFundAccountData = fundAccounts.find(f => f.id === selectedFundAccount) || null;
+  
+  // Helper function to get fund account details by ID
+  const getFundAccountById = (fundId: string) => {
+    return fundAccounts.find(f => f.id === fundId);
+  };
+  
+  // Helper function to calculate total market value for a plan
+  const getPlanTotalValue = (planInvestments: string[]) => {
+    return planInvestments.reduce((total, fundId) => {
+      const fund = getFundAccountById(fundId);
+      if (fund && fund.marketValue) {
+        const value = parseFloat(fund.marketValue.replace(/[^0-9.]/g, ''));
+        return total + value;
+      }
+      return total;
+    }, 0);
+  };
   
   // Transaction data for selected fund account
   const transactions = selectedFundAccount ? [
@@ -652,13 +958,13 @@ const ClientDetails = () => {
             {/* Information Cards */}
         <div className="grid grid-cols-6 gap-4">
           {/* Residential Address Card */}
-          <Card className="border border-gray-200 shadow-sm bg-white group">
+          <Card className="border border-gray-200 shadow-sm bg-white">
             <CardHeader className="pb-3 relative">
               <CardTitle className="text-sm font-semibold text-gray-900">Residential Address</CardTitle>
               {clientDetails.mailingAddress && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="absolute top-3 right-3 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-help text-xs font-semibold">*</span>
+                    <span className="absolute top-3 right-3 text-blue-600 cursor-help text-sm font-bold">*</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <div className="space-y-1">
@@ -691,11 +997,51 @@ const ClientDetails = () => {
 
           {/* Client and Plan Exceptions Card */}
           <Card className="border border-gray-200 shadow-sm bg-white">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold text-gray-900">Client and Plan Exceptions</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm text-gray-500">No exceptions</p>
+            <CardContent className="pt-0 pb-3">
+              <div className="space-y-2.5">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <div className="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                        <div className="h-full bg-red-500 rounded" style={{ width: '50%' }}></div>
+                      </div>
+                      <span className="text-xs text-gray-700 min-w-[100px]">Expired KYC's</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>5 Expired KYC's</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <div className="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                        <div className="h-full bg-orange-500 rounded" style={{ width: '30%' }}></div>
+                      </div>
+                      <span className="text-xs text-gray-700 min-w-[100px]">NIGO's</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>3 NIGO's</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <div className="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                        <div className="h-full bg-yellow-500 rounded" style={{ width: '20%' }}></div>
+                      </div>
+                      <span className="text-xs text-gray-700 min-w-[100px]">Missing KYP's</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>2 Missing KYP's</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </CardContent>
           </Card>
 
@@ -705,33 +1051,28 @@ const ClientDetails = () => {
               <CardTitle className="text-sm font-semibold text-gray-900">Client Profiler</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-3">
-              {/* Retention Score */}
               <div>
-                <div className="text-xs text-gray-600 mb-1">Retention Score</div>
-                <div className="text-sm font-semibold text-green-600 mb-1">36.37</div>
-                <div className="h-1 rounded-full bg-gray-100">
-                  <div className="h-full rounded-full bg-green-500" style={{ width: '86.37%' }}></div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-gray-700">Retention Score</span>
+                  <span className="text-xs font-semibold text-gray-900">36.37</span>
+                </div>
+                <div className="h-1 bg-gray-100 rounded overflow-hidden">
+                  <div className="h-full bg-green-500 rounded" style={{ width: '86.37%' }}></div>
                 </div>
               </div>
-
-              {/* Engagement Score */}
               <div>
-                <div className="text-xs text-gray-600 mb-1">Engagement Score</div>
-                <div className="text-sm font-semibold text-gray-900 mb-1">N/A</div>
-                <div className="h-1 rounded-full bg-gray-200"></div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-gray-700">Engagement Score</span>
+                  <span className="text-xs font-semibold text-gray-900">N/A</span>
+                </div>
+                <div className="h-1 bg-red-500 rounded"></div>
               </div>
-
-              {/* Estimated Share of Wallet */}
-              <div className="pt-1.5 border-t border-gray-100">
-                <div className="flex items-center justify-center gap-0.5 mb-1">
-                  <span className="text-[9px] font-semibold text-blue-600">Estimated Share of Wallet</span>
-                  <Info className="h-2 w-2 text-blue-400" />
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-gray-700">Share of Wallet</span>
+                  <span className="text-xs font-semibold text-gray-900">100%</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-sm font-bold text-blue-600 mb-0.5">100%</div>
-                  <div className="text-[9px] text-gray-900 mb-0.5">Investable Assets</div>
-                  <div className="text-[9px] text-gray-600">Average E1 has 56.164% with us</div>
-                </div>
+                <div className="h-1 bg-blue-500 rounded"></div>
               </div>
             </CardContent>
           </Card>
@@ -780,222 +1121,155 @@ const ClientDetails = () => {
               </TabsList>
 
               <TabsContent value="investments" className="space-y-2 mt-2">
-                {/* Joint Investment Account Section */}
-                <div className="border border-gray-300 rounded">
-                  <div className="bg-white text-gray-900 px-3 py-1.5 flex items-center justify-between border-b border-gray-200">
-                    <div className="flex items-center gap-1.5 flex-1">
-                      <Folder className="h-3 w-3" />
-                      <div className="flex-1">
-                        <p className="text-xs">
-                          <span className="underline cursor-pointer">340009</span> (OPEN Broker/Nominee, Joint) NOM 340009 - 9823-2232 <span className="underline cursor-pointer">Marsh, Antoine</span>
-                        </p>
-                        <div className="mt-0.5 px-1.5 py-0.5">
-                          <p className="text-[10px] text-gray-700">Joint with <span className="underline cursor-pointer">Armstrong, Oliver</span> (Primary)</p>
+                {Object.values(clientData.summaryData).map((planData: any, planIndex: number) => {
+                  const plan = plansList.find(p => p.id === planData.id);
+                  if (!plan) return null;
+                  
+                  const planInvestments = planData.investments || [];
+                  const planTotal = getPlanTotalValue(planInvestments);
+                  const accountKey = `account${planIndex + 1}`;
+                  const isCollapsed = collapsedAccounts.has(accountKey);
+                  
+                  // Determine plan category display text
+                  const getPlanCategoryText = () => {
+                    if (plan.category === "Joint") {
+                      return `(${plan.type} Broker/Nominee, Joint) NOM ${plan.accountNumber} - 9823-2232`;
+                    }
+                    return `(${plan.type} ${plan.name || "Client Name"}, ${plan.category}) - 9823-2232`;
+                  };
+                  
+                  return (
+                    <div key={plan.id} className="border border-gray-300 rounded">
+                      <div className="bg-white text-gray-900 px-3 py-1.5 flex items-center justify-between border-b border-gray-200">
+                        <div className="flex items-center gap-1.5 flex-1">
+                          <Folder className="h-3 w-3" />
+                          <div className="flex-1">
+                            <p className="text-xs">
+                              <span 
+                                className="underline cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setClientViewTab("portfolio");
+                                  setSelectedPlanForDetails(plan.id);
+                                  setSelectedFundAccount(null);
+                                  setSelectedTransaction(null);
+                                }}
+                              >{plan.accountNumber}</span> {getPlanCategoryText()} <span className="underline cursor-pointer">Marsh, Antoine</span>
+                            </p>
+                            {plan.category === "Joint" && (
+                              <div className="mt-0.5 px-1.5 py-0.5">
+                                <p className="text-[10px] text-gray-700">Joint with <span className="underline cursor-pointer">Armstrong, Oliver</span> (Primary)</p>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <BarChart3 className="h-3 w-3 cursor-pointer text-gray-700" />
-                      <div className="bg-green-600 p-0.5 rounded">
-                        <DollarSign className="h-3 w-3 text-white" />
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0 text-gray-700 hover:bg-gray-100"
-                        onClick={() => {
-                          const newCollapsed = new Set(collapsedAccounts);
-                          if (newCollapsed.has("account1")) {
-                            newCollapsed.delete("account1");
-                          } else {
-                            newCollapsed.add("account1");
-                          }
-                          setCollapsedAccounts(newCollapsed);
-                        }}
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  {!collapsedAccounts.has("account1") && (
-                    <div className="p-2">
-                      {/* Investment Details Table */}
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-gray-100">
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Supplier</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Account</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Product</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Risk</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Objective</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Market value</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          <TableRow 
-                            className="cursor-pointer hover:bg-gray-50"
-                            onClick={() => setClientViewTab("portfolio")}
+                        <div className="flex items-center gap-1.5">
+                          <BarChart3 className="h-3 w-3 cursor-pointer text-gray-700" />
+                          <div className="bg-green-600 p-0.5 rounded">
+                            <DollarSign className="h-3 w-3 text-white" />
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 text-gray-700 hover:bg-gray-100"
+                            onClick={() => {
+                              const newCollapsed = new Set(collapsedAccounts);
+                              if (newCollapsed.has(accountKey)) {
+                                newCollapsed.delete(accountKey);
+                              } else {
+                                newCollapsed.add(accountKey);
+                              }
+                              setCollapsedAccounts(newCollapsed);
+                            }}
                           >
-                            <TableCell className="text-xs py-1.5 px-2">
-                              <span className="font-bold text-blue-600 underline cursor-pointer">AGF-185</span>
-                            </TableCell>
-                            <TableCell className="text-xs py-1.5 px-2"></TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">AGF CANADIAN DIVIDEND INCOME FUND SERIES F</TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">M</TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">
-                              <div className="flex flex-col gap-0.5">
-                                <span>100% Gr</span>
-                                <div className="flex items-center gap-0.5">
-                                  <FileText className="h-2.5 w-2.5 text-blue-600" />
-                                  <Folder className="h-2.5 w-2.5 text-red-600" />
-                                  <Lightbulb className="h-2.5 w-2.5 text-yellow-600" />
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-xs font-semibold py-1.5 px-2">$0.00</TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                      {/* Settled Trust Account Balance */}
-                      <div className="bg-blue-50 mt-2 p-2 rounded">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs text-gray-700">Settled Trust Account Balance CAD</span>
-                          <span className="text-xs font-semibold">$0.00</span>
-                        </div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs text-gray-700">Settled Trust Account Balance USD</span>
-                          <span className="text-xs font-semibold">$0.00</span>
-                        </div>
-                        <div className="flex justify-between items-center pt-1 border-t border-blue-200">
-                          <span className="text-xs font-semibold text-gray-900">Total in CAD</span>
-                          <span className="text-xs font-bold">$0.00</span>
+                            <Minus className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* RRIF Client Account Section */}
-                <div className="border border-gray-300 rounded">
-                  <div className="bg-white text-gray-900 px-3 py-1.5 flex items-center justify-between border-b border-gray-200">
-                    <div className="flex items-center gap-1.5 flex-1">
-                      <Folder className="h-3 w-3" />
-                      <p className="text-xs">
-                        <span className="underline cursor-pointer">0137617685</span> (RRIF Client Name, Individual) - 9823-2232 <span className="underline cursor-pointer">Marsh, Antoine</span>
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <BarChart3 className="h-3 w-3 cursor-pointer text-gray-700" />
-                      <div className="bg-green-600 p-0.5 rounded">
-                        <DollarSign className="h-3 w-3 text-white" />
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0 text-gray-700 hover:bg-gray-100"
-                        onClick={() => {
-                          const newCollapsed = new Set(collapsedAccounts);
-                          if (newCollapsed.has("account2")) {
-                            newCollapsed.delete("account2");
-                          } else {
-                            newCollapsed.add("account2");
-                          }
-                          setCollapsedAccounts(newCollapsed);
-                        }}
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  {!collapsedAccounts.has("account2") && (
-                    <div className="p-2">
-                      {/* Investment Details Table */}
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-gray-100">
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Supplier</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Account</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Product</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Risk</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Objective</TableHead>
-                            <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Market value</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          <TableRow 
-                            className="bg-blue-50 cursor-pointer hover:bg-blue-100"
-                            onClick={() => setClientViewTab("portfolio")}
-                          >
-                            <TableCell className="text-xs py-1.5 px-2">
-                              <span className="font-bold text-blue-600 underline cursor-pointer">MFC-724</span>
-                            </TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">4132056511</TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">MACKENZIE BLUEWATER CANADIAN GROWTH BALANCED FUND A FE</TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">LM</TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">
-                              <div className="flex flex-col gap-0.5">
-                                <span>25% In, 75% Gr</span>
-                                <div className="flex items-center gap-0.5">
-                                  <FileText className="h-2.5 w-2.5 text-blue-600" />
-                                  <Folder className="h-2.5 w-2.5 text-red-600" />
-                                  <Lightbulb className="h-2.5 w-2.5 text-yellow-600" />
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-xs font-semibold py-1.5 px-2">
-                              <div className="flex flex-col gap-0.5">
-                                <span>$13,792.63</span>
-                                <TrendingUp className="h-2.5 w-2.5 text-gray-600" />
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                          <TableRow 
-                            className="cursor-pointer hover:bg-gray-50"
-                            onClick={() => setClientViewTab("portfolio")}
-                          >
-                            <TableCell className="text-xs py-1.5 px-2">
-                              <span className="font-bold text-blue-600 underline cursor-pointer">MFC-2238</span>
-                            </TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">1134475341</TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">MACKENZIE STRATEGIC INCOME FUND A FE</TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">LM</TableCell>
-                            <TableCell className="text-xs py-1.5 px-2">
-                              <div className="flex flex-col gap-0.5">
-                                <span>50% In, 50% Gr</span>
-                                <div className="flex items-center gap-0.5">
-                                  <FileText className="h-2.5 w-2.5 text-blue-600" />
-                                  <Folder className="h-2.5 w-2.5 text-red-600" />
-                                  <Lightbulb className="h-2.5 w-2.5 text-yellow-600" />
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-xs font-semibold py-1.5 px-2">
-                              <div className="flex flex-col gap-0.5">
-                                <span>$9,718.53</span>
-                                <TrendingUp className="h-2.5 w-2.5 text-gray-600" />
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                      {/* Settled Trust Account Balance */}
-                      <div className="bg-blue-50 mt-2 p-2 rounded">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs text-gray-700">Settled Trust Account Balance CAD</span>
-                          <span className="text-xs font-semibold">$0.00</span>
+                      {!isCollapsed && (
+                        <div className="p-2">
+                          {/* Investment Details Table */}
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-gray-100">
+                                <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Supplier</TableHead>
+                                <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Account</TableHead>
+                                <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Product</TableHead>
+                                <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Risk</TableHead>
+                                <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Objective</TableHead>
+                                <TableHead className="text-[10px] font-semibold text-gray-700 py-1.5 px-2">Market value</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {planInvestments.map((fundId: string, fundIndex: number) => {
+                                const fund = getFundAccountById(fundId);
+                                if (!fund) return null;
+                                
+                                const marketValueNum = parseFloat(fund.marketValue.replace(/[^0-9.]/g, ''));
+                                const marketValueFormatted = marketValueNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                
+                                return (
+                                  <TableRow 
+                                    key={fundId}
+                                    className={fundIndex === 0 ? "bg-blue-50 cursor-pointer hover:bg-blue-100" : "cursor-pointer hover:bg-gray-50"}
+                                    onClick={() => {
+                                      setClientViewTab("portfolio");
+                                      setSelectedPlanForDetails(plan.id);
+                                      setSelectedFundAccount(fundId);
+                                      setSelectedTransaction(null);
+                                    }}
+                                  >
+                                    <TableCell className="text-xs py-1.5 px-2">
+                                      <span className="font-bold text-blue-600 underline cursor-pointer">{fund.id}</span>
+                                    </TableCell>
+                                    <TableCell className="text-xs py-1.5 px-2">{fund.accountNumber || ""}</TableCell>
+                                    <TableCell className="text-xs py-1.5 px-2">{fund.productName}</TableCell>
+                                    <TableCell className="text-xs py-1.5 px-2">{fund.risk}</TableCell>
+                                    <TableCell className="text-xs py-1.5 px-2">
+                                      <div className="flex flex-col gap-0.5">
+                                        <span>{fund.investmentObjective}</span>
+                                        <div className="flex items-center gap-0.5">
+                                          <FileText className="h-2.5 w-2.5 text-blue-600" />
+                                          <Folder className="h-2.5 w-2.5 text-red-600" />
+                                          <Lightbulb className="h-2.5 w-2.5 text-yellow-600" />
+                                        </div>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="text-xs font-semibold py-1.5 px-2">
+                                      {marketValueNum > 0 ? (
+                                        <div className="flex flex-col gap-0.5">
+                                          <span>${marketValueFormatted}</span>
+                                          <TrendingUp className="h-2.5 w-2.5 text-gray-600" />
+                                        </div>
+                                      ) : (
+                                        "$0.00"
+                                      )}
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                          {/* Settled Trust Account Balance */}
+                          <div className="bg-blue-50 mt-2 p-2 rounded">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-xs text-gray-700">Settled Trust Account Balance CAD</span>
+                              <span className="text-xs font-semibold">$0.00</span>
+                            </div>
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-xs text-gray-700">Settled Trust Account Balance USD</span>
+                              <span className="text-xs font-semibold">$0.00</span>
+                            </div>
+                            <div className="flex justify-between items-center pt-1 border-t border-blue-200">
+                              <span className="text-xs font-semibold text-gray-900">Total in CAD</span>
+                              <span className="text-xs font-bold">${planTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs text-gray-700">Settled Trust Account Balance USD</span>
-                          <span className="text-xs font-semibold">$0.00</span>
-                        </div>
-                        <div className="flex justify-between items-center pt-1 border-t border-blue-200">
-                          <span className="text-xs font-semibold text-gray-900">Total in CAD</span>
-                          <span className="text-xs font-bold">$23,511.16</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  );
+                })}
               </TabsContent>
 
               <TabsContent value="cash">
